@@ -10,9 +10,13 @@ Built with [Go](https://go.dev/), [Gin](https://github.com/gin-gonic/gin), [SQLi
 To run `simple-sync` using Docker Compose, follow these steps:
 
 1.  Download the [`docker-compose.yml`](docker-compose.yml) file from the repository.
-2.  Replace `your-docker-image-here` with the actual Docker image for `simple-sync` in the `docker-compose.yml` file.
-3.  Replace `your-jwt-secret` with a strong, randomly generated secret key in the `docker-compose.yml` file. This secret is used to sign the JWTs.
-4.  Run `docker-compose up -d` to start the service in detached mode.
+1.  Create a `.env` file with the following content:
+    ```
+    JWT_SECRET=your_generated_jwt_secret
+    ```
+1.  Replace `your_generated_jwt_secret` with a securely generated random string. You can generate one using `openssl rand -base64 32`.
+1.  Add your frontend to `docker-compose.yml` (for example, [Home-Chores](https://github.com/el-apps/Home-Chores)).
+1.  Run `docker-compose up -d` to start the service in detached mode.
 
 ## Events
 
@@ -48,3 +52,8 @@ The syncing process ensures that all clients have the latest version of the even
 7.  **Client Update:** The client replaces its local copy of the authoritative history with the new version received from the server and clears its local diff history.
 
 This process ensures that all clients eventually converge on the same state, while also allowing for offline work and local data access.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+

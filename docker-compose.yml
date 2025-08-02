@@ -1,7 +1,10 @@
 services:
-  simple-sync:
-    image: your-docker-image-here  # Replace with your actual Docker image
-    ports:
-      - "8080:8080"
-    environment:
-      JWT_SECRET: your-jwt-secret  # Replace with a strong, random secret
+    backend:
+      image: ghcr.io/kwila-cloud/simple-sync:latest
+      ports:
+        - "8080:8080"
+      volumes:
+        - data:./data
+      environment:
+        - JWT_SECRET=${JWT_SECRET}
+      restart: unless-stopped
