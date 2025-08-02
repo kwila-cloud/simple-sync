@@ -1,0 +1,233 @@
+# simple-sync API Specification
+
+This document describes the API endpoints for the `simple-sync` system.
+
+## Authentication
+
+All endpoints (except `/auth/token`) require authentication. The authentication mechanism is TBD, but it will likely involve an API token passed in the `Authorization` header.
+
+## Events
+
+### `GET /events`
+
+*   **Purpose:** Retrieve the authoritative event history.
+*   **Method:** GET
+*   **Request:**
+    *   (Optional) Query parameter `fromTimestamp`:  If provided, only events with a timestamp greater than or equal to this value will be returned.
+*   **Response:**
+    *   Success (200 OK): A JSON array of event objects.
+    *   Unauthorized (401 Unauthorized):  If the user is not authenticated.
+*   **Example Request:**
+
+    ```
+    GET /events?fromTimestamp=1678886400
+    Authorization: Bearer <API_TOKEN>
+    ```
+
+*   **Example Response:**
+
+    ```json
+    [
+        {
+            "uuid": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+            "timestamp": 1678886400,
+            "userUuid": "user123",
+            "itemUuid": "item456",
+            "action": "create",
+            "payload": "{}"
+        },
+        {
+            "uuid": "b2c3d4e5-f6a7-8901-2345-67890abcdef0",
+            "timestamp": 1678886401,
+            "userUuid": "user123",
+            "itemUuid": "item456",
+            "action": "update",
+            "payload": "{\"name\": \"New Name\"}"
+        }
+    ]
+    ```
+
+### `POST /events`
+
+*   **Purpose:** Push the client's diff history to the server.
+*   **Method:** POST
+*   **Request:**
+    *   A JSON array of event objects representing the diff history.
+*   **Response:**
+    *   Success (200 OK): A JSON array of event objects representing the *new* authoritative event history (after the diff has been applied).
+    *   Unauthorized (401 Unauthorized): If the user is not authenticated.
+*   **Example Request:**
+
+    ```
+    POST /events
+    Authorization: Bearer <API_TOKEN>
+    Content-Type: application/json
+
+    [
+        {
+            "uuid": "c3d4e5f6-a7b8-9012-3456-7890abcdef01",
+            "timestamp": 1678886402,
+            "userUuid": "user123",
+            "itemUuid": "item789",
+            "action": "create",
+            "payload": "{}"
+        }
+    ]
+    ```
+
+*   **Example Response:**
+
+    ```json
+    [
+        {
+            "uuid": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+            "timestamp": 1678886400,
+            "userUuid": "user123",
+            "itemUuid": "item456",
+            "action": "create",
+            "payload": "{}"
+        },
+        {
+            "uuid": "b2c3d4e5-f6a7-8901-2345-67890abcdef0",
+            "timestamp": 1678886401,
+            "userUuid": "user123",
+            "itemUuid": "item456",
+            "action": "update",
+            "payload": "{\"name\": \"New Name\"}"
+        },
+        {
+            "uuid": "c3d4e5f6-a7b8-9012-3456-7890abcdef01",
+            "timestamp": 1678886402,
+            "userUuid": "user123",
+            "itemUuid": "item789",
+            "action": "create",
+            "payload": "{}"
+        }
+    ]
+    ```
+
+## ACL
+
+### `GET /acl`
+
+*   **Purpose:** Retrieve the current ACL.
+*   **Method:** GET
+*   **Request:** None
+*   **Response:**
+    *   Success (200 OK): A JSON representation of the ACL.
+    *   Unauthorized (401 Unauthorized): If the user is not authenticated or does not have permission to view the ACL.
+*   **Example Request:**
+
+    ```
+    GET /acl
+    Authorization: Bearer <API_TOKEN>
+    ```
+
+*   **Example Response:**
+
+    ```json
+    {
+      "rules": [
+        {
+          "user": "*",
+          "item": "item123",
+          "action": "view",
+          "allow": true
+        },
+        {
+          "user": "user456",
+          "item": "*",
+          "action": "edit",
+          "allow": true
+        },
+        {
+          "user": "*",
+          "item": "*",
+          "action": "*",
+          "allow": false
+        }
+      ]
+    }
+    ```
+
+### `PUT /acl`
+
+*   **Purpose:** Update the ACL.
+*   **Method:** PUT
+*   **Request:**
+    *   A JSON representation of the new ACL.
+*   **Response:**
+    *   Success (204 No Content): If the update was successful.
+    *   Unauthorized (401 Unauthorized): If the user is not authenticated or does not have permission to modify the ACL.
+    *   Bad Request (400 Bad Request): If the provided ACL is invalid.
+*   **Example Request:**
+
+    ```
+    PUT /acl
+    Authorization: Bearer <API_TOKEN>
+    Content-Type: application/json
+
+    {
+      "rules": [
+        {
+          "user": "*",
+          "item": "item123",
+          "action": "view",
+          "allow": true
+        },
+        {
+          "user": "user456",
+          "item": "*",
+          "action": "edit",
+          "allow": true
+        },
+        {
+          "user": "*",
+          "item": "*",
+          "action": "*",
+          "allow": false
+        }
+      ]
+    }
+    ```
+
+*   **Example Response:**
+
+    ```
+    204 No Content
+    ```
+
+### ACL Access Control
+
+Access to the `/acl` endpoint is restricted to administrators. Initially, administrators will be defined via a simple static configuration (e.g., a list of authorized user UUIDs in the server's configuration file).  Future versions may implement a more sophisticated ACL-based access control mechanism for the ACL itself.
+
+## Authentication
+
+### `POST /auth/token`
+
+*   **Purpose:** Obtain an authentication token.
+*   **Method:** POST
+*   **Request:**
+    *   A JSON object containing user credentials (e.g., username and password). The specific format will depend on the chosen authentication method.
+*   **Response:**
+    *   Success (200 OK): A JSON object containing the authentication token.
+    *   Unauthorized (401 Unauthorized): If the credentials are invalid.
+*   **Example Request:**
+
+    ```
+    POST /auth/token
+    Content-Type: application/json
+
+    {
+        "username": "testuser",
+        "password": "testpassword"
+    }
+    ```
+
+*   **Example Response:**
+
+    ```json
+    {
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+    }
+    ```
