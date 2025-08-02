@@ -42,3 +42,7 @@ The access control list defines the relationships between users, items, and acti
 ## API
 
 See the [API Specification](docs/api.md) for details on the API endpoints.
+
+## Tech Stack
+
+See the [Tech Stack](docs/tech-stack.md) document for details on the technologies used in this project and the rationale behind those choices.
