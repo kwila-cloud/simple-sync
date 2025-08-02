@@ -5,6 +5,27 @@ Built with [Go](https://go.dev/), [Gin](https://github.com/gin-gonic/gin), [SQLi
 
 **NOTE** - This project is in the alpha stage. Many of the things documented here and elsewhere in this repo do not actually exist yet.
 
+## Quick Start
+
+To run `simple-sync` using Docker Compose, follow these steps:
+
+1.  Create a `docker-compose.yml` file with the following content:
+
+    ```yaml
+    version: "3.8"
+    services:
+      simple-sync:
+        image: your-docker-image-here  # Replace with your actual Docker image
+        ports:
+          - "8080:8080"
+        environment:
+          JWT_SECRET: your-jwt-secret  # Replace with a strong, random secret
+    ```
+
+2.  Replace `your-docker-image-here` with the actual Docker image for `simple-sync`.
+3.  Replace `your-jwt-secret` with a strong, randomly generated secret key. This secret is used to sign the JWTs.
+4.  Run `docker-compose up -d` to start the service in detached mode.
+
 ## Events
 
 Data is represented as a sequence of events.
