@@ -199,7 +199,7 @@ All endpoints (except `/auth/token`) require authentication. The authentication 
 
 ### ACL Access Control
 
-Access to the `/acl` endpoint is restricted to administrators. Administrators are defined via a list of usernames in the server's configuration (TOML) file.
+Access to the `/acl` endpoint is restricted to administrators. Administrators are defined via a list of usernames in the server's configuration (TOML) file. See [ACL Documentation](docs/acl.md) for more details on the ACL structure and syntax.
 
 ## Authentication
 

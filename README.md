@@ -37,17 +37,10 @@ All data querying is handled locally. This means that `simple-sync` is inappropr
 
 ## ACL
 
-The access control list defines the relationships between users, items, and actions.
-
-All users can view all items. This means that `simple-sync` is **only** appropriate for situations where **all** users of the system can be trusted to view **all** data in the system.
-
-By default, a user can not apply any action to any item.
-
-The ACL defines which actions a user can apply to which items.
-
-See the [API Specification](docs/api.md) for details on the API endpoints, including how to retrieve and update the ACL.
+The access control list defines the relationships between users, items, and actions. See [ACL Documentation](docs/acl.md) for more details.
 
 ## To Do
 
-*   [ ] Determine syntax for the ACL. Include wildcard support (inspired by file globbing).
 *   [ ] Determine how authentication will be handled. Each user will need a way to authenticate their events. There also must be a way to control who can read and write the ACL.
+
+See the [API Specification](docs/api.md) for details on the API endpoints.
