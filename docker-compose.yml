@@ -1,0 +1,7 @@
+services:
+  simple-sync:
+    image: your-docker-image-here  # Replace with your actual Docker image
+    ports:
+      - "8080:8080"
+    environment:
+      JWT_SECRET: your-jwt-secret  # Replace with a strong, random secret
