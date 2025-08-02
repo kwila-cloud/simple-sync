@@ -4,7 +4,7 @@ This document describes the API endpoints for the `simple-sync` system.
 
 ## Authentication
 
-All endpoints (except `/auth/token`) require authentication. The authentication mechanism for regular user endpoints is TBD, but it will likely involve an API token passed in the `Authorization` header.
+All endpoints (except `/auth/token`) require authentication. The authentication mechanism involves an API token passed in the `Authorization` header.
 
 ## Events
 
@@ -199,7 +199,7 @@ All endpoints (except `/auth/token`) require authentication. The authentication 
 
 ### ACL Access Control
 
-Access to the `/acl` endpoint is restricted to administrators. Initially, administrators will be defined via a simple static configuration (e.g., a list of authorized user UUIDs in the server's configuration file).  Future versions may implement a more sophisticated ACL-based access control mechanism for the ACL itself.
+Access to the `/acl` endpoint is restricted to administrators. Administrators are defined via a list of usernames in the server's configuration (TOML) file.
 
 ## Authentication
 
@@ -234,7 +234,7 @@ Access to the `/acl` endpoint is restricted to administrators. Initially, admini
 
 ## Admin API
 
-The following endpoints are part of the Admin API and are used for managing users.  These endpoints require a separate authentication mechanism (TBD) with elevated privileges.  Access to these endpoints will be restricted to administrators defined via static configuration.
+The following endpoints are part of the Admin API and are used for managing users. These endpoints use the same authentication mechanism as the regular user API. Access to these endpoints is restricted to administrators defined via a list of usernames in the server's configuration (TOML) file.
 
 ### `POST /admin/users`
 
@@ -250,7 +250,7 @@ The following endpoints are part of the Admin API and are used for managing user
 
     ```
     POST /admin/users
-    Authorization: Bearer <ADMIN_API_TOKEN>
+    Authorization: Bearer <API_TOKEN>
     Content-Type: application/json
 
     {
@@ -284,7 +284,7 @@ The following endpoints are part of the Admin API and are used for managing user
 
     ```
     PUT /admin/users/newuser123/password
-    Authorization: Bearer <ADMIN_API_TOKEN>
+    Authorization: Bearer <API_TOKEN>
     Content-Type: application/json
 
     {
@@ -314,7 +314,7 @@ The following endpoints are part of the Admin API and are used for managing user
 
     ```
     PUT /admin/users/newuser123/username
-    Authorization: Bearer <ADMIN_API_TOKEN>
+    Authorization: Bearer <API_TOKEN>
     Content-Type: application/json
 
     {
@@ -330,4 +330,4 @@ The following endpoints are part of the Admin API and are used for managing user
 
 ### Admin Authentication
 
-The Admin API uses a separate authentication mechanism from the regular user API. The details of this mechanism are TBD, but it will likely involve a separate API token or a more secure authentication protocol. Access to the Admin API is restricted to administrators, who are initially defined via static configuration (e.g., a list of authorized user UUIDs in the server's configuration file).
+The Admin API uses the same authentication mechanism as the regular user API. Access to the Admin API is restricted to administrators, who are defined via a list of usernames in the server's configuration (TOML) file.
