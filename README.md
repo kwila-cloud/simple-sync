@@ -1,5 +1,5 @@
 # simple-sync
-A simple sync system for local-first apps. Built with Go, Gin, SQLite, JWT, and TOML.
+A simple sync system for local-first apps. [Built with](docs/tech-stack.md) [Go](https://go.dev/), [Gin](https://github.com/gin-gonic/gin), [SQLite](https://www.sqlite.org/index.html), [JWT](https://jwt.io/), and [TOML](https://toml.io/en/).
 
 ## Events
 
