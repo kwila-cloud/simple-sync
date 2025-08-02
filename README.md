@@ -45,8 +45,9 @@ By default, a user can not apply any action to any item.
 
 The ACL defines which actions a user can apply to which items.
 
+See the [API Specification](docs/api.md) for details on the API endpoints, including how to retrieve and update the ACL.
+
 ## To Do
 
 *   [ ] Determine syntax for the ACL. Include wildcard support (inspired by file globbing).
-*   [ ] Determine endpoints for the REST API. Keep things as simple as possible.
 *   [ ] Determine how authentication will be handled. Each user will need a way to authenticate their events. There also must be a way to control who can read and write the ACL.
