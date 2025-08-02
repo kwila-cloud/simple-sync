@@ -269,56 +269,28 @@ The following endpoints are part of the Admin API and are used for managing user
     }
     ```
 
-### `PUT /admin/users/{uuid}/password`
+### `PUT /admin/users/{uuid}`
 
-*   **Purpose:** Update a user's password.
+*   **Purpose:** Update a user's username and/or password.
 *   **Method:** PUT
 *   **Request:**
     *   The user's UUID in the URL path.
-    *   A JSON object containing the `new_password`.
+    *   A JSON object containing the fields to update: `new_username` and/or `new_password`.
 *   **Response:**
-    *   Success (204 No Content): If the password was updated successfully.
+    *   Success (204 No Content): If the user was updated successfully.
     *   Not Found (404 Not Found): If the user with the specified UUID does not exist.
     *   Unauthorized (401 Unauthorized): If the user is not authenticated or does not have administrator privileges.
+    *   Bad Request (400 Bad Request): If the new username already exists or the request is invalid.
 *   **Example Request:**
 
     ```
-    PUT /admin/users/newuser123/password
+    PUT /admin/users/newuser123
     Authorization: Bearer <API_TOKEN>
     Content-Type: application/json
 
     {
+        "new_username": "newusername",
         "new_password": "evenstrongerpassword"
-    }
-    ```
-
-*   **Example Response:**
-
-    ```
-    204 No Content
-    ```
-
-### `PUT /admin/users/{uuid}/username`
-
-*   **Purpose:** Update a user's username.
-*   **Method:** PUT
-*   **Request:**
-    *   The user's UUID in the URL path.
-    *   A JSON object containing the `new_username`.
-*   **Response:**
-    *   Success (204 No Content): If the username was updated successfully.
-    *   Not Found (404 Not Found): If the user with the specified UUID does not exist.
-    *   Unauthorized (401 Unauthorized): If the user is not authenticated or does not have administrator privileges.
-    *   Bad Request (400 Bad Request): If the new username already exists.
-*   **Example Request:**
-
-    ```
-    PUT /admin/users/newuser123/username
-    Authorization: Bearer <API_TOKEN>
-    Content-Type: application/json
-
-    {
-        "new_username": "newusername"
     }
     ```
 
