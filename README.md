@@ -16,7 +16,7 @@ To run `simple-sync` using Docker Compose, follow these steps:
     ```
 1.  Replace `your_generated_jwt_secret` with a securely generated random string. You can generate one using `openssl rand -base64 32`.
 1.  Add your frontend to `docker-compose.yml` (for example, [Home-Chores](https://github.com/el-apps/Home-Chores)).
-1.  Run `docker-compose up -d` to start the service in detached mode.
+1.  Run `docker-compose up -d` to start the services in detached mode.
 
 ## Events
 
