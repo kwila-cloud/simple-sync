@@ -26,28 +26,26 @@ This document outlines the technology stack chosen for the `simple-sync` project
         *   Pros: Robust and performant.
         *   Cons: Verbose and complex, potentially hindering simplicity and maintainability.
 
-## 2. Web Framework: Gin (or Standard Library)
+## 2. Web Framework: Gin
 
-*   **Choice:** Gin (or Standard Library `net/http`)
-*   **Gin Pros:**
-    *   **Performance:** Lightweight and high-performance.
-    *   **Simplicity:** Relatively simple API, essential features for RESTful APIs.
-    *   **Maintainability:** Well-documented, large and active community.
-*   **Gin Cons:**
+*   **Choice:** Gin (https://github.com/gin-gonic/gin)
+*   **Pros:**
+    *   **Simplified Routing:** Clean and intuitive routing mechanism, reduces boilerplate.
+    *   **Middleware Support:** Easy to implement middleware for common tasks (logging, authentication, validation).
+    *   **Context Management:** `Context` object simplifies request handling.
+    *   **Error Handling:** Built-in error handling capabilities.
+    *   **Performance:** Designed for high performance, uses a radix tree-based routing algorithm.
+    *   **JSON Handling:** Convenient methods for serializing and deserializing JSON data.
+    *   **Community and Documentation:** Large and active community, excellent documentation.
+*   **Cons:**
     *   **Dependency:** Adds an external dependency to the project.
-
-*   **Standard Library Pros:**
-    *   **Simplicity:** Minimizes dependencies, maximum control over the codebase.
-*   **Standard Library Cons:**
-    *   **More Boilerplate:** Requires implementing routing and middleware manually.
+    *   **Learning Curve:** Requires understanding its routing mechanism, middleware system, and context object.
+    *   **"Magic":** Some developers find its reliance on "magic" can make it harder to understand what's going on under the hood.
 
 *   **Alternatives Considered:**
-    *   *Echo:*
-        *   Pros: Good performance and features.
-        *   Cons: Slightly more complex than Gin.
-    *   *Revel:*
-        *   Pros: Full-stack framework, many features out of the box.
-        *   Cons: Overkill for `simple-sync`.
+    *   *Standard Library `net/http`:*
+        *   Pros: No external dependencies, maximum control over the codebase.
+        *   Cons: More boilerplate code, manual routing and middleware, less convenient.
 
 ## 3. Database: SQLite
 
@@ -92,4 +90,3 @@ This document outlines the technology stack chosen for the `simple-sync` project
     *   **Go Support:** Excellent TOML parsing libraries available in Go.
 *   **Cons:**
     *   **Limited Features:** Not as feature-rich as other configuration formats like YAML or JSON.
-
