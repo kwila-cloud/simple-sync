@@ -21,13 +21,13 @@ The ACL is a JSON object with a `rules` field, which is an array of ACL rules. E
 ```
 
 *   `user`: Specifies the user or users to which the rule applies. Can be a specific user UUID or a wildcard (`*`) to match all users.
-*   `item`: Specifies the item or items to which the rule applies. Can be a specific item UUID or a wildcard (`*`) to match all items.
+*   `item`: Specifies the item or items to which the rule applies. Can be a specific item UUID, a wildcard (`*`) to match all items, or a prefix-based wildcard (e.g., `task-*`) to match all items with a UUID that starts with the specified prefix.
 *   `action`: Specifies the action to which the rule applies. Can be a specific action name (e.g., "create", "update", "delete") or a wildcard (`*`) to match all actions.
 *   `allow`: A boolean value indicating whether the rule allows or denies the specified action. `true` allows the action, `false` denies the action.
 
 ## Wildcard Support
 
-The `user`, `item`, and `action` fields support wildcards (`*`) to match multiple users, items, or actions. The wildcard character matches any value.
+The `user` and `action` fields support the wildcard (`*`) to match multiple users or actions. The `item` field supports the wildcard (`*`) to match all items, and also supports prefix-based wildcards (e.g., `task-*`) to match all items with a UUID that starts with the specified prefix.
 
 ## Rule Evaluation
 
@@ -52,6 +52,12 @@ ACL rules are evaluated in order. The first rule that matches the user, item, an
     },
     {
       "user": "*",
+      "item": "task-*",
+      "action": "view",
+      "allow": true
+    },
+    {
+      "user": "*",
       "item": "*",
       "action": "*",
       "allow": false
@@ -62,7 +68,8 @@ ACL rules are evaluated in order. The first rule that matches the user, item, an
 
 *   The first rule allows all users to view item "item123".
 *   The second rule allows user "user456" to edit any item.
-*   The third rule denies all other actions by default. This is important to ensure that access is denied unless explicitly allowed.
+*   The third rule allows all users to view any item with an item UUID that starts with "task-".
+*   The fourth rule denies all other actions by default. This is important to ensure that access is denied unless explicitly allowed.
 
 ## ACL Management
 
