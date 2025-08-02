@@ -12,7 +12,6 @@ To run `simple-sync` using Docker Compose, follow these steps:
 1.  Create a `docker-compose.yml` file with the following content:
 
     ```yaml
-    version: "3.8"
     services:
       simple-sync:
         image: your-docker-image-here  # Replace with your actual Docker image
