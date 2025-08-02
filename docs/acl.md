@@ -55,12 +55,6 @@ ACL rules are evaluated in order. The first rule that matches the user, item, an
       "item": "task-*",
       "action": "view",
       "allow": true
-    },
-    {
-      "user": "*",
-      "item": "*",
-      "action": "*",
-      "allow": false
     }
   ]
 }
@@ -69,7 +63,6 @@ ACL rules are evaluated in order. The first rule that matches the user, item, an
 *   The first rule allows all users to view item "item123".
 *   The second rule allows user "user456" to edit any item.
 *   The third rule allows all users to view any item with an item UUID that starts with "task-".
-*   The fourth rule denies all other actions by default. This is important to ensure that access is denied unless explicitly allowed.
 
 ## ACL Management
 
