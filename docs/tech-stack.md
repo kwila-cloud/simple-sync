@@ -93,6 +93,3 @@ This document outlines the technology stack chosen for the `simple-sync` project
 *   **Cons:**
     *   **Limited Features:** Not as feature-rich as other configuration formats like YAML or JSON.
 
-## Summary
-
-This technology stack prioritizes simplicity, performance, and maintainability. It leverages Go's strengths and chooses lightweight, well-established technologies suitable for the expected use case of `simple-sync`. Careful attention to security best practices, testing, and profiling is crucial for a successful implementation.
