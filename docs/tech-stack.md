@@ -4,7 +4,7 @@ This document outlines the technology stack chosen for the `simple-sync` project
 
 ## 1. Language: Go
 
-*   **Choice:** Go (Golang)
+*   **Choice:** [Go (Golang)](https://go.dev/)
 *   **Pros:**
     *   **Simplicity:** Clean syntax, easy to learn, avoids complexities of other languages.
     *   **Performance:** Compiled language, efficient memory management, excellent concurrency.
@@ -28,7 +28,7 @@ This document outlines the technology stack chosen for the `simple-sync` project
 
 ## 2. Web Framework: Gin
 
-*   **Choice:** Gin (https://github.com/gin-gonic/gin)
+*   **Choice:** [Gin](https://github.com/gin-gonic/gin)
 *   **Pros:**
     *   **Simplified Routing:** Clean and intuitive routing mechanism, reduces boilerplate.
     *   **Middleware Support:** Easy to implement middleware for common tasks (logging, authentication, validation).
@@ -49,7 +49,7 @@ This document outlines the technology stack chosen for the `simple-sync` project
 
 ## 3. Database: SQLite
 
-*   **Choice:** SQLite
+*   **Choice:** [SQLite](https://www.sqlite.org/index.html)
 *   **Pros:**
     *   **Simplicity:** Lightweight, file-based, no separate server process required, easy to set up and use.
     *   **Performance:** Surprisingly performant for many use cases, especially with smaller data volumes.
@@ -72,7 +72,7 @@ This document outlines the technology stack chosen for the `simple-sync` project
 
 ## 4. Authentication: JWT (JSON Web Tokens)
 
-*   **Choice:** JWT (JSON Web Tokens)
+*   **Choice:** [JWT (JSON Web Tokens)](https://jwt.io/)
 *   **Pros:**
     *   **Stateless:** Server doesn't need to store session information, simplifies scaling.
     *   **Standardized:** Widely adopted standard, excellent library support.
@@ -84,7 +84,7 @@ This document outlines the technology stack chosen for the `simple-sync` project
 
 ## 5. Configuration: TOML
 
-*   **Choice:** TOML
+*   **Choice:** [TOML](https://toml.io/en/)
 *   **Pros:**
     *   **Simplicity:** Human-readable, easy to write and parse.
     *   **Go Support:** Excellent TOML parsing libraries available in Go.
