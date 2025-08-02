@@ -1,5 +1,5 @@
 # simple-sync
-A simple sync system for local-first apps.
+A simple sync system for local-first apps. Built with Go, Gin, SQLite, JWT, and TOML.
 
 ## Events
 
