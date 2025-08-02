@@ -4,7 +4,7 @@ This document describes the API endpoints for the `simple-sync` system.
 
 ## Authentication
 
-All endpoints (except `/auth/token`) require authentication. The authentication mechanism involves an API token passed in the `Authorization` header.
+All endpoints (except `/auth/token`) require authentication. The authentication mechanism involves a JSON Web Token (JWT) passed in the `Authorization` header.
 
 ## Events
 
@@ -21,7 +21,7 @@ All endpoints (except `/auth/token`) require authentication. The authentication 
 
     ```
     GET /events?fromTimestamp=1678886400
-    Authorization: Bearer <API_TOKEN>
+    Authorization: Bearer <JWT>
     ```
 
 *   **Example Response:**
@@ -60,7 +60,7 @@ All endpoints (except `/auth/token`) require authentication. The authentication 
 
     ```
     POST /events
-    Authorization: Bearer <API_TOKEN>
+    Authorization: Bearer <JWT>
     Content-Type: application/json
 
     [
@@ -120,7 +120,7 @@ All endpoints (except `/auth/token`) require authentication. The authentication 
 
     ```
     GET /acl
-    Authorization: Bearer <API_TOKEN>
+    Authorization: Bearer <JWT>
     ```
 
 *   **Example Response:**
@@ -164,7 +164,7 @@ All endpoints (except `/auth/token`) require authentication. The authentication 
 
     ```
     PUT /acl
-    Authorization: Bearer <API_TOKEN>
+    Authorization: Bearer <JWT>
     Content-Type: application/json
 
     {
@@ -210,7 +210,7 @@ Access to the `/acl` endpoint is restricted to administrators. Administrators ar
 *   **Request:**
     *   A JSON object containing user credentials: `username` and `password`.
 *   **Response:**
-    *   Success (200 OK): A JSON object containing the authentication token. The token is valid for one week.
+    *   Success (200 OK): A JSON object containing the authentication token. The token is a JSON Web Token (JWT) and is valid for one week.
     *   Unauthorized (401 Unauthorized): If the credentials are invalid.
 *   **Example Request:**
 
@@ -228,7 +228,7 @@ Access to the `/acl` endpoint is restricted to administrators. Administrators ar
 
     ```json
     {
-        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTY5MzkwMjJ9.dQw4w9WgXcQxzAfaWEmBRjN7jV0RvKjLyWjZnQYjWj4"
     }
     ```
 
@@ -250,7 +250,7 @@ The following endpoints are part of the Admin API and are used for managing user
 
     ```
     POST /admin/users
-    Authorization: Bearer <API_TOKEN>
+    Authorization: Bearer <JWT>
     Content-Type: application/json
 
     {
@@ -285,7 +285,7 @@ The following endpoints are part of the Admin API and are used for managing user
 
     ```
     PUT /admin/users/newuser123
-    Authorization: Bearer <API_TOKEN>
+    Authorization: Bearer <JWT>
     Content-Type: application/json
 
     {
