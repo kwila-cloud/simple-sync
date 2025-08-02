@@ -1,5 +1,9 @@
 # simple-sync
-A simple sync system for local-first apps. [Built with](docs/tech-stack.md) [Go](https://go.dev/), [Gin](https://github.com/gin-gonic/gin), [SQLite](https://www.sqlite.org/index.html), [JWT](https://jwt.io/), and [TOML](https://toml.io/en/).
+A simple sync system for local-first apps. 
+
+Built with [Go](https://go.dev/), [Gin](https://github.com/gin-gonic/gin), [SQLite](https://www.sqlite.org/index.html), [JWT](https://jwt.io/), and [TOML](https://toml.io/en/). See the [Tech Stack](docs/tech-stack.md) document for details on the technologies used in this project and the rationale behind those choices.
+
+**NOTE** - This project is in the alpha stage. Many of the things documented here and elsewhere in this repo do not actually exist yet.
 
 ## Events
 
@@ -43,6 +47,3 @@ The access control list defines the relationships between users, items, and acti
 
 See the [API Specification](docs/api.md) for details on the API endpoints.
 
-## Tech Stack
-
-See the [Tech Stack](docs/tech-stack.md) document for details on the technologies used in this project and the rationale behind those choices.
