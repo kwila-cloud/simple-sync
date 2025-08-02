@@ -1,11 +1,11 @@
-# Access Control List (ACL)
+# simple-sync Access Control List (ACL) Specification
 
 The Access Control List (ACL) defines the relationships between users, items, and actions. It determines which users are allowed to perform which actions on which items.
 
 ## Default Behavior
 
 *   All users can view all items. This means that `simple-sync` is **only** appropriate for situations where **all** users of the system can be trusted to view **all** data in the system.
-*   By default, a user cannot perform any action on any item unless explicitly allowed by an ACL rule.
+*   By default, a user cannot perform any action on any item unless explicitly allowed by an ACL rule (deny all by default).
 
 ## ACL Structure
 

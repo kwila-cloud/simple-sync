@@ -37,10 +37,8 @@ All data querying is handled locally. This means that `simple-sync` is inappropr
 
 ## ACL
 
-The access control list defines the relationships between users, items, and actions. See [ACL Documentation](docs/acl.md) for more details.
+The access control list defines the relationships between users, items, and actions. See the [ACL Specification](docs/acl.md) for more details.
 
-## To Do
-
-*   [ ] Determine how authentication will be handled. Each user will need a way to authenticate their events. There also must be a way to control who can read and write the ACL.
+## API
 
 See the [API Specification](docs/api.md) for details on the API endpoints.
