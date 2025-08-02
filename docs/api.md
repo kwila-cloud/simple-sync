@@ -4,7 +4,7 @@ This document describes the API endpoints for the `simple-sync` system.
 
 ## Authentication
 
-All endpoints (except `/auth/token`) require authentication. The authentication mechanism is TBD, but it will likely involve an API token passed in the `Authorization` header.
+All endpoints (except `/auth/token`) require authentication. The authentication mechanism for regular user endpoints is TBD, but it will likely involve an API token passed in the `Authorization` header.
 
 ## Events
 
@@ -231,3 +231,103 @@ Access to the `/acl` endpoint is restricted to administrators. Initially, admini
         "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
     }
     ```
+
+## Admin API
+
+The following endpoints are part of the Admin API and are used for managing users.  These endpoints require a separate authentication mechanism (TBD) with elevated privileges.  Access to these endpoints will be restricted to administrators defined via static configuration.
+
+### `POST /admin/users`
+
+*   **Purpose:** Create a new user.
+*   **Method:** POST
+*   **Request:**
+    *   A JSON object containing the new user's information: `uuid`, `username`, and `password`.
+*   **Response:**
+    *   Success (201 Created): The new user's UUID.
+    *   Bad Request (400 Bad Request): If the request is invalid or the username already exists.
+    *   Unauthorized (401 Unauthorized): If the user is not authenticated or does not have administrator privileges.
+*   **Example Request:**
+
+    ```
+    POST /admin/users
+    Authorization: Bearer <ADMIN_API_TOKEN>
+    Content-Type: application/json
+
+    {
+        "uuid": "newuser123",
+        "username": "newuser",
+        "password": "newpassword"
+    }
+    ```
+
+*   **Example Response:**
+
+    ```
+    201 Created
+    {
+        "uuid": "newuser123"
+    }
+    ```
+
+### `PUT /admin/users/{uuid}/password`
+
+*   **Purpose:** Update a user's password.
+*   **Method:** PUT
+*   **Request:**
+    *   The user's UUID in the URL path.
+    *   A JSON object containing the `new_password`.
+*   **Response:**
+    *   Success (204 No Content): If the password was updated successfully.
+    *   Not Found (404 Not Found): If the user with the specified UUID does not exist.
+    *   Unauthorized (401 Unauthorized): If the user is not authenticated or does not have administrator privileges.
+*   **Example Request:**
+
+    ```
+    PUT /admin/users/newuser123/password
+    Authorization: Bearer <ADMIN_API_TOKEN>
+    Content-Type: application/json
+
+    {
+        "new_password": "evenstrongerpassword"
+    }
+    ```
+
+*   **Example Response:**
+
+    ```
+    204 No Content
+    ```
+
+### `PUT /admin/users/{uuid}/username`
+
+*   **Purpose:** Update a user's username.
+*   **Method:** PUT
+*   **Request:**
+    *   The user's UUID in the URL path.
+    *   A JSON object containing the `new_username`.
+*   **Response:**
+    *   Success (204 No Content): If the username was updated successfully.
+    *   Not Found (404 Not Found): If the user with the specified UUID does not exist.
+    *   Unauthorized (401 Unauthorized): If the user is not authenticated or does not have administrator privileges.
+    *   Bad Request (400 Bad Request): If the new username already exists.
+*   **Example Request:**
+
+    ```
+    PUT /admin/users/newuser123/username
+    Authorization: Bearer <ADMIN_API_TOKEN>
+    Content-Type: application/json
+
+    {
+        "new_username": "newusername"
+    }
+    ```
+
+*   **Example Response:**
+
+    ```
+    204 No Content
+    ```
+
+### Admin Authentication
+
+The Admin API uses a separate authentication mechanism from the regular user API. The details of this mechanism are TBD, but it will likely involve a separate API token or a more secure authentication protocol. Access to the Admin API is restricted to administrators, who are initially defined via static configuration (e.g., a list of authorized user UUIDs in the server's configuration file).
