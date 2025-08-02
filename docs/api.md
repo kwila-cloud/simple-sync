@@ -208,9 +208,9 @@ Access to the `/acl` endpoint is restricted to administrators. Administrators ar
 *   **Purpose:** Obtain an authentication token.
 *   **Method:** POST
 *   **Request:**
-    *   A JSON object containing user credentials (e.g., username and password). The specific format will depend on the chosen authentication method.
+    *   A JSON object containing user credentials: `username` and `password`.
 *   **Response:**
-    *   Success (200 OK): A JSON object containing the authentication token.
+    *   Success (200 OK): A JSON object containing the authentication token. The token is valid for one week.
     *   Unauthorized (401 Unauthorized): If the credentials are invalid.
 *   **Example Request:**
 
