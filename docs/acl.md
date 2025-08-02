@@ -16,7 +16,7 @@ The ACL is a JSON object with a `rules` field, which is an array of ACL rules. E
   "user": "string",
   "item": "string",
   "action": "string",
-  "allow": boolean
+  "allow": "boolean"
 }
 ```
 
