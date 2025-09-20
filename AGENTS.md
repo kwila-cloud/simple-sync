@@ -101,6 +101,9 @@ gh issue develop <issue-number> --checkout
 # Stage changes
 git add .
 
+# IMPORTANT: Update CHANGELOG.md for user-facing changes
+# Add entry to CHANGELOG.md documenting new features, bug fixes, etc.
+
 # Commit with descriptive message
 git commit -m "feat: implement ACL endpoints with simple allow/deny logic
 
@@ -114,6 +117,12 @@ Closes #<issue-number>"
 # Push to remote
 git push origin feat/issue-<number>-description
 ```
+
+**CHANGELOG Reminder:**
+- **ALWAYS update CHANGELOG.md** for any pull request that introduces user-facing changes
+- Document new features, enhancements, bug fixes, and breaking changes
+- Follow the existing format with PR links and clear descriptions
+- Keep entries concise but descriptive for users and maintainers
 
 ## Verification & Testing
 
