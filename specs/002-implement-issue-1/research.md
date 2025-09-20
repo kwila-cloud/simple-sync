@@ -11,7 +11,7 @@
 
 ## Multi-Stage Build Optimization for Go
 
-**Decision**: Use Go 1.21+ builder image and copy only the binary to runtime
+**Decision**: Use Go 1.25 builder image and copy only the binary to runtime
 **Rationale**: Go binaries are statically linked and don't require Go runtime in the final image. This creates minimal images while maintaining full functionality. The build stage can use CGO if needed for SQLite dependencies.
 **Alternatives considered**:
 - Single-stage with Go installed in runtime - rejected due to unnecessary bloat
