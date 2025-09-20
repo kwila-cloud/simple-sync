@@ -16,7 +16,7 @@ func AuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
 		authHeader := c.GetHeader("Authorization")
 		tokenString, err := utils.ExtractTokenFromHeader(authHeader)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			c.Abort()
 			return
 		}
