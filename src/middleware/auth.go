@@ -2,9 +2,9 @@ package middleware
 
 import (
 	"net/http"
-	"strings"
 
 	"simple-sync/src/services"
+	"simple-sync/src/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,23 +12,14 @@ import (
 // AuthMiddleware creates JWT authentication middleware
 func AuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Extract token from Authorization header
+		// Extract token from Authorization header using utility function
 		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+		tokenString, err := utils.ExtractTokenFromHeader(authHeader)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			c.Abort()
 			return
 		}
-
-		// Check Bearer format
-		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization header format"})
-			c.Abort()
-			return
-		}
-
-		tokenString := parts[1]
 
 		// Validate token
 		claims, err := authService.ValidateToken(tokenString)
