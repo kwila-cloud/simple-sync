@@ -131,12 +131,12 @@ git push origin feat/issue-<number>-description
 # Register new user
 curl -X POST http://localhost:8080/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"username":"testuser","password":"testpass"}'
+  -d '{"username":"testuser","password":"testpass123"}'
 
 # Login and get token
 curl -X POST http://localhost:8080/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"testuser","password":"testpass"}'
+  -d '{"username":"testuser","password":"testpass123"}'
 
 # Save token for subsequent requests
 export TOKEN="your-jwt-token-here"
@@ -200,12 +200,12 @@ curl -X OPTIONS http://localhost:8080/events \
 # 1. Register
 curl -X POST http://localhost:8080/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"username":"alice","password":"secret123"}'
+  -d '{"username":"testuser","password":"testpass123"}'
 
 # 2. Login
 RESPONSE=$(curl -s -X POST http://localhost:8080/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"alice","password":"secret123"}')
+  -d '{"username":"testuser","password":"testpass123"}')
 
 # 3. Extract token (requires jq)
 TOKEN=$(echo $RESPONSE | jq -r '.token')

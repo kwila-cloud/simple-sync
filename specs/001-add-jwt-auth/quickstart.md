@@ -24,7 +24,7 @@ This quickstart validates the JWT authentication implementation by testing the c
 # Request authentication token
 curl -X POST http://localhost:8080/auth/token \
   -H "Content-Type: application/json" \
-  -d '{"username": "testuser", "password": "testpass"}'
+  -d '{"username": "testuser", "password": "testpass123"}'
 
 # Expected response:
 # {
