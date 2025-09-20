@@ -23,8 +23,10 @@ func TestGetEventsProtected(t *testing.T) {
 	store := storage.NewMemoryStorage()
 	h := handlers.NewHandlers(store, "test-secret")
 
-	// Register routes - NOTE: auth middleware not implemented yet
-	router.GET("/events", h.GetEvents)
+	// Register routes with auth middleware
+	auth := router.Group("/")
+	auth.Use(middleware.AuthMiddleware(h.AuthService()))
+	auth.GET("/events", h.GetEvents)
 
 	// Test without Authorization header - should fail with 401 when middleware is implemented
 	req, _ := http.NewRequest("GET", "/events", nil)
@@ -40,7 +42,7 @@ func TestGetEventsProtected(t *testing.T) {
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
 	assert.Contains(t, response, "error")
-	assert.Equal(t, "User not authenticated", response["error"])
+	assert.Equal(t, "Authorization header required", response["error"])
 }
 
 func TestGetEventsWithValidToken(t *testing.T) {

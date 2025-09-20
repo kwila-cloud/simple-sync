@@ -24,8 +24,10 @@ func TestPostEventsProtected(t *testing.T) {
 	store := storage.NewMemoryStorage()
 	h := handlers.NewHandlers(store, "test-secret")
 
-	// Register routes - NOTE: auth middleware not implemented yet
-	router.POST("/events", h.PostEvents)
+	// Register routes with auth middleware
+	auth := router.Group("/")
+	auth.Use(middleware.AuthMiddleware(h.AuthService()))
+	auth.POST("/events", h.PostEvents)
 
 	// Test data
 	eventJSON := `[{
@@ -52,7 +54,7 @@ func TestPostEventsProtected(t *testing.T) {
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
 	assert.Contains(t, response, "error")
-	assert.Equal(t, "User not authenticated", response["error"])
+	assert.Equal(t, "Authorization header required", response["error"])
 }
 
 func TestPostEventsWithValidToken(t *testing.T) {
@@ -69,19 +71,19 @@ func TestPostEventsWithValidToken(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/events", h.PostEvents)
 
-	// Test data
+	// Get valid token
+	user, _ := h.AuthService().Authenticate("testuser", "testpass123")
+	token, _ := h.AuthService().GenerateToken(user)
+
+	// Test data - userUuid will be overridden by authenticated user
 	eventJSON := `[{
 		"uuid": "123e4567-e89b-12d3-a456-426614174000",
 		"timestamp": 1640995200,
-		"userUuid": "user123",
+		"userUuid": "user-123",
 		"itemUuid": "item456",
 		"action": "create",
 		"payload": "{}"
 	}]`
-
-	// Get valid token
-	user, _ := h.AuthService().Authenticate("testuser", "testpass123")
-	token, _ := h.AuthService().GenerateToken(user)
 
 	// Test with valid Authorization header
 	req, _ := http.NewRequest("POST", "/events", bytes.NewBufferString(eventJSON))
