@@ -34,13 +34,13 @@ func NewAuthService(jwtSecret string) *AuthService {
 func (s *AuthService) Authenticate(username, password string) (*models.User, error) {
 	user, exists := s.users[username]
 	if !exists {
-		return nil, errors.New("invalid username or password")
+		return nil, errors.New("Invalid username or password")
 	}
 
 	// Verify password using bcrypt
 	err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
 	if err != nil {
-		return nil, errors.New("invalid username or password")
+		return nil, errors.New("Invalid username or password")
 	}
 
 	return user, nil
@@ -76,7 +76,7 @@ func (s *AuthService) ValidateToken(tokenString string) (*models.TokenClaims, er
 		return claims, nil
 	}
 
-	return nil, errors.New("invalid token")
+	return nil, errors.New("Invalid token")
 }
 
 // GetUserByUUID retrieves a user by UUID
@@ -86,5 +86,5 @@ func (s *AuthService) GetUserByUUID(uuid string) (*models.User, error) {
 			return user, nil
 		}
 	}
-	return nil, errors.New("user not found")
+	return nil, errors.New("User not found")
 }

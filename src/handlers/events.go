@@ -35,7 +35,7 @@ func (h *Handlers) GetEvents(c *gin.Context) {
 	// Check authenticated user
 	_, exists := c.Get("user_uuid")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
 		return
 	}
 
@@ -44,14 +44,14 @@ func (h *Handlers) GetEvents(c *gin.Context) {
 	if fromTimestampStr != "" {
 		fromTimestamp, err := strconv.ParseUint(fromTimestampStr, 10, 64)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid fromTimestamp"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid timestamp parameter"})
 			return
 		}
 
 		// Filter events by timestamp
 		allEvents, err := h.storage.LoadEvents()
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load events"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 			return
 		}
 
@@ -69,7 +69,7 @@ func (h *Handlers) GetEvents(c *gin.Context) {
 	// Return all events
 	events, err := h.storage.LoadEvents()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load events"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
 
@@ -89,7 +89,7 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 	// Get authenticated user from context
 	userUUID, exists := c.Get("user_uuid")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
 		return
 	}
 
@@ -109,14 +109,14 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 
 	// Save events
 	if err := h.storage.SaveEvents(events); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save events"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
 
 	// Return all events (including newly added)
 	allEvents, err := h.storage.LoadEvents()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load events"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
 
@@ -145,7 +145,7 @@ func (h *Handlers) PostAuthToken(c *gin.Context) {
 	// Generate token
 	token, err := h.authService.GenerateToken(user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
 
