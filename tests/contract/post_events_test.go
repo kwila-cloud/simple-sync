@@ -72,6 +72,7 @@ func TestConcurrentPostEvents(t *testing.T) {
 	numGoroutines := 10
 	eventsPerGoroutine := 5
 	expectedUUIDs := make(map[string]bool)
+	var uuidMutex sync.Mutex
 
 	for i := 0; i < numGoroutines; i++ {
 		wg.Add(1)
@@ -85,7 +86,9 @@ func TestConcurrentPostEvents(t *testing.T) {
 				w := httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				assert.Equal(t, http.StatusOK, w.Code)
+				uuidMutex.Lock()
 				expectedUUIDs[uuid] = true
+				uuidMutex.Unlock()
 			}
 		}(i)
 	}
