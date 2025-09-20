@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.0] - unreleased
+- [#15](https://github.com/kwila-cloud/simple-sync/pull/15): Basic JWT authentication
+  - Added JWT token generation, validation, and user authentication
+  - Protected all /events endpoints with authentication
+
 ## [0.1.0] - 2025-09-20
 - [#14](https://github.com/kwila-cloud/simple-sync/pull/14): Fixed GitHub release workflow access issue
 - [#13](https://github.com/kwila-cloud/simple-sync/pull/13): Fixed GitHub workflow issues
@@ -13,8 +18,5 @@
 - [#9](https://github.com/kwila-cloud/simple-sync/pull/9): Initial MVP implementation with basic event storage REST API
   - Core Go application with Gin framework
   - GET/POST /events endpoints with timestamp filtering
-  - Thread-safe in-memory storage
   - Contract and unit test suites
-  - CI/CD pipeline with GitHub Actions
-  - Complete project documentation and specifications
-  - Docker development environment setup
+ - CI/CD pipeline with GitHub Actions
