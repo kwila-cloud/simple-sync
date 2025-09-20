@@ -39,14 +39,14 @@ func TestPostEventsProtected(t *testing.T) {
 		"payload": "{}"
 	}]`
 
-	// Test without Authorization header - should fail with 401 when middleware is implemented
+	// Test without Authorization header - should fail with 401
 	req, _ := http.NewRequest("POST", "/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
 
-	// Expected: 401 Unauthorized (will fail until middleware is implemented)
+	// Expected: 401 Unauthorized
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 

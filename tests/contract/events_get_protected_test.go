@@ -28,13 +28,13 @@ func TestGetEventsProtected(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.GET("/events", h.GetEvents)
 
-	// Test without Authorization header - should fail with 401 when middleware is implemented
+	// Test without Authorization header - should fail with 401
 	req, _ := http.NewRequest("GET", "/events", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
 
-	// Expected: 401 Unauthorized (will fail until middleware is implemented)
+	// Expected: 401 Unauthorized
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
