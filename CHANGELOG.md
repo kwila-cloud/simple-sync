@@ -1,6 +1,7 @@
 # Changelog
 
 ## [0.1.0] - 2025-09-20
+- [#14](https://github.com/kwila-cloud/simple-sync/pull/14): Fixed GitHub release workflow access issue
 - [#13](https://github.com/kwila-cloud/simple-sync/pull/13): Fixed GitHub workflow issues
   - Added contents write permission to version-update workflow for committing and tagging
   - Removed unnecessary Go cache step from CI workflow
