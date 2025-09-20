@@ -7,6 +7,7 @@ import (
 	"simple-sync/src/models"
 
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // AuthService handles authentication operations
@@ -22,8 +23,9 @@ func NewAuthService(jwtSecret string) *AuthService {
 		users:     make(map[string]*models.User),
 	}
 
-	// Add default user for MVP
-	defaultUser, _ := models.NewUser("user-123", "testuser", "testpass123", false)
+	// Add default user for MVP with bcrypt hashed password
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("testpass123"), bcrypt.DefaultCost)
+	defaultUser, _ := models.NewUser("user-123", "testuser", string(hashedPassword), false)
 	service.users[defaultUser.Username] = defaultUser
 
 	return service
@@ -36,8 +38,9 @@ func (s *AuthService) Authenticate(username, password string) (*models.User, err
 		return nil, errors.New("invalid username or password")
 	}
 
-	// For MVP, simple password comparison (should use bcrypt in production)
-	if user.PasswordHash != password {
+	// Verify password using bcrypt
+	err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
+	if err != nil {
 		return nil, errors.New("invalid username or password")
 	}
 
