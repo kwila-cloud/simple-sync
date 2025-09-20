@@ -5,16 +5,16 @@
 Simple-sync is a lightweight REST API built in Go that provides event storage and access control functionality. The system allows users to authenticate, store timestamped events for specific items, and manage permissions through Access Control Lists (ACLs).
 
 **Technology Stack:**
-- Go with Gin web framework
+- Go 1.25 with Gin web framework
 - JWT authentication
-- File-based persistent storage (JSON)
+- SQLite database storage
 - CORS support for web clients
 
 **Core Features:**
 - User authentication with JWT tokens
 - Event storage with timestamps and metadata
 - ACL-based permission system (read/write permissions)
-- Persistent file storage for data survival across restarts
+- Persistent SQLite database storage for data survival across restarts
 
 ## Key Files & Documentation
 
@@ -23,13 +23,12 @@ Simple-sync is a lightweight REST API built in Go that provides event storage an
 - `handlers/` - HTTP endpoint handlers
 - `models/` - Data structures for events, users, ACL
 - `middleware/` - Authentication and CORS middleware
-- `storage/` - File-based persistence layer
+- `storage/` - SQLite persistence layer
 
 **Configuration & Data:**
 - `config/` - Environment variables and configuration
-- `data/events.json` - Persistent event storage
-- `data/acl.json` - Persistent ACL storage
-- `data/backups/` - Backup files for data safety
+- `data/simple-sync.db` - SQLite database for persistent storage
+- `data/backups/` - Database backup files for data safety
 
 **Documentation:**
 - `README.md` - Setup and deployment instructions
@@ -164,12 +163,12 @@ curl -X GET http://localhost:8080/acl \
   -H "Authorization: Bearer $TOKEN"
 ```
 
-**File Persistence Verification:**
+**Database Persistence Verification:**
 ```bash
-# Check data files exist
+# Check SQLite database exists and has data
 ls -la data/
-cat data/events.json | jq .
-cat data/acl.json | jq .
+sqlite3 data/simple-sync.db "SELECT COUNT(*) FROM events;"
+sqlite3 data/simple-sync.db "SELECT COUNT(*) FROM acl;"
 
 # Restart server and verify data persists
 # Stop server, restart, then test GET endpoints
@@ -288,7 +287,7 @@ simple-sync/
 │   └── acl.go             # ACL data structures
 ├── storage/
 │   ├── interface.go       # Storage interface definition
-│   ├── file.go            # File-based storage implementation
+│   ├── sqlite.go          # SQLite storage implementation
 │   └── memory.go          # In-memory storage (for tests)
 └── config/
     └── config.go          # Configuration management
@@ -339,11 +338,12 @@ type Storage interface {
 - Ensure token hasn't expired
 - Validate user exists in storage
 
-**File Storage Issues:**
-- Check data directory permissions
+**Database Issues:**
+- Check data directory permissions and SQLite database file permissions
 - Verify disk space availability
-- Look for JSON parsing errors in logs
-- Check file locking conflicts
+- Look for SQLite errors in logs (corruption, locking, etc.)
+- Check for concurrent access issues with WAL mode
+- Verify SQLite database integrity with PRAGMA integrity_check
 
 **CORS Problems:**
 - Verify Origin header in requests
@@ -363,17 +363,24 @@ type Storage interface {
 - 400: Invalid request format
 - 500: Server/storage errors
 
-**Debug Commands:**
+Remember to always test your changes incrementally and verify that existing functionality still works after implementing new features.
+
+## Debug Commands
 ```bash
 # Check server logs
 docker-compose logs simple-sync
 
-# Verify data files
-cat data/events.json | jq length
-cat data/acl.json | jq length
+# Verify SQLite database exists
+ls -la data/
+sqlite3 data/simple-sync.db ".tables"
+sqlite3 data/simple-sync.db "SELECT name FROM sqlite_master WHERE type='table';"
 
-# Test specific endpoints
-curl -v http://localhost:8080/health
+# Inspect events table
+sqlite3 data/simple-sync.db "SELECT * FROM events LIMIT 5;"
+
+# Inspect ACL table
+sqlite3 data/simple-sync.db "SELECT * FROM acl LIMIT 5;"
+
+# Restart server and verify data persists
+# Stop server, restart, then test GET endpoints
 ```
-
-Remember to always test your changes incrementally and verify that existing functionality still works after implementing new features.

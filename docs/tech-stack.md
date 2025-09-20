@@ -4,7 +4,7 @@ This document outlines the technology stack chosen for the `simple-sync` project
 
 ## 1. Language: Go
 
-*   **Choice:** [Go (Golang)](https://go.dev/)
+*   **Choice:** [Go (Golang)](https://go.dev/) 1.25
 *   **Pros:**
     *   **Simplicity:** Clean syntax, easy to learn, avoids complexities of other languages.
     *   **Performance:** Compiled language, efficient memory management, excellent concurrency.
@@ -13,7 +13,6 @@ This document outlines the technology stack chosen for the `simple-sync` project
     *   **Deployment:** Compiles to a single, self-contained binary for easy deployment.
 *   **Cons:**
     *   **Error Handling:** Go's explicit error handling can be verbose.
-    *   **Generics (Before Go 1.18):** Lack of generics (resolved in Go 1.18) could lead to some code duplication in certain scenarios.
 
 *   **Alternatives Considered:**
     *   *Python:*
