@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.1.0] - 2025-01-20
+## [0.1.0] - 2025-09-20
 - [#11](https://github.com/kwila-cloud/simple-sync/pull/11): Enhanced test coverage for timestamp filtering and concurrency
   - Added TestGetEventsWithTimestampFiltering to verify filtering with actual data
   - Added TestConcurrentPostEvents to test thread safety with multiple goroutines
