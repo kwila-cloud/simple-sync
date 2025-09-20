@@ -16,10 +16,16 @@ type MemoryStorage struct {
 
 // NewMemoryStorage creates a new instance of MemoryStorage
 func NewMemoryStorage() *MemoryStorage {
-	return &MemoryStorage{
+	storage := &MemoryStorage{
 		events: make([]models.Event, 0),
 		users:  make(map[string]*models.User),
 	}
+
+	// Add default user
+	defaultUser, _ := models.NewUserWithPassword("user-123", "testuser", "testpass123", false)
+	storage.SaveUser(defaultUser)
+
+	return storage
 }
 
 // SaveEvents appends new events to the storage

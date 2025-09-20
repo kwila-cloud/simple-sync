@@ -19,16 +19,10 @@ type AuthService struct {
 
 // NewAuthService creates a new auth service
 func NewAuthService(jwtSecret string, storage storage.Storage) *AuthService {
-	service := &AuthService{
+	return &AuthService{
 		jwtSecret: []byte(jwtSecret),
 		storage:   storage,
 	}
-
-	// Add default user for MVP with password hashing
-	defaultUser, _ := models.NewUserWithPassword("user-123", "testuser", "testpass123", false)
-	storage.SaveUser(defaultUser)
-
-	return service
 }
 
 // Authenticate validates user credentials and returns user if valid
