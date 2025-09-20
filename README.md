@@ -18,6 +18,44 @@ To run `simple-sync` using Docker Compose, follow these steps:
 1.  Add your frontend to `docker-compose.yml` (for example, [Home-Chores](https://github.com/el-apps/Home-Chores)).
 1.  Run `docker-compose up -d` to start the services in detached mode.
 
+## Development
+
+### Running Tests
+
+To run the complete test suite with race detection:
+
+```bash
+go test -race ./tests/...
+```
+
+This will run all tests including:
+- **Contract tests** (`tests/contract/`) - API contract validation
+- **Integration tests** (`tests/integration/`) - Full workflow testing
+- **Unit tests** (`tests/unit/`) - Individual component testing
+- **Performance tests** (`tests/performance/`) - Response time validation
+
+### Building
+
+To build the application:
+
+```bash
+go build -o simple-sync ./src
+```
+
+### Running Locally
+
+To run the application locally:
+
+```bash
+# Set JWT secret (required)
+export JWT_SECRET="your-jwt-secret-here"
+
+# Run the server
+go run ./src
+```
+
+The server will start on port 8080 by default.
+
 ## Events
 
 Data is represented as a sequence of events.

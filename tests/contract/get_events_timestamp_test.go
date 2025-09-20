@@ -86,6 +86,7 @@ func TestGetEventsWithTimestampFiltering(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w2.Code)
 
 	// Should return events with timestamp >= 150, i.e., 200 and 300
-	expected := `[{"uuid":"2","timestamp":200,"userUuid":"u2","itemUuid":"i2","action":"b","payload":"q"}, {"uuid":"3","timestamp":300,"userUuid":"u3","itemUuid":"i3","action":"c","payload":"r"}]`
+	// Note: userUuid is now overridden with authenticated user's UUID
+	expected := `[{"uuid":"2","timestamp":200,"userUuid":"user-123","itemUuid":"i2","action":"b","payload":"q"}, {"uuid":"3","timestamp":300,"userUuid":"user-123","itemUuid":"i3","action":"c","payload":"r"}]`
 	assert.JSONEq(t, expected, w2.Body.String())
 }

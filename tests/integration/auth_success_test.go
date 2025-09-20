@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"simple-sync/src/handlers"
+	"simple-sync/src/middleware"
 	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
@@ -25,8 +26,12 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 
 	// Register routes
 	router.POST("/auth/token", h.PostAuthToken)
-	router.GET("/events", h.GetEvents)
-	router.POST("/events", h.PostEvents)
+
+	// Protected routes with auth middleware
+	auth := router.Group("/")
+	auth.Use(middleware.AuthMiddleware(h.AuthService()))
+	auth.GET("/events", h.GetEvents)
+	auth.POST("/events", h.PostEvents)
 
 	// Step 1: Authenticate and get token
 	authRequest := map[string]string{
@@ -79,5 +84,15 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 
 	// Should succeed
 	assert.Equal(t, http.StatusOK, postW.Code)
-	assert.JSONEq(t, eventJSON, postW.Body.String())
+
+	// Expected response with authenticated user UUID
+	expectedJSON := `[{
+		"uuid": "123e4567-e89b-12d3-a456-426614174000",
+		"timestamp": 1640995200,
+		"userUuid": "user-123",
+		"itemUuid": "item456",
+		"action": "create",
+		"payload": "{}"
+	}]`
+	assert.JSONEq(t, expectedJSON, postW.Body.String())
 }

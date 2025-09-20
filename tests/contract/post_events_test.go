@@ -59,8 +59,16 @@ func TestPostEvents(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
-	// Should return the posted events
-	assert.JSONEq(t, eventJSON, w.Body.String())
+	// Should return the posted events (with userUuid overridden by authenticated user)
+	expectedJSON := `[{
+		"uuid": "123e4567-e89b-12d3-a456-426614174000",
+		"timestamp": 1640995200,
+		"userUuid": "user-123",
+		"itemUuid": "item456",
+		"action": "create",
+		"payload": "{}"
+	}]`
+	assert.JSONEq(t, expectedJSON, w.Body.String())
 }
 
 func TestConcurrentPostEvents(t *testing.T) {

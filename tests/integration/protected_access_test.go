@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"simple-sync/src/handlers"
+	"simple-sync/src/middleware"
 	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
@@ -25,8 +26,12 @@ func TestProtectedEndpointAccess(t *testing.T) {
 
 	// Register routes
 	router.POST("/auth/token", h.PostAuthToken)
-	router.GET("/events", h.GetEvents)
-	router.POST("/events", h.PostEvents)
+
+	// Protected routes with auth middleware
+	auth := router.Group("/")
+	auth.Use(middleware.AuthMiddleware(h.AuthService()))
+	auth.GET("/events", h.GetEvents)
+	auth.POST("/events", h.PostEvents)
 
 	// Test 1: Access GET /events without token - should fail
 	getReq, _ := http.NewRequest("GET", "/events", nil)
@@ -81,7 +86,7 @@ func TestProtectedEndpointAccess(t *testing.T) {
 	authGetReq.Header.Set("Authorization", "Bearer "+token)
 	authGetW := httptest.NewRecorder()
 
-	router.ServeHTTP(authGetW, authReq)
+	router.ServeHTTP(authGetW, authGetReq)
 
 	assert.Equal(t, http.StatusOK, authGetW.Code)
 }
