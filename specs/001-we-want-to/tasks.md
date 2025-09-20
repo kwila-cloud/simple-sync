@@ -33,35 +33,35 @@
 - Paths assume Go project structure with src/ and tests/
 
 ## Phase 3.1: Setup
-- [ ] T001 Initialize Go 1.25 module with go.mod in repository root
-- [ ] T002 Add Gin web framework dependency to go.mod
-- [ ] T003 Create src/ and tests/ directories at repository root
-- [ ] T004 [P] Configure gofmt for code formatting
+- [x] T001 Initialize Go 1.25 module with go.mod in repository root
+- [x] T002 Add Gin web framework dependency to go.mod
+- [x] T003 Create src/ and tests/ directories at repository root
+- [x] T004 [P] Configure gofmt for code formatting
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**
-- [ ] T005 [P] Contract test for GET /events endpoint in tests/contract/test_get_events.go
-- [ ] T006 [P] Contract test for POST /events endpoint in tests/contract/test_post_events.go
-- [ ] T007 [P] Contract test for GET /events?fromTimestamp=X endpoint in tests/contract/test_get_events_timestamp.go
+- [x] T005 [P] Contract test for GET /events endpoint in tests/contract/test_get_events.go
+- [x] T006 [P] Contract test for POST /events endpoint in tests/contract/test_post_events.go
+- [x] T007 [P] Contract test for GET /events?fromTimestamp=X endpoint in tests/contract/test_get_events_timestamp.go
 
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
-- [ ] T008 Create Event struct with fields: uuid, timestamp, userUuid, itemUuid, action, payload in src/models/event.go
-- [ ] T009 Implement thread-safe in-memory storage using slice and RWMutex in src/storage/memory.go
-- [ ] T010 Implement GET /events handler that returns all events as JSON array in src/handlers/events.go
-- [ ] T011 Implement GET /events?fromTimestamp=X handler with timestamp filtering in src/handlers/events.go
-- [ ] T012 Implement POST /events handler that accepts event array and returns updated history in src/handlers/events.go
-- [ ] T013 Add JSON serialization/deserialization with error handling for malformed requests in src/handlers/events.go
+- [x] T008 Create Event struct with fields: uuid, timestamp, userUuid, itemUuid, action, payload in src/models/event.go
+- [x] T009 Implement thread-safe in-memory storage using slice and RWMutex in src/storage/memory.go
+- [x] T010 Implement GET /events handler that returns all events as JSON array in src/handlers/events.go
+- [x] T011 Implement GET /events?fromTimestamp=X handler with timestamp filtering in src/handlers/events.go
+- [x] T012 Implement POST /events handler that accepts event array and returns updated history in src/handlers/events.go
+- [x] T013 Add JSON serialization/deserialization with error handling for malformed requests in src/handlers/events.go
 
 ## Phase 3.4: Integration
-- [ ] T014 Set up main.go with Gin router, register /events routes, and configurable port (default 8080)
-- [ ] T015 Add proper HTTP status codes (200, 400, 500) to all handlers
-- [ ] T016 Implement concurrent request handling with thread-safe storage access
+- [x] T014 Set up main.go with Gin router, register /events routes, and configurable port (default 8080)
+- [x] T015 Add proper HTTP status codes (200, 400, 500) to all handlers
+- [x] T016 Implement concurrent request handling with thread-safe storage access
 
 ## Phase 3.5: Polish
-- [ ] T017 [P] Add basic unit tests for Event model validation in tests/unit/test_event_model.go
-- [ ] T018 Run all contract tests to ensure they pass after implementation
-- [ ] T019 Test server startup on port 8080 and basic endpoint responses
-- [ ] T020 [P] Add inline documentation and comments following Go best practices
+- [x] T017 [P] Add basic unit tests for Event model validation in tests/unit/test_event_model.go
+- [x] T018 Run all contract tests to ensure they pass after implementation
+- [x] T019 Test server startup on port 8080 and basic endpoint responses
+- [x] T020 [P] Add inline documentation and comments following Go best practices
 
 ## Dependencies
 - Setup (T001-T004) before everything
