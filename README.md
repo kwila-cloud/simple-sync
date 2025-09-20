@@ -23,10 +23,16 @@ To run `simple-sync` using Docker Compose, follow these steps:
 
 ### Running Tests
 
-To run the complete test suite with race detection:
+To run the test suite:
 
+Run unit, contract, and integration tests with race detection:
 ```bash
-go test -race ./tests/...
+go test -race ./tests/unit ./tests/contract ./tests/integration
+```
+
+Run performance tests (without race detection):
+```bash
+go test ./tests/performance
 ```
 
 This will run all tests including:
