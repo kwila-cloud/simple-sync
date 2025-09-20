@@ -47,7 +47,11 @@
 ## Constitution Check
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- RESTful API Design: All planned endpoints MUST use appropriate HTTP methods and follow resource-oriented patterns.
+- Event-Driven Architecture: Data model MUST be based on timestamped events with user/item metadata.
+- Authentication and Authorization: JWT auth and ACL permissions MUST be integrated into the design.
+- Data Persistence: File-based JSON storage MUST be used for data survival.
+- Security and Access Control: ACL rules MUST be evaluated with deny-by-default behavior.
 
 ## Project Structure
 
@@ -208,4 +212,4 @@ ios/ or android/
 - [ ] Complexity deviations documented
 
 ---
-*Based on Constitution v2.1.1 - See `/memory/constitution.md`*
+*Based on Constitution v1.0.0 - See `/memory/constitution.md`*

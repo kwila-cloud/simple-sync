@@ -1,50 +1,38 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+- Version change: none → 1.0.0
+- List of modified principles: Initial principles added
+- Added sections: Technology Stack, Development Workflow
+- Removed sections: none
+- Templates requiring updates: .specify/templates/plan-template.md (Constitution Check section), .specify/templates/tasks-template.md (version reference), .specify/templates/agent-file-template.md ([PROJECT NAME])
+- Follow-up TODOs: none
+-->
+# simple-sync Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. RESTful API Design
+All API endpoints MUST follow REST principles, using appropriate HTTP methods (GET, POST, PUT, DELETE) and status codes. Endpoints MUST be resource-oriented, stateless, and provide consistent JSON responses. Rationale: Ensures predictable and maintainable API interactions for clients.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Event-Driven Architecture
+The system MUST store and manage data as a sequence of timestamped events with user, item, and action metadata. All data operations MUST be append-only to the event history. Rationale: Supports local-first synchronization and audit trails.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Authentication and Authorization
+All endpoints except public ones MUST require JWT-based authentication. Access control MUST be enforced via ACL rules that define user permissions on items and actions. Rationale: Protects data integrity and user privacy in a multi-user environment.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Data Persistence
+Data MUST be persisted to file-based storage (JSON format) for simplicity and portability. The system MUST maintain data integrity across restarts. Rationale: Aligns with local-first philosophy and reduces deployment complexity.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Security and Access Control
+ACL rules MUST be evaluated in order, with deny-by-default behavior. Wildcard support MUST be provided for flexible permission management. Rationale: Ensures fine-grained control over data access while maintaining security.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Technology Stack
+The project MUST use Go with Gin web framework, SQLite for data storage, JWT for authentication, and TOML for configuration. All dependencies MUST be justified for simplicity, performance, and maintainability. Rationale: Chosen stack optimizes for the project's goals of simple code and high maintainability.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
-
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Development Workflow
+Development MUST follow an issue-driven workflow using GitHub CLI for tracking. Features MUST be implemented incrementally with testing. Code MUST be committed with descriptive messages referencing issues. Rationale: Ensures structured progress and accountability.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+Amendments to this constitution require consensus among maintainers and MUST be documented with rationale. Versioning follows semantic rules: MAJOR for breaking changes, MINOR for additions, PATCH for clarifications. All changes MUST be reviewed for compliance. Rationale: Maintains project integrity and guides decision-making.
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
-
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2025-09-20 | **Last Amended**: 2025-09-20

@@ -1,4 +1,4 @@
-# [PROJECT NAME] Development Guidelines
+# simple-sync Development Guidelines
 
 Auto-generated from all feature plans. Last updated: [DATE]
 
