@@ -45,7 +45,7 @@
 - **Authentication**: JWT tokens issued on login, validated on requests
 
 ## Storage Patterns
-- Events: Append-only JSON array in data/events.json
-- Users: JSON object map in memory (for MVP)
-- ACL: JSON array in data/acl.json
-- All data persisted to files with atomic writes
+- Events: Stored in SQLite events table with indexed timestamp
+- Users: Stored in SQLite users table with unique username constraint
+- ACL: Stored in SQLite acl table with user/item indexes
+- All data persisted to SQLite database with ACID transactions

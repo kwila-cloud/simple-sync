@@ -1,10 +1,10 @@
 <!--
 Sync Impact Report:
-- Version change: none → 1.0.0
-- List of modified principles: Initial principles added
-- Added sections: Technology Stack, Development Workflow
+- Version change: 1.0.0 → 1.1.0
+- List of modified principles: IV. Data Persistence (updated storage from file-based JSON to SQLite)
+- Added sections: none
 - Removed sections: none
-- Templates requiring updates: .specify/templates/plan-template.md (Constitution Check section), .specify/templates/tasks-template.md (version reference), .specify/templates/agent-file-template.md ([PROJECT NAME])
+- Templates requiring updates: none
 - Follow-up TODOs: none
 -->
 # simple-sync Constitution
@@ -21,7 +21,7 @@ The system MUST store and manage data as a sequence of timestamped events with u
 All endpoints except public ones MUST require JWT-based authentication. Access control MUST be enforced via ACL rules that define user permissions on items and actions. Rationale: Protects data integrity and user privacy in a multi-user environment.
 
 ### IV. Data Persistence
-Data MUST be persisted to file-based storage (JSON format) for simplicity and portability. The system MUST maintain data integrity across restarts. Rationale: Aligns with local-first philosophy and reduces deployment complexity.
+Data MUST be persisted to SQLite database for reliability and performance. The system MUST maintain data integrity across restarts with ACID transactions. Rationale: Provides robust data storage with concurrent access support while maintaining simplicity.
 
 ### V. Security and Access Control
 ACL rules MUST be evaluated in order, with deny-by-default behavior. Wildcard support MUST be provided for flexible permission management. Rationale: Ensures fine-grained control over data access while maintaining security.
@@ -35,4 +35,4 @@ Development MUST follow an issue-driven workflow using GitHub CLI for tracking. 
 ## Governance
 Amendments to this constitution require consensus among maintainers and MUST be documented with rationale. Versioning follows semantic rules: MAJOR for breaking changes, MINOR for additions, PATCH for clarifications. All changes MUST be reviewed for compliance. Rationale: Maintains project integrity and guides decision-making.
 
-**Version**: 1.0.0 | **Ratified**: 2025-09-20 | **Last Amended**: 2025-09-20
+**Version**: 1.1.0 | **Ratified**: 2025-09-20 | **Last Amended**: 2025-09-20

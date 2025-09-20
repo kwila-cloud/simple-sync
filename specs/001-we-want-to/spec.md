@@ -65,7 +65,7 @@ As a developer building frontend applications, I want to easily deploy a high-pe
 ### Edge Cases
 - What happens when the system receives a high volume of concurrent requests?
 - How does the system handle invalid JWT tokens or unauthorized access attempts?
-- What occurs if the file-based storage becomes corrupted or unavailable?
+- What occurs if the SQLite database becomes corrupted or unavailable?
 
 ## Requirements *(mandatory)*
 
@@ -73,7 +73,7 @@ As a developer building frontend applications, I want to easily deploy a high-pe
 - **FR-001**: System MUST provide REST API endpoints for managing events, including GET and POST /events as specified in docs/api.md
 - **FR-002**: System MUST implement ACL-based access control for users and items, supporting rules with wildcards as described in docs/acl.md
 - **FR-003**: System MUST support JWT authentication for user login and token validation
-- **FR-004**: System MUST persist event data and ACL configurations to file-based storage for data survival across restarts
+- **FR-004**: System MUST persist event data and ACL configurations to SQLite database for data survival across restarts
 - **FR-005**: System MUST be deployable via docker compose with minimal configuration for easy setup by developers
 - **FR-006**: System MUST handle high-performance scenarios with efficient data querying and storage operations
 - **FR-007**: System MUST provide admin endpoints for user management as outlined in docs/api.md

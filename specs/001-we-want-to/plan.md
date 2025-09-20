@@ -36,7 +36,7 @@ Implement GitHub issue #2: Basic event storage with GET/POST /events endpoints u
 ## Technical Context
 **Language/Version**: Go 1.25  
 **Primary Dependencies**: Gin web framework, golang-jwt for future auth  
-**Storage**: In-memory for issue #2, file-based JSON for future persistence  
+**Storage**: In-memory for issue #2, SQLite for future persistence  
 **Testing**: Go built-in testing framework with contract and integration tests  
 **Target Platform**: Linux server with Docker deployment  
 **Project Type**: Single backend API project  
@@ -50,7 +50,7 @@ Implement GitHub issue #2: Basic event storage with GET/POST /events endpoints u
 - RESTful API Design: All planned endpoints MUST use appropriate HTTP methods and follow resource-oriented patterns.
 - Event-Driven Architecture: Data model MUST be based on timestamped events with user/item metadata.
 - Authentication and Authorization: JWT auth and ACL permissions MUST be integrated into the design.
-- Data Persistence: File-based JSON storage MUST be used for data survival.
+- Data Persistence: SQLite storage MUST be used for data survival.
 - Security and Access Control: ACL rules MUST be evaluated with deny-by-default behavior.
 
 ## Project Structure

@@ -10,10 +10,10 @@
 - **Rationale**: Stateless authentication fits REST principles, HMAC provides good security for MVP
 - **Alternatives considered**: Custom token system (complex), OAuth (overkill for MVP)
 
-## File-Based JSON Storage Patterns for Concurrent Access
-- **Decision**: Use atomic file writes with temporary files, RWMutex for in-memory cache
-- **Rationale**: Ensures data integrity during concurrent writes, JSON keeps it human-readable
-- **Alternatives considered**: Direct file writes (risk of corruption), database (adds complexity)
+## SQLite Storage Patterns for Concurrent Access
+- **Decision**: Use SQLite with WAL mode, prepared statements, and connection pooling
+- **Rationale**: ACID transactions ensure data integrity, WAL mode handles concurrent reads/writes efficiently, better performance than file-based storage
+- **Alternatives considered**: File-based JSON (simpler but prone to corruption), PostgreSQL (adds deployment complexity)
 
 ## ACL Implementation Patterns
 - **Decision**: In-memory ACL with deny-by-default, wildcard support for flexible permissions

@@ -13,13 +13,13 @@ This is a Go REST API project using Gin framework for event storage and access c
 - `handlers/`: HTTP endpoint handlers
 - `models/`: Data structures for events, users, ACL
 - `middleware/`: Authentication and CORS middleware
-- `storage/`: File-based persistence layer
+- `storage/`: SQLite persistence layer
 - `main.go`: Application entry point
 
 ## Technical Requirements
 - Use Gin web framework for HTTP handling
 - Implement JWT authentication
-- Use file-based JSON storage for persistence
+- Use SQLite for data storage
 - Support CORS for web clients
 - Return appropriate HTTP status codes
 - Handle malformed requests gracefully
