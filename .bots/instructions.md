@@ -11,10 +11,9 @@ This is a Go REST API project using Gin framework for event storage and access c
 
 ## Pull Request Requirements
 - **CHANGELOG.md MUST be updated** for every pull request that introduces user-facing changes
-- Document new features, bug fixes, and breaking changes
-- Follow the existing CHANGELOG format with PR links
 - Include version numbers and dates for releases
-- Keep entries clear and descriptive for users
+- Follow the existing CHANGELOG format with pull request links (NOT issue links)
+- Keep entries less than five lines
 
 ## Project Structure
 - `handlers/`: HTTP endpoint handlers

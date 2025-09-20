@@ -6,6 +6,7 @@ The Access Control List (ACL) defines the relationships between users, items, an
 
 *   All users can view all items. This means that `simple-sync` is **only** appropriate for situations where **all** users of the system can be trusted to view **all** data in the system.
 *   By default, a user cannot perform any action on any item unless explicitly allowed by an ACL rule (deny all by default).
+  * Note: there is a difference between viewing items and performing actions on items. All users can view all items because they can read all the events. However, they can not submit new events that perform actions on items without ACL rules to allow it.
 
 ## ACL Structure
 

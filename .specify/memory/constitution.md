@@ -1,7 +1,7 @@
 <!--
 Sync Impact Report:
-- Version change: 1.0.0 → 1.1.0
-- List of modified principles: IV. Data Persistence (updated storage from file-based JSON to SQLite)
+- Version change: 1.1.0 → 1.1.1
+- List of modified principles: VI. Development Workflow (added testing conventions)
 - Added sections: none
 - Removed sections: none
 - Templates requiring updates: none
@@ -30,9 +30,9 @@ ACL rules MUST be evaluated in order, with deny-by-default behavior. Wildcard su
 The project MUST use Go with Gin web framework, SQLite for data storage, JWT for authentication, and TOML for configuration. All dependencies MUST be justified for simplicity, performance, and maintainability. Rationale: Chosen stack optimizes for the project's goals of simple code and high maintainability.
 
 ## Development Workflow
-Development MUST follow an issue-driven workflow using GitHub CLI for tracking. Features MUST be implemented incrementally with testing. Code MUST be committed with descriptive messages referencing issues. Rationale: Ensures structured progress and accountability.
+Development MUST follow an issue-driven workflow using GitHub CLI for tracking. Features MUST be implemented incrementally with testing. Code MUST be committed with descriptive messages referencing issues. Test files MUST follow Go naming conventions with "_test.go" suffix. Rationale: Ensures structured progress, accountability, and adherence to Go testing standards.
 
 ## Governance
 Amendments to this constitution require consensus among maintainers and MUST be documented with rationale. Versioning follows semantic rules: MAJOR for breaking changes, MINOR for additions, PATCH for clarifications. All changes MUST be reviewed for compliance. Rationale: Maintains project integrity and guides decision-making.
 
-**Version**: 1.1.0 | **Ratified**: 2025-09-20 | **Last Amended**: 2025-09-20
+**Version**: 1.1.1 | **Ratified**: 2025-09-20 | **Last Amended**: 2025-09-20

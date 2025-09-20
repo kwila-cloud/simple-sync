@@ -220,7 +220,7 @@ Access to the `/acl` endpoint is restricted to administrators. Administrators ar
 
     {
         "username": "testuser",
-        "password": "testpassword"
+        "password": "testpass123"
     }
     ```
 

@@ -7,6 +7,8 @@ Built with [Go](https://go.dev/), [Gin](https://github.com/gin-gonic/gin), [SQLi
 
 ## Quick Start
 
+**NOTE** - This isn't implemented yet. Docker support will be added in #1
+
 To run `simple-sync` using Docker Compose, follow these steps:
 
 1.  Download the [`docker-compose.yml`](docker-compose.yml) file from the repository.
@@ -15,8 +17,54 @@ To run `simple-sync` using Docker Compose, follow these steps:
     JWT_SECRET=your_generated_jwt_secret
     ```
 1.  Replace `your_generated_jwt_secret` with a securely generated random string. You can generate one using `openssl rand -base64 32`.
+    **⚠️ REQUIRED:** JWT_SECRET is mandatory - the application will exit with an error if not set.
 1.  Add your frontend to `docker-compose.yml` (for example, [Home-Chores](https://github.com/el-apps/Home-Chores)).
 1.  Run `docker-compose up -d` to start the services in detached mode.
+
+## Development
+
+### Building
+
+To build the application:
+
+```bash
+go build -o simple-sync ./src
+```
+
+This will make a `simple-sync` executable file.
+
+### Running Locally
+
+To run the application locally:
+
+```bash
+# Set JWT secret (required)
+export JWT_SECRET="your-jwt-secret-here"
+
+# Run the server
+go run ./src
+
+The server will start on port 8080 by default.
+
+### Running Tests
+
+To run the test suite:
+
+Run unit, contract, and integration tests with race detection:
+```bash
+go test -race ./tests/unit ./tests/contract ./tests/integration
+```
+
+Run performance tests (without race detection):
+```bash
+go test ./tests/performance
+```
+
+This will run all tests including:
+- **Contract tests** (`tests/contract/`) - API contract validation
+- **Integration tests** (`tests/integration/`) - Full workflow testing
+- **Unit tests** (`tests/unit/`) - Individual component testing
+- **Performance tests** (`tests/performance/`) - Response time validation
 
 ## Events
 

@@ -1,0 +1,279 @@
+openapi: 3.0.3
+info:
+  title: Simple-Sync Authentication API
+  version: 1.0.0
+  description: JWT-based authentication endpoints for simple-sync
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+
+paths:
+  /auth/token:
+    post:
+      summary: Generate JWT authentication token
+      description: Authenticate user credentials and return a JWT token for API access
+      operationId: createAuthToken
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  description: User's login username
+                  example: "testuser"
+                password:
+                  type: string
+                  description: User's password
+                  example: "testpass123"
+            example:
+              username: "testuser"
+              password: "testpass123"
+      responses:
+        '200':
+          description: Authentication successful, JWT token returned
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - token
+                properties:
+                  token:
+                    type: string
+                    description: JWT token for API authentication
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+              example:
+                token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid request format"
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid username or password"
+
+  /events:
+    get:
+      summary: Retrieve events (protected)
+      description: Get event history - requires authentication
+      operationId: getEvents
+      tags:
+        - Events
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: fromTimestamp
+          in: query
+          schema:
+            type: integer
+            format: int64
+          description: Only return events after this timestamp
+          example: 1678886400
+      responses:
+        '200':
+          description: Events retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    uuid:
+                      type: string
+                      format: uuid
+                    timestamp:
+                      type: integer
+                      format: int64
+                    userUuid:
+                      type: string
+                      format: uuid
+                    itemUuid:
+                      type: string
+                      format: uuid
+                    action:
+                      type: string
+                      enum: [create, update, delete]
+                    payload:
+                      type: string
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                properties:
+                  error:
+                    type: string
+                    example: "Authorization header required"
+    post:
+      summary: Create new events (protected)
+      description: Submit new events to the system - requires authentication
+      operationId: createEvents
+      tags:
+        - Events
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                required:
+                  - uuid
+                  - timestamp
+                  - userUuid
+                  - itemUuid
+                  - action
+                  - payload
+                properties:
+                  uuid:
+                    type: string
+                    format: uuid
+                    description: Unique event identifier
+                  timestamp:
+                    type: integer
+                    format: int64
+                    description: Event timestamp
+                  userUuid:
+                    type: string
+                    format: uuid
+                    description: User who created the event
+                  itemUuid:
+                    type: string
+                    format: uuid
+                    description: Item being modified
+                  action:
+                    type: string
+                    enum: [create, update, delete]
+                    description: Action performed
+                  payload:
+                    type: string
+                    description: Event data payload
+      responses:
+        '200':
+          description: Events created successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  description: All events in the system after the new events were added
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                properties:
+                  error:
+                    type: string
+                    example: "Authorization header required"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /auth/token endpoint
+
+  schemas:
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message
+
+    UserCredentials:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          description: User's login username
+        password:
+          type: string
+          description: User's password
+
+    AuthToken:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          description: JWT authentication token
+
+    Event:
+      type: object
+      required:
+        - uuid
+        - timestamp
+        - userUuid
+        - itemUuid
+        - action
+        - payload
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unique event identifier
+        timestamp:
+          type: integer
+          format: int64
+          description: Event timestamp (Unix timestamp)
+        userUuid:
+          type: string
+          format: uuid
+          description: User who created the event
+        itemUuid:
+          type: string
+          format: uuid
+          description: Item being modified
+        action:
+          type: string
+          enum: [create, update, delete]
+          description: Action performed
+        payload:
+          type: string
+          description: Event data payload (JSON string)
