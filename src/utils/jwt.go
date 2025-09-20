@@ -26,10 +26,3 @@ func ExtractTokenFromHeader(authHeader string) (string, error) {
 func ValidateAndExtractClaims(tokenString string, authService *services.AuthService) (*models.TokenClaims, error) {
 	return authService.ValidateToken(tokenString)
 }
-
-// IsTokenExpired checks if token claims indicate expiration
-func IsTokenExpired(claims *models.TokenClaims) bool {
-	// This is redundant since ValidateToken already checks expiration
-	// But keeping as utility
-	return false // jwt library handles this
-}

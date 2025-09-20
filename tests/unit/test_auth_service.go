@@ -54,16 +54,3 @@ func TestValidateToken(t *testing.T) {
 	// Test expired token (simulate by creating old token)
 	// Note: For full test, would need to mock time
 }
-
-func TestGetUserByUUID(t *testing.T) {
-	authService := services.NewAuthService("test-secret")
-
-	// Test existing user
-	user, err := authService.GetUserByUUID("user-123")
-	assert.NoError(t, err)
-	assert.Equal(t, "testuser", user.Username)
-
-	// Test non-existing user
-	_, err = authService.GetUserByUUID("non-existing")
-	assert.Error(t, err)
-}

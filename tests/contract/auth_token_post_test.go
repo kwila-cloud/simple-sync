@@ -42,7 +42,7 @@ func TestPostAuthToken(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	// Assert response according to contract
-	// Expected: 200 with token, but will fail since endpoint doesn't exist
+	// Expected: 200 with token
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 

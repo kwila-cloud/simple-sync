@@ -78,13 +78,3 @@ func (s *AuthService) ValidateToken(tokenString string) (*models.TokenClaims, er
 
 	return nil, errors.New("Invalid token")
 }
-
-// GetUserByUUID retrieves a user by UUID
-func (s *AuthService) GetUserByUUID(uuid string) (*models.User, error) {
-	for _, user := range s.users {
-		if user.UUID == uuid {
-			return user, nil
-		}
-	}
-	return nil, errors.New("User not found")
-}
