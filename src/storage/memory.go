@@ -27,12 +27,26 @@ func (m *MemoryStorage) SaveEvents(events []models.Event) error {
 	return nil
 }
 
-// LoadEvents returns all stored events
-func (m *MemoryStorage) LoadEvents() ([]models.Event, error) {
+// LoadEvents returns all stored events, optionally filtered by fromTimestamp
+func (m *MemoryStorage) LoadEvents(fromTimestamp *uint64) ([]models.Event, error) {
 	m.mutex.RLock()
 	defer m.mutex.RUnlock()
-	// Return a copy to prevent external modification
-	events := make([]models.Event, len(m.events))
-	copy(events, m.events)
-	return events, nil
+
+	allEvents := make([]models.Event, len(m.events))
+	copy(allEvents, m.events)
+
+	// If no timestamp filter is provided, return all events
+	if fromTimestamp == nil {
+		return allEvents, nil
+	}
+
+	// Filter events by timestamp
+	filteredEvents := make([]models.Event, 0)
+	for _, event := range allEvents {
+		if event.Timestamp >= *fromTimestamp {
+			filteredEvents = append(filteredEvents, event)
+		}
+	}
+
+	return filteredEvents, nil
 }

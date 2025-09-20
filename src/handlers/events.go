@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
 	"simple-sync/src/models"
 	"simple-sync/src/services"
@@ -39,35 +41,28 @@ func (h *Handlers) GetEvents(c *gin.Context) {
 		return
 	}
 
-	// Check for fromTimestamp query parameter
+	// Determine fromTimestamp filter (nil means no filter)
+	var fromTimestamp *uint64
+
 	fromTimestampStr := c.Query("fromTimestamp")
 	if fromTimestampStr != "" {
-		fromTimestamp, err := strconv.ParseUint(fromTimestampStr, 10, 64)
+		parsedTimestamp, err := strconv.ParseUint(fromTimestampStr, 10, 64)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid timestamp parameter"})
 			return
 		}
 
-		// Filter events by timestamp
-		allEvents, err := h.storage.LoadEvents()
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		// Validate timestamp bounds
+		if err := validateTimestamp(parsedTimestamp); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid timestamp parameter"})
 			return
 		}
 
-		filteredEvents := make([]models.Event, 0)
-		for _, event := range allEvents {
-			if event.Timestamp >= fromTimestamp {
-				filteredEvents = append(filteredEvents, event)
-			}
-		}
-
-		c.JSON(http.StatusOK, filteredEvents)
-		return
+		fromTimestamp = &parsedTimestamp
 	}
 
-	// Return all events
-	events, err := h.storage.LoadEvents()
+	// Load events (filtered or all)
+	events, err := h.storage.LoadEvents(fromTimestamp)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
@@ -99,10 +94,13 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required fields"})
 			return
 		}
-		if events[i].Timestamp == 0 {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid timestamp"})
+
+		// Enhanced timestamp validation
+		if err := validateTimestamp(events[i].Timestamp); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+
 		// Override user UUID with authenticated user
 		events[i].UserUUID = userUUID.(string)
 	}
@@ -114,13 +112,30 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 	}
 
 	// Return all events (including newly added)
-	allEvents, err := h.storage.LoadEvents()
+	allEvents, err := h.storage.LoadEvents(nil)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
 
 	c.JSON(http.StatusOK, allEvents)
+}
+
+// validateTimestamp performs enhanced timestamp validation
+func validateTimestamp(timestamp uint64) error {
+	// Basic zero check
+	if timestamp == 0 {
+		return errors.New("Invalid timestamp")
+	}
+
+	// Maximum timestamp: Allow up to 24 hours in the future for clock skew tolerance
+	now := time.Now().Unix()
+	maxTimestamp := now + (24 * 60 * 60) // 24 hours from now
+	if int64(timestamp) > maxTimestamp {
+		return errors.New("Invalid timestamp")
+	}
+
+	return nil
 }
 
 // PostAuthToken handles POST /auth/token
