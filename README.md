@@ -23,6 +23,29 @@ To run `simple-sync` using Docker Compose, follow these steps:
 
 ## Development
 
+### Building
+
+To build the application:
+
+```bash
+go build -o simple-sync ./src
+```
+
+This will make a `simple-sync` executable file.
+
+### Running Locally
+
+To run the application locally:
+
+```bash
+# Set JWT secret (required)
+export JWT_SECRET="your-jwt-secret-here"
+
+# Run the server
+go run ./src
+
+The server will start on port 8080 by default.
+
 ### Running Tests
 
 To run the test suite:
@@ -42,27 +65,6 @@ This will run all tests including:
 - **Integration tests** (`tests/integration/`) - Full workflow testing
 - **Unit tests** (`tests/unit/`) - Individual component testing
 - **Performance tests** (`tests/performance/`) - Response time validation
-
-### Building
-
-To build the application:
-
-```bash
-go build -o simple-sync ./src
-```
-
-### Running Locally
-
-To run the application locally:
-
-```bash
-# Set JWT secret (required)
-export JWT_SECRET="your-jwt-secret-here"
-
-# Run the server
-go run ./src
-
-The server will start on port 8080 by default.
 
 ## Events
 
