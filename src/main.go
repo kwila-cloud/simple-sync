@@ -11,6 +11,9 @@ import (
 )
 
 func main() {
+	// Print version information
+	log.Printf("Simple-Sync v%s (build: %s)", Version, BuildTime)
+
 	// Initialize storage
 	store := storage.NewMemoryStorage()
 
