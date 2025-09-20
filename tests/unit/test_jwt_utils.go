@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"simple-sync/src/services"
+	"simple-sync/src/storage"
 	"simple-sync/src/utils"
 
 	"github.com/stretchr/testify/assert"
@@ -29,8 +30,9 @@ func TestExtractTokenFromHeader(t *testing.T) {
 }
 
 func TestValidateAndExtractClaims(t *testing.T) {
-	// Setup auth service
-	authService := services.NewAuthService("test-secret")
+	// Setup storage and auth service
+	store := storage.NewMemoryStorage()
+	authService := services.NewAuthService("test-secret", store)
 
 	// Get a valid token
 	user, _ := authService.Authenticate("testuser", "testpass123")

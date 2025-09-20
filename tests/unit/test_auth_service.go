@@ -4,12 +4,14 @@ import (
 	"testing"
 
 	"simple-sync/src/services"
+	"simple-sync/src/storage"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAuthenticate(t *testing.T) {
-	authService := services.NewAuthService("test-secret")
+	store := storage.NewMemoryStorage()
+	authService := services.NewAuthService("test-secret", store)
 
 	// Test valid credentials
 	user, err := authService.Authenticate("testuser", "testpass123")
@@ -27,7 +29,8 @@ func TestAuthenticate(t *testing.T) {
 }
 
 func TestGenerateToken(t *testing.T) {
-	authService := services.NewAuthService("test-secret")
+	store := storage.NewMemoryStorage()
+	authService := services.NewAuthService("test-secret", store)
 
 	user, _ := authService.Authenticate("testuser", "testpass123")
 	token, err := authService.GenerateToken(user)
@@ -36,7 +39,8 @@ func TestGenerateToken(t *testing.T) {
 }
 
 func TestValidateToken(t *testing.T) {
-	authService := services.NewAuthService("test-secret")
+	store := storage.NewMemoryStorage()
+	authService := services.NewAuthService("test-secret", store)
 
 	user, _ := authService.Authenticate("testuser", "testpass123")
 	token, _ := authService.GenerateToken(user)

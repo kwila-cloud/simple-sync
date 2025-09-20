@@ -15,15 +15,15 @@ import (
 
 // Handlers contains the HTTP handlers for events
 type Handlers struct {
-	storage     *storage.MemoryStorage
+	storage     storage.Storage
 	authService *services.AuthService
 }
 
 // NewHandlers creates a new handlers instance
-func NewHandlers(storage *storage.MemoryStorage, jwtSecret string) *Handlers {
+func NewHandlers(storage storage.Storage, jwtSecret string) *Handlers {
 	return &Handlers{
 		storage:     storage,
-		authService: services.NewAuthService(jwtSecret),
+		authService: services.NewAuthService(jwtSecret, storage),
 	}
 }
 

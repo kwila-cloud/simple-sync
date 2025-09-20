@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"simple-sync/src/models"
+	"simple-sync/src/storage"
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -13,32 +14,32 @@ import (
 // AuthService handles authentication operations
 type AuthService struct {
 	jwtSecret []byte
-	users     map[string]*models.User // In-memory user store for MVP
+	storage   storage.Storage
 }
 
 // NewAuthService creates a new auth service
-func NewAuthService(jwtSecret string) *AuthService {
+func NewAuthService(jwtSecret string, storage storage.Storage) *AuthService {
 	service := &AuthService{
 		jwtSecret: []byte(jwtSecret),
-		users:     make(map[string]*models.User),
+		storage:   storage,
 	}
 
 	// Add default user for MVP with password hashing
 	defaultUser, _ := models.NewUserWithPassword("user-123", "testuser", "testpass123", false)
-	service.users[defaultUser.Username] = defaultUser
+	storage.SaveUser(defaultUser)
 
 	return service
 }
 
 // Authenticate validates user credentials and returns user if valid
 func (s *AuthService) Authenticate(username, password string) (*models.User, error) {
-	user, exists := s.users[username]
-	if !exists {
+	user, err := s.storage.GetUserByUsername(username)
+	if err != nil {
 		return nil, errors.New("Invalid username or password")
 	}
 
 	// Verify password using bcrypt
-	err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
 	if err != nil {
 		return nil, errors.New("Invalid username or password")
 	}
