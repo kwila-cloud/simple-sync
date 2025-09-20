@@ -5,7 +5,7 @@
 Simple-sync is a lightweight REST API built in Go that provides event storage and access control functionality. The system allows users to authenticate, store timestamped events for specific items, and manage permissions through Access Control Lists (ACLs).
 
 **Technology Stack:**
-- Go with Gin web framework
+- Go 1.25 with Gin web framework
 - JWT authentication
 - File-based persistent storage (JSON)
 - CORS support for web clients
@@ -375,5 +375,12 @@ cat data/acl.json | jq length
 # Test specific endpoints
 curl -v http://localhost:8080/health
 ```
+
+## Current Implementation Plan
+- **Feature**: High Performance REST API for simple-sync
+- **Branch**: 001-we-want-to
+- **Tech Stack**: Go 1.25, Gin, golang-jwt, file-based JSON storage
+- **Issues Order**: #2 (events), #7 (persistence), #4 (auth), #5 (ACL), #6 (CORS), #1 (Docker)
+- **Approach**: TDD with contract tests, stop for PR after each issue
 
 Remember to always test your changes incrementally and verify that existing functionality still works after implementing new features.
