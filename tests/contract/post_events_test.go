@@ -6,6 +6,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"simple-sync/src/handlers"
+	"simple-sync/src/storage"
+
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
@@ -15,8 +18,12 @@ func TestPostEvents(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// TODO: Register routes when handlers are implemented
-	// router.POST("/events", handlers.PostEvents)
+	// Setup storage and handlers
+	store := storage.NewMemoryStorage()
+	h := handlers.NewHandlers(store)
+
+	// Register routes
+	router.POST("/events", h.PostEvents)
 
 	// Sample event data
 	eventJSON := `[{

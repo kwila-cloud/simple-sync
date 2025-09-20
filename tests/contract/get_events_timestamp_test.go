@@ -5,6 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"simple-sync/src/handlers"
+	"simple-sync/src/storage"
+
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
@@ -14,8 +17,12 @@ func TestGetEventsWithTimestamp(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// TODO: Register routes when handlers are implemented
-	// router.GET("/events", handlers.GetEvents)
+	// Setup storage and handlers
+	store := storage.NewMemoryStorage()
+	h := handlers.NewHandlers(store)
+
+	// Register routes
+	router.GET("/events", h.GetEvents)
 
 	// Create test request with timestamp query
 	req, _ := http.NewRequest("GET", "/events?fromTimestamp=1640995200", nil)
