@@ -4,6 +4,8 @@ import (
 	"errors"
 	"regexp"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 // User represents an authenticated user in the system
@@ -61,4 +63,15 @@ func NewUser(uuid, username, passwordHash string, isAdmin bool) (*User, error) {
 	}
 
 	return user, nil
+}
+
+// NewUserWithPassword creates a new User with password hashing
+func NewUserWithPassword(uuid, username, plainPassword string, isAdmin bool) (*User, error) {
+	// Hash the password using bcrypt
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(plainPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewUser(uuid, username, string(hashedPassword), isAdmin)
 }

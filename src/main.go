@@ -15,11 +15,10 @@ func main() {
 	// Print version information
 	log.Printf("Simple-Sync v%s (build: %s)", Version, BuildTime)
 
-	// Get JWT secret from environment
+	// Get JWT secret from environment - required for security
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
-		jwtSecret = "your-super-secret-jwt-key-change-in-production" // Default for development
-		log.Printf("Warning: Using default JWT secret. Set JWT_SECRET environment variable for production.")
+		log.Fatal("Error: JWT_SECRET environment variable is required. Please set a secure JWT secret key.")
 	}
 
 	// Initialize storage

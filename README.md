@@ -15,6 +15,7 @@ To run `simple-sync` using Docker Compose, follow these steps:
     JWT_SECRET=your_generated_jwt_secret
     ```
 1.  Replace `your_generated_jwt_secret` with a securely generated random string. You can generate one using `openssl rand -base64 32`.
+    **⚠️ REQUIRED:** JWT_SECRET is mandatory - the application will exit with an error if not set.
 1.  Add your frontend to `docker-compose.yml` (for example, [Home-Chores](https://github.com/el-apps/Home-Chores)).
 1.  Run `docker-compose up -d` to start the services in detached mode.
 
@@ -52,7 +53,6 @@ export JWT_SECRET="your-jwt-secret-here"
 
 # Run the server
 go run ./src
-```
 
 The server will start on port 8080 by default.
 

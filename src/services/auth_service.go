@@ -23,9 +23,8 @@ func NewAuthService(jwtSecret string) *AuthService {
 		users:     make(map[string]*models.User),
 	}
 
-	// Add default user for MVP with bcrypt hashed password
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("testpass123"), bcrypt.DefaultCost)
-	defaultUser, _ := models.NewUser("user-123", "testuser", string(hashedPassword), false)
+	// Add default user for MVP with password hashing
+	defaultUser, _ := models.NewUserWithPassword("user-123", "testuser", "testpass123", false)
 	service.users[defaultUser.Username] = defaultUser
 
 	return service
