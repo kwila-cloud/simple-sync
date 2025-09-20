@@ -95,6 +95,7 @@ gh issue develop <issue-number> --checkout
 - Implement HTTP handlers in `handlers/`
 - Add middleware if needed in `middleware/`
 - Update main.go to wire everything together
+- Follow Go testing conventions: test files must end with "_test.go" (not start with "test_")
 
 **4. Commit and Push:**
 ```bash
