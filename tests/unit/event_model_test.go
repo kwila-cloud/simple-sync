@@ -41,10 +41,10 @@ func TestEventFields(t *testing.T) {
 		Payload:   `{"key": "value"}`,
 	}
 
-	assert.Equal(t, "test-uuid", event.UUID)
-	assert.Equal(t, uint64(1234567890), event.Timestamp)
-	assert.Equal(t, "user-uuid", event.UserUUID)
-	assert.Equal(t, "item-uuid", event.ItemUUID)
-	assert.Equal(t, "update", event.Action)
-	assert.Equal(t, `{"key": "value"}`, event.Payload)
+	assert.Equal(t, event.UUID, "test-uuid")
+	assert.Equal(t, event.Timestamp, uint64(1234567890))
+	assert.Equal(t, event.UserUUID, "user-uuid")
+	assert.Equal(t, event.ItemUUID, "item-uuid")
+	assert.Equal(t, event.Action, "update")
+	assert.Equal(t, event.Payload, `{"key": "value"}`)
 }
