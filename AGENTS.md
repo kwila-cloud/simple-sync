@@ -363,15 +363,6 @@ type Storage interface {
 - 400: Invalid request format
 - 500: Server/storage errors
 
-
-
-## Current Implementation Plan
-- **Feature**: High Performance REST API for simple-sync
-- **Branch**: 001-we-want-to
-- **Tech Stack**: Go 1.25, Gin, golang-jwt, SQLite
-- **Issues Order**: #2 (events), #7 (persistence), #4 (auth), #5 (ACL), #6 (CORS), #1 (Docker)
-- **Approach**: TDD with contract tests, stop for PR after each issue
-
 Remember to always test your changes incrementally and verify that existing functionality still works after implementing new features.
 
 ## Debug Commands
