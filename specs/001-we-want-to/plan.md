@@ -1,4 +1,5 @@
-# Implementation Plan: High Performance REST API for simple-sync
+
+# Implementation Plan: High Performance REST API for simple-sync (Issue #2 Focus)
 
 **Branch**: `001-we-want-to` | **Date**: 2025-09-20 | **Spec**: /home/aemig/Documents/repos/kwila/simple-sync/specs/001-we-want-to/spec.md
 **Input**: Feature specification from `/specs/001-we-want-to/spec.md`
@@ -30,18 +31,18 @@
 - Phase 3-4: Implementation execution (manual or via tools)
 
 ## Summary
-Build a high-performance REST API backend for simple-sync that supports event storage, ACL-based access control, JWT authentication, and easy deployment via Docker Compose. The API will be flexible for multiple frontend apps, using Go with Gin framework, file-based JSON storage, and following REST principles.
+Implement GitHub issue #2: Basic event storage with GET/POST /events endpoints using Go 1.25 and Gin framework. Focus on in-memory storage, thread safety, and core API functionality as foundation for the simple-sync REST API.
 
 ## Technical Context
 **Language/Version**: Go 1.25  
-**Primary Dependencies**: Gin web framework, golang-jwt for authentication, SQLite for data storage  
-**Storage**: File-based JSON storage for events and ACL data  
+**Primary Dependencies**: Gin web framework, golang-jwt for future auth  
+**Storage**: In-memory for issue #2, file-based JSON for future persistence  
 **Testing**: Go built-in testing framework with contract and integration tests  
 **Target Platform**: Linux server with Docker deployment  
 **Project Type**: Single backend API project  
 **Performance Goals**: High-performance REST API handling concurrent requests efficiently  
-**Constraints**: Simple deployment with docker-compose, minimal configuration, data persistence across restarts  
-**Scale/Scope**: MVP for event synchronization with ACL, supporting multiple frontend apps
+**Constraints**: Simple deployment, thread-safe in-memory storage, proper error handling  
+**Scale/Scope**: MVP for event storage with GET/POST endpoints, foundation for full API
 
 ## Constitution Check
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
@@ -62,7 +63,7 @@ specs/001-we-want-to/
 ├── data-model.md        # Phase 1 output (/plan command)
 ├── quickstart.md        # Phase 1 output (/plan command)
 ├── contracts/           # Phase 1 output (/plan command)
-└── tasks.md             # Phase 2 output (/tasks command - NOT created by /plan)
+└── tasks.md             # Phase 2 output (/tasks command - focused on issue #2)
 ```
 
 ### Source Code (repository root)
@@ -71,80 +72,69 @@ specs/001-we-want-to/
 src/
 ├── models/
 ├── handlers/
-├── middleware/
 ├── storage/
-└── config/
+└── main.go
 
 tests/
 ├── contract/
 ├── integration/
 └── unit/
-
-data/
-├── events.json
-└── acl.json
 ```
 
-**Structure Decision**: Option 1 - Single project as this is a backend API without frontend components.
+**Structure Decision**: Option 1 - Single project for backend API, focused on issue #2 implementation
 
 ## Phase 0: Outline & Research
 1. **Extract unknowns from Technical Context** above:
-   - Research Go best practices for REST APIs with Gin
-   - Research JWT implementation patterns in Go
-   - Research file-based JSON storage patterns for concurrent access
-   - Research ACL implementation patterns
+    - Research Go 1.25 best practices for REST APIs with Gin
+    - Research thread-safe in-memory storage patterns
+    - Research JSON handling and error responses in Gin
 
 2. **Generate and dispatch research agents**:
-   ```
-   For each unknown in Technical Context:
-     Task: "Research {unknown} for {feature context}"
-   For each technology choice:
-     Task: "Find best practices for {tech} in {domain}"
-   ```
+    ```
+    For each unknown in Technical Context:
+      Task: "Research {unknown} for issue #2 context"
+    For each technology choice:
+      Task: "Find best practices for {tech} in Go REST API development"
+    ```
 
 3. **Consolidate findings** in `research.md` using format:
-   - Decision: [what was chosen]
-   - Rationale: [why chosen]
-   - Alternatives considered: [what else evaluated]
+    - Decision: [what was chosen]
+    - Rationale: [why chosen]
+    - Alternatives considered: [what else evaluated]
 
 **Output**: research.md with all NEEDS CLARIFICATION resolved
 
 ## Phase 1: Design & Contracts
 *Prerequisites: research.md complete*
 
-1. **Extract entities from feature spec** → `data-model.md`:
-   - Event: uuid, timestamp, userUuid, itemUuid, action, payload
-   - User: uuid, username, password
-   - ACL Entry: userUuid, itemUuid, permissions
-   - Validation rules from requirements
-   - State transitions if applicable
+1. **Extract entities from issue #2** → `data-model.md`:
+    - Event entity with required fields
+    - Validation rules for Event struct
+    - In-memory storage design
 
-2. **Generate API contracts** from functional requirements:
-   - GET/POST /events endpoints
-   - GET/PUT /acl endpoints
-   - POST /auth/token endpoint
-   - Admin endpoints for user management
-   - Use standard REST patterns
-   - Output OpenAPI schema to `/contracts/`
+2. **Generate API contracts** from issue #2 requirements:
+    - GET /events endpoint
+    - POST /events endpoint
+    - GET /events?fromTimestamp=X endpoint
+    - Output OpenAPI schema to `/contracts/`
 
 3. **Generate contract tests** from contracts:
-   - One test file per endpoint
-   - Assert request/response schemas
-   - Tests must fail (no implementation yet)
+    - One test file per endpoint
+    - Assert request/response schemas
+    - Tests must fail (no implementation yet)
 
-4. **Extract test scenarios** from user stories:
-   - Docker deployment scenario
-   - Authentication and event operations
-   - ACL permission enforcement
-   - Quickstart test = story validation steps
+4. **Extract test scenarios** from issue #2 acceptance criteria:
+    - Basic event storage scenarios
+    - Timestamp filtering scenarios
+    - Error handling scenarios
 
 5. **Update agent file incrementally** (O(1) operation):
-   - Run `.specify/scripts/bash/update-agent-context.sh opencode` for your AI assistant
-   - If exists: Add only NEW tech from current plan
-   - Preserve manual additions between markers
-   - Update recent changes (keep last 3)
-   - Keep under 150 lines for token efficiency
-   - Output to repository root
+    - Run `.specify/scripts/bash/update-agent-context.sh opencode` for your AI assistant
+    - If exists: Add only NEW tech from current plan
+    - Preserve manual additions between markers
+    - Update recent changes (keep last 3)
+    - Keep under 150 lines for token efficiency
+    - Output to repository root
 
 **Output**: data-model.md, /contracts/*, failing tests, quickstart.md, agent-specific file
 
@@ -153,20 +143,19 @@ data/
 
 **Task Generation Strategy**:
 - Load `.specify/templates/tasks-template.md` as base
-- Generate tasks from Phase 1 design docs (contracts, data model, quickstart)
+- Generate tasks focused on issue #2 requirements
 - Each contract → contract test task [P]
-- Each entity → model creation task [P] 
-- Each user story → integration test task
-- Implementation tasks to make tests pass
-- Work on GitHub issues #2, #7, #4, #5, #6, #1 in order
+- Event entity → model creation task
+- In-memory storage → storage implementation task
+- Each endpoint → handler implementation task
+- Main.go setup → integration task
 
 **Ordering Strategy**:
-- TDD order: Tests before implementation 
-- Dependency order: Models before handlers before middleware
+- TDD order: Tests before implementation
+- Dependency order: Setup → Tests → Model → Storage → Handlers → Main → Polish
 - Mark [P] for parallel execution (independent files)
-- Stop for PR after each issue completion
 
-**Estimated Output**: 25-30 numbered, ordered tasks in tasks.md
+**Estimated Output**: 20 focused tasks for issue #2 in tasks.md
 
 **IMPORTANT**: This phase is executed by the /tasks command, NOT by /plan
 
@@ -182,7 +171,9 @@ data/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| None | N/A | N/A |
+| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+
 
 ## Progress Tracking
 *This checklist is updated during execution flow*
@@ -191,7 +182,7 @@ data/
 - [x] Phase 0: Research complete (/plan command)
 - [x] Phase 1: Design complete (/plan command)
 - [x] Phase 2: Task planning complete (/plan command - describe approach only)
-- [ ] Phase 3: Tasks generated (/tasks command)
+- [x] Phase 3: Tasks generated (/tasks command)
 - [ ] Phase 4: Implementation complete
 - [ ] Phase 5: Validation passed
 
