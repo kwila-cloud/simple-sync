@@ -9,6 +9,13 @@ This is a Go REST API project using Gin framework for event storage and access c
 - Ensure thread safety with appropriate mutex usage
 - Follow existing code patterns and structure
 
+## Pull Request Requirements
+- **CHANGELOG.md MUST be updated** for every pull request that introduces user-facing changes
+- Document new features, bug fixes, and breaking changes
+- Follow the existing CHANGELOG format with PR links
+- Include version numbers and dates for releases
+- Keep entries clear and descriptive for users
+
 ## Project Structure
 - `handlers/`: HTTP endpoint handlers
 - `models/`: Data structures for events, users, ACL
