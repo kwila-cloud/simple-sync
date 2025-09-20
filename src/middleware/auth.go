@@ -16,7 +16,7 @@ func AuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
 		authHeader := c.GetHeader("Authorization")
 		tokenString, err := utils.ExtractTokenFromHeader(authHeader)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
 			c.Abort()
 			return
 		}
@@ -24,7 +24,7 @@ func AuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
 		// Validate token
 		claims, err := authService.ValidateToken(tokenString)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
 			c.Abort()
 			return
 		}
