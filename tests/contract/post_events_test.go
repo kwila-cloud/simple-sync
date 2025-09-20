@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"simple-sync/src/handlers"
+	"simple-sync/src/middleware"
 	"simple-sync/src/models"
 	"simple-sync/src/storage"
 
@@ -24,10 +25,12 @@ func TestPostEvents(t *testing.T) {
 
 	// Setup storage and handlers
 	store := storage.NewMemoryStorage()
-	h := handlers.NewHandlers(store)
+	h := handlers.NewHandlers(store, "test-secret")
 
-	// Register routes
-	router.POST("/events", h.PostEvents)
+	// Register routes with auth middleware
+	auth := router.Group("/")
+	auth.Use(middleware.AuthMiddleware(h.AuthService()))
+	auth.POST("/events", h.PostEvents)
 
 	// Sample event data
 	eventJSON := `[{
@@ -39,9 +42,14 @@ func TestPostEvents(t *testing.T) {
 		"payload": "{}"
 	}]`
 
+	// Get test token
+	user, _ := h.AuthService().Authenticate("testuser", "testpass123")
+	token, _ := h.AuthService().GenerateToken(user)
+
 	// Create test request
 	req, _ := http.NewRequest("POST", "/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+token)
 	w := httptest.NewRecorder()
 
 	// Perform request
@@ -62,11 +70,17 @@ func TestConcurrentPostEvents(t *testing.T) {
 
 	// Setup storage and handlers
 	store := storage.NewMemoryStorage()
-	h := handlers.NewHandlers(store)
+	h := handlers.NewHandlers(store, "test-secret")
 
-	// Register routes
-	router.POST("/events", h.PostEvents)
-	router.GET("/events", h.GetEvents)
+	// Register routes with auth
+	auth := router.Group("/")
+	auth.Use(middleware.AuthMiddleware(h.AuthService()))
+	auth.POST("/events", h.PostEvents)
+	auth.GET("/events", h.GetEvents)
+
+	// Get test token
+	user, _ := h.AuthService().Authenticate("testuser", "testpass123")
+	token, _ := h.AuthService().GenerateToken(user)
 
 	var wg sync.WaitGroup
 	numGoroutines := 10
@@ -83,6 +97,7 @@ func TestConcurrentPostEvents(t *testing.T) {
 				event := fmt.Sprintf(`[{"uuid":"%s","timestamp":%d,"userUuid":"u","itemUuid":"i","action":"a","payload":"p"}]`, uuid, id*100+j+1)
 				req, _ := http.NewRequest("POST", "/events", bytes.NewBufferString(event))
 				req.Header.Set("Content-Type", "application/json")
+				req.Header.Set("Authorization", "Bearer "+token) // Add token
 				w := httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				assert.Equal(t, http.StatusOK, w.Code)
@@ -97,6 +112,7 @@ func TestConcurrentPostEvents(t *testing.T) {
 
 	// Check total events
 	req, _ := http.NewRequest("GET", "/events", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)

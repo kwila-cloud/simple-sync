@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"simple-sync/src/models"
+	"simple-sync/src/services"
 	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
@@ -12,18 +13,32 @@ import (
 
 // Handlers contains the HTTP handlers for events
 type Handlers struct {
-	storage *storage.MemoryStorage
+	storage     *storage.MemoryStorage
+	authService *services.AuthService
 }
 
 // NewHandlers creates a new handlers instance
-func NewHandlers(storage *storage.MemoryStorage) *Handlers {
+func NewHandlers(storage *storage.MemoryStorage, jwtSecret string) *Handlers {
 	return &Handlers{
-		storage: storage,
+		storage:     storage,
+		authService: services.NewAuthService(jwtSecret),
 	}
+}
+
+// AuthService returns the auth service instance
+func (h *Handlers) AuthService() *services.AuthService {
+	return h.authService
 }
 
 // GetEvents handles GET /events
 func (h *Handlers) GetEvents(c *gin.Context) {
+	// Check authenticated user
+	_, exists := c.Get("user_uuid")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
 	// Check for fromTimestamp query parameter
 	fromTimestampStr := c.Query("fromTimestamp")
 	if fromTimestampStr != "" {
@@ -71,16 +86,25 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 		return
 	}
 
-	// Basic validation
-	for _, event := range events {
-		if event.UUID == "" || event.UserUUID == "" || event.ItemUUID == "" || event.Action == "" {
+	// Get authenticated user from context
+	userUUID, exists := c.Get("user_uuid")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	// Basic validation and set user UUID
+	for i := range events {
+		if events[i].UUID == "" || events[i].ItemUUID == "" || events[i].Action == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required fields"})
 			return
 		}
-		if event.Timestamp == 0 {
+		if events[i].Timestamp == 0 {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid timestamp"})
 			return
 		}
+		// Override user UUID with authenticated user
+		events[i].UserUUID = userUUID.(string)
 	}
 
 	// Save events
@@ -97,4 +121,33 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, allEvents)
+}
+
+// PostAuthToken handles POST /auth/token
+func (h *Handlers) PostAuthToken(c *gin.Context) {
+	var authRequest struct {
+		Username string `json:"username" binding:"required"`
+		Password string `json:"password" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&authRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		return
+	}
+
+	// Authenticate user
+	user, err := h.authService.Authenticate(authRequest.Username, authRequest.Password)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+		return
+	}
+
+	// Generate token
+	token, err := h.authService.GenerateToken(user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"token": token})
 }

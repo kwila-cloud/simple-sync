@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"simple-sync/src/handlers"
+	"simple-sync/src/middleware"
 	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
@@ -19,13 +20,20 @@ func TestGetEvents(t *testing.T) {
 
 	// Setup storage and handlers
 	store := storage.NewMemoryStorage()
-	h := handlers.NewHandlers(store)
+	h := handlers.NewHandlers(store, "test-secret")
 
-	// Register routes
-	router.GET("/events", h.GetEvents)
+	// Register routes with auth
+	auth := router.Group("/")
+	auth.Use(middleware.AuthMiddleware(h.AuthService()))
+	auth.GET("/events", h.GetEvents)
+
+	// Get test token
+	user, _ := h.AuthService().Authenticate("testuser", "testpass123")
+	token, _ := h.AuthService().GenerateToken(user)
 
 	// Create test request
 	req, _ := http.NewRequest("GET", "/events", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
 	w := httptest.NewRecorder()
 
 	// Perform request
