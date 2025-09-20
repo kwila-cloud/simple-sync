@@ -20,6 +20,9 @@ func main() {
 	// Setup Gin router
 	router := gin.Default()
 
+	// Configure trusted proxies (disable for security in development)
+	router.SetTrustedProxies([]string{})
+
 	// Register routes
 	router.GET("/events", h.GetEvents)
 	router.POST("/events", h.PostEvents)
