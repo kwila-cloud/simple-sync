@@ -83,8 +83,6 @@ Each event has the following schema of 6 fields, represented as a JSON object.
 }
 ```
 
-Event history is stored as a simple text file where each line is a JSON object representing an event.
-
 All data querying is handled locally. This means that `simple-sync` is inappropriate for situations that require large numbers of items. It is much better suited for systems that need to store a small amount of items that don't change too frequently.
 
 ## Syncing Process
