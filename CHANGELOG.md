@@ -7,7 +7,6 @@
   - Implemented /health endpoint with service status, version, and uptime
   - Added environment configuration validation (JWT_SECRET, PORT, ENVIRONMENT)
   - Updated CI/CD pipeline for automated Docker image builds on GitHub Container Registry
-  - Enhanced README with Docker deployment instructions
 - [#15](https://github.com/kwila-cloud/simple-sync/pull/15): Basic JWT authentication
   - Added JWT token generation, validation, and user authentication
   - Protected all /events endpoints with authentication
