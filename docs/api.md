@@ -4,7 +4,7 @@ This document describes the API endpoints for the `simple-sync` system.
 
 ## Authentication
 
-All endpoints (except `/api/v1/auth/token`) require authentication. The authentication mechanism involves a JSON Web Token (JWT) passed in the `Authorization` header.
+All endpoints (except `/api/v1/auth/token` and `/api/v1/health`) require authentication. The authentication mechanism involves a JSON Web Token (JWT) passed in the `Authorization` header.
 
 ## Events
 
@@ -108,6 +108,8 @@ All endpoints (except `/api/v1/auth/token`) require authentication. The authenti
 
 ## ACL
 
+**Note:** ACL endpoints are not yet implemented in the current version.
+
 ### `GET /api/v1/acl`
 
 *   **Purpose:** Retrieve the current ACL.
@@ -201,64 +203,9 @@ All endpoints (except `/api/v1/auth/token`) require authentication. The authenti
 
 Access to the `/api/v1/acl` endpoint is restricted to administrators. Administrators are defined via a list of usernames in the server's configuration (TOML) file. See [ACL Documentation](docs/acl.md) for more details on the ACL structure and syntax.
 
-## Health Check
-
-### `GET /api/v1/health`
-
-*   **Purpose:** Check the health status of the service.
-*   **Method:** GET
-*   **Request:** None
-*   **Response:**
-    *   Success (200 OK): A JSON object containing the service health information.
-*   **Example Request:**
-
-    ```
-    GET /api/v1/health
-    ```
-
-*   **Example Response:**
-
-    ```json
-    {
-        "status": "healthy",
-        "timestamp": "2025-09-22T08:14:09Z",
-        "version": "0.1.0",
-        "uptime": 123
-    }
-    ```
-
-## Authentication
-
-### `POST /api/v1/auth/token`
-
-*   **Purpose:** Obtain an authentication token.
-*   **Method:** POST
-*   **Request:**
-    *   A JSON object containing user credentials: `username` and `password`.
-*   **Response:**
-    *   Success (200 OK): A JSON object containing the authentication token. The token is a JSON Web Token (JWT) and is valid for one week.
-    *   Unauthorized (401 Unauthorized): If the credentials are invalid.
-*   **Example Request:**
-
-    ```
-    POST /api/v1/auth/token
-    Content-Type: application/json
-
-    {
-        "username": "testuser",
-        "password": "testpass123"
-    }
-    ```
-
-*   **Example Response:**
-
-    ```json
-    {
-        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTY5MzkwMjJ9.dQw4w9WgXcQxzAfaWEmBRjN7jV0RvKjLyWjZnQYjWj4"
-    }
-    ```
-
 ## Admin API
+
+**Note:** Admin API endpoints are not yet implemented in the current version.
 
 The following endpoints are part of the Admin API and are used for managing users. These endpoints use the same authentication mechanism as the regular user API. Access to these endpoints is restricted to administrators defined via a list of usernames in the server's configuration (TOML) file.
 
@@ -329,3 +276,62 @@ The following endpoints are part of the Admin API and are used for managing user
 ### Admin Authentication
 
 The Admin API uses the same authentication mechanism as the regular user API. Access to the Admin API is restricted to administrators, who are defined via a list of usernames in the server's configuration (TOML) file.
+
+## Health Check
+
+### `GET /api/v1/health`
+
+*   **Purpose:** Check the health status of the service.
+*   **Method:** GET
+*   **Request:** None
+*   **Response:**
+    *   Success (200 OK): A JSON object containing the service health information.
+*   **Example Request:**
+
+    ```
+    GET /api/v1/health
+    ```
+
+*   **Example Response:**
+
+    ```json
+    {
+        "status": "healthy",
+        "timestamp": "2025-09-22T08:14:09Z",
+        "version": "0.1.0",
+        "uptime": 123
+    }
+    ```
+
+## Authentication
+
+### `POST /api/v1/auth/token`
+
+*   **Purpose:** Obtain an authentication token.
+*   **Method:** POST
+*   **Request:**
+    *   A JSON object containing user credentials: `username` and `password`.
+*   **Response:**
+    *   Success (200 OK): A JSON object containing the authentication token. The token is a JSON Web Token (JWT) and is valid for one week.
+    *   Unauthorized (401 Unauthorized): If the credentials are invalid.
+*   **Example Request:**
+
+    ```
+    POST /api/v1/auth/token
+    Content-Type: application/json
+
+    {
+        "username": "testuser",
+        "password": "testpass123"
+    }
+    ```
+
+*   **Example Response:**
+
+    ```json
+    {
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTY5MzkwMjJ9.dQw4w9WgXcQxzAfaWEmBRjN7jV0RvKjLyWjZnQYjWj4"
+    }
+    ```
+
+
