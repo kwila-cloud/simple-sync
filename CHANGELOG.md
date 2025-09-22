@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.2.0] - unreleased
+## [0.2.0] - 2025-09-22
 - [#25](https://github.com/kwila-cloud/simple-sync/pull/25): Add v1 API prefix for future versioning
   - Updated all API endpoints to start with /api/v1/
 - [#24](https://github.com/kwila-cloud/simple-sync/pull/24): Docker configuration for easy deployment
