@@ -79,6 +79,7 @@ As a developer or system administrator, I want to easily deploy and run the simp
 - **FR-005**: System MUST respond to health check requests when running in containers
 - **FR-006**: System MUST maintain all existing functionality (authentication, event storage) when running in containers
 - **FR-007**: System MUST provide clear documentation for users to understand how to deploy using containers
+- **TR-001**: Docker image MUST be built using Go 1.25 for the build stage
 
 ---
 

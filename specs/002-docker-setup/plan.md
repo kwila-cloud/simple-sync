@@ -33,14 +33,14 @@
 Implement Docker containerization for the simple-sync service to enable easy deployment and development. This includes creating Dockerfile, docker-compose.yml, environment configuration, and documentation for running the service in containers.
 
 ## Technical Context
-**Language/Version**: Go 1.21+
+**Language/Version**: Go 1.25 (Docker build must use Go 1.25)
 **Primary Dependencies**: Gin web framework, SQLite, JWT authentication
 **Storage**: SQLite database (already implemented)
 **Testing**: Go testing framework with testify
 **Target Platform**: Linux containers (Docker)
 **Project Type**: Single web service (Go backend API)
 **Performance Goals**: <100ms response times for API endpoints
-**Constraints**: Must maintain existing functionality, JWT_SECRET required, configurable port
+**Constraints**: Must maintain existing functionality, JWT_SECRET required, configurable port, Docker image must build using Go 1.25
 **Scale/Scope**: Single container deployment, supports environment-based configuration
 
 ## Constitution Check
