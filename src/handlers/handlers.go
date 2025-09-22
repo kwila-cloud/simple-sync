@@ -13,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers contains the HTTP handlers for events
+// Handlers contains the HTTP handlers for the API
 type Handlers struct {
 	storage       storage.Storage
 	authService   *services.AuthService
