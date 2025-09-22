@@ -58,7 +58,8 @@ func TestProtectedEndpointPerformance(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register routes with auth
-	auth := router.Group("/")
+	v1 := router.Group("/api/v1")
+	auth := v1.Group("/")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.GET("/events", h.GetEvents)
 
@@ -68,7 +69,7 @@ func TestProtectedEndpointPerformance(t *testing.T) {
 
 	// Test protected endpoint performance
 	start := time.Now()
-	req, _ := http.NewRequest("GET", "/events", nil)
+	req, _ := http.NewRequest("GET", "/api/v1/events", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	w := httptest.NewRecorder()
 
