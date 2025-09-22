@@ -5,7 +5,7 @@
 package main
 
 // Version is the current version of the application
-var Version = "0.1.0"
+var Version = "0.2.0"
 
 // BuildTime is set at build time
-var BuildTime = "2025-09-20T16:35:30Z"
+var BuildTime = "2025-09-22T20:54:16Z"
