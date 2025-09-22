@@ -80,12 +80,3 @@ This document outlines the technology stack chosen for the `simple-sync` project
     *   **Complexity:** Requires understanding JWT concepts and proper implementation.
     *   **Token Size:** Can be larger than simple tokens.
     *   **Secret Key Management:** Requires secure storage and management of the secret key.
-
-## 5. Configuration: TOML
-
-*   **Choice:** [TOML](https://toml.io/en/)
-*   **Pros:**
-    *   **Simplicity:** Human-readable, easy to write and parse.
-    *   **Go Support:** Excellent TOML parsing libraries available in Go.
-*   **Cons:**
-    *   **Limited Features:** Not as feature-rich as other configuration formats like YAML or JSON.
