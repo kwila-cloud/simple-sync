@@ -25,7 +25,7 @@ This feature adds Docker containerization support to the simple-sync service. Th
 **Purpose**: Manages environment-specific settings
 **Attributes**:
 - `jwt_secret`: Required JWT signing secret (string, 32+ characters recommended)
-- `port`: Service port number (integer, default 8080, range 1024-65535)
+- `port`: Service port number (integer, default 8080, range 80-65535)
 - `environment`: Deployment environment (development/production)
 
 **Validation Rules**:

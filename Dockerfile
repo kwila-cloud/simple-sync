@@ -16,8 +16,8 @@ RUN go mod download
 # Copy source code
 COPY src/ ./src/
 
-    # Build the application
-    RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./src
+# Build the application
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./src
 
 # Runtime stage
 FROM alpine:latest
