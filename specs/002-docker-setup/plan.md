@@ -1,7 +1,7 @@
 # Implementation Plan: Docker Configuration for Easy Deployment
 
-**Branch**: `002-implement-issue-1` | **Date**: 2025-09-20 | **Spec**: /home/aemig/Documents/repos/kwila/simple-sync/specs/002-implement-issue-1/spec.md
-**Input**: Feature specification from `/specs/002-implement-issue-1/spec.md`
+**Branch**: `002-docker-setup` | **Date**: 2025-09-20 | **Spec**: /home/aemig/Documents/repos/kwila/simple-sync/specs/002-docker-setup/spec.md
+**Input**: Feature specification from `/specs/002-docker-setup/spec.md`
 
 ## Execution Flow (/plan command scope)
 ```
@@ -56,7 +56,7 @@ Implement Docker containerization for the simple-sync service to enable easy dep
 
 ### Documentation (this feature)
 ```
-specs/002-implement-issue-1/
+specs/002-docker-setup/
 ├── plan.md              # This file (/plan command output)
 ├── research.md          # Phase 0 output (/plan command)
 ├── data-model.md        # Phase 1 output (/plan command)

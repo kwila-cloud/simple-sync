@@ -1,6 +1,6 @@
 # Feature Specification: Docker Configuration for Easy Deployment
 
-**Feature Branch**: `002-implement-issue-1`
+**Feature Branch**: `002-docker-setup`
 **Created**: 2025-09-20
 **Status**: Draft
 **Input**: User description: "implement issue #1 according to the issue description"
