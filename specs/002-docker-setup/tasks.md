@@ -46,28 +46,29 @@
 - [ ] T001 Create .dockerignore file to optimize build context
 - [ ] T002 Create Dockerfile with multi-stage build (Go builder + Alpine runtime)
 - [ ] T003 Create docker-compose.yml for local development and deployment
+- [ ] T004 Update .github/workflows/release.yml to build and push Docker images to GHCR on releases
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**
-- [ ] T004 [P] Contract test GET /health in tests/contract/test_health_get.go
-- [ ] T005 [P] Integration test Docker container startup in tests/integration/test_docker_startup.go
-- [ ] T006 [P] Integration test health check endpoint in tests/integration/test_health_check.go
-- [ ] T007 [P] Integration test environment variable configuration in tests/integration/test_env_config.go
-- [ ] T008 [P] Integration test API authentication in Docker in tests/integration/test_docker_auth.go
+- [ ] T005 [P] Contract test GET /health in tests/contract/test_health_get.go
+- [ ] T006 [P] Integration test Docker container startup in tests/integration/test_docker_startup.go
+- [ ] T007 [P] Integration test health check endpoint in tests/integration/test_health_check.go
+- [ ] T008 [P] Integration test environment variable configuration in tests/integration/test_env_config.go
+- [ ] T009 [P] Integration test API authentication in Docker in tests/integration/test_docker_auth.go
 
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
-- [ ] T009 [P] HealthCheckResponse model in src/models/health.go
-- [ ] T010 [P] DockerContainer configuration model in src/models/docker.go
-- [ ] T011 [P] EnvironmentConfiguration model in src/models/environment.go
-- [ ] T012 GET /health endpoint handler in src/handlers/health.go
-- [ ] T013 Update main.go to include health endpoint and environment validation
-- [ ] T014 Add health check endpoint to existing handlers/events.go
+- [ ] T010 [P] HealthCheckResponse model in src/models/health.go
+- [ ] T011 [P] DockerContainer configuration model in src/models/docker.go
+- [ ] T012 [P] EnvironmentConfiguration model in src/models/environment.go
+- [ ] T013 GET /health endpoint handler in src/handlers/health.go
+- [ ] T014 Update main.go to include health endpoint and environment validation
+- [ ] T015 Add health check endpoint to existing handlers/events.go
 
 ## Phase 3.4: Integration
-- [ ] T015 Configure environment variable validation in main.go
-- [ ] T016 Add version information to health response
-- [ ] T017 Add uptime tracking to health response
-- [ ] T018 Configure Docker health checks in docker-compose.yml
+- [ ] T016 Configure environment variable validation in main.go
+- [ ] T017 Add version information to health response
+- [ ] T018 Add uptime tracking to health response
+- [ ] T019 Configure Docker health checks in docker-compose.yml
 
 ## Phase 3.5: Polish
 - [ ] T019 [P] Unit tests for health response model in tests/unit/test_health_model.go

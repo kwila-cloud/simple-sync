@@ -37,11 +37,12 @@ Implement Docker containerization for the simple-sync service to enable easy dep
 **Primary Dependencies**: Gin web framework, SQLite, JWT authentication
 **Storage**: SQLite database (already implemented)
 **Testing**: Go testing framework with testify
-**Target Platform**: Linux containers (Docker)
+**Target Platform**: Linux containers (Docker), GitHub Container Registry (GHCR)
 **Project Type**: Single web service (Go backend API)
 **Performance Goals**: <100ms response times for API endpoints
 **Constraints**: Must maintain existing functionality, JWT_SECRET required, configurable port, Docker image must build using Go 1.25
 **Scale/Scope**: Single container deployment, supports environment-based configuration
+**CI/CD**: GitHub Actions workflow to build and push Docker images to GHCR on releases
 
 ## Constitution Check
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
