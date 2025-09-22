@@ -1,6 +1,13 @@
 # Changelog
 
 ## [0.2.0] - unreleased
+- [#24](https://github.com/kwila-cloud/simple-sync/pull/24): Docker configuration for easy deployment
+  - Added multi-stage Dockerfile with Go 1.25 and Alpine runtime
+  - Created docker-compose.yml for local development with health checks
+  - Implemented /health endpoint with service status, version, and uptime
+  - Added environment configuration validation (JWT_SECRET, PORT, ENVIRONMENT)
+  - Updated CI/CD pipeline for automated Docker image builds on GitHub Container Registry
+  - Enhanced README with Docker deployment instructions
 - [#15](https://github.com/kwila-cloud/simple-sync/pull/15): Basic JWT authentication
   - Added JWT token generation, validation, and user authentication
   - Protected all /events endpoints with authentication
