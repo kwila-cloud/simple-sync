@@ -17,12 +17,12 @@ func TestEnvironmentVariableConfiguration(t *testing.T) {
 
 	// Test with custom PORT
 	t.Run("CustomPort", func(t *testing.T) {
-		testContainerWithEnv(t, "8082", "test-jwt-secret-custom-port")
+		testContainerWithEnv(t, "8082", "test-jwt-secret-custom-port-at-least-32-characters-long")
 	})
 
 	// Test with default PORT
 	t.Run("DefaultPort", func(t *testing.T) {
-		testContainerWithEnv(t, "", "test-jwt-secret-default-port")
+		testContainerWithEnv(t, "", "test-jwt-secret-default-port-at-least-32-characters-long")
 	})
 }
 
@@ -30,7 +30,7 @@ func testContainerWithEnv(t *testing.T, port, jwtSecret string) {
 	ctx := t.Context()
 
 	// Build image if not exists
-	buildCmd := exec.CommandContext(ctx, "docker", "build", "-t", "simple-sync-env-test", ".")
+	buildCmd := exec.CommandContext(ctx, "docker", "build", "-t", "simple-sync-env-test", "../..")
 	if output, err := buildCmd.CombinedOutput(); err != nil {
 		t.Fatalf("Failed to build image: %v\nOutput: %s", err, string(output))
 	}
@@ -59,6 +59,9 @@ func testContainerWithEnv(t *testing.T, port, jwtSecret string) {
 	}
 	containerIDStr := strings.TrimSpace(string(containerID))
 
+	// Debug: show the docker run command
+	t.Logf("Docker run command: docker %s", strings.Join(args, " "))
+
 	// Clean up
 	defer func() {
 		exec.Command("docker", "rm", "-f", containerIDStr).Run()
@@ -67,12 +70,18 @@ func testContainerWithEnv(t *testing.T, port, jwtSecret string) {
 	// Wait for startup
 	time.Sleep(10 * time.Second)
 
-	// Check if container is running
-	psCmd := exec.Command("docker", "ps", "--filter", "id="+containerIDStr, "--format", "{{.Status}}")
+	// Check if container is running (including stopped containers)
+	psCmd := exec.Command("docker", "ps", "-a", "--filter", "id="+containerIDStr, "--format", "{{.Status}}")
 	status, err := psCmd.Output()
 	if err != nil {
 		t.Fatalf("Failed to check status: %v", err)
 	}
+
+	// Get container logs for debugging
+	logsCmd := exec.Command("docker", "logs", containerIDStr)
+	logs, _ := logsCmd.Output()
+	t.Logf("Container status: %s", string(status))
+	t.Logf("Container logs: %s", string(logs))
 
 	assert.Contains(t, string(status), "Up", "Container should be running")
 
@@ -84,13 +93,13 @@ func testContainerWithEnv(t *testing.T, port, jwtSecret string) {
 		assert.Contains(t, string(logs), "JWT_SECRET", "Should mention missing JWT_SECRET")
 	} else {
 		// If JWT_SECRET provided, health check should work
-		testPort := port
-		if testPort == "" {
-			testPort = "8083" // Default mapping
+		// Check the internal port (PORT env var or 8080 default) since we're running curl inside the container
+		internalPort := port
+		if internalPort == "" {
+			internalPort = "8080" // Default port
 		}
-
 		healthCmd := exec.Command("docker", "exec", containerIDStr,
-			"wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:"+testPort+"/health")
+			"curl", "-f", "-s", "http://localhost:"+internalPort+"/health")
 		err := healthCmd.Run()
 		assert.NoError(t, err, "Health check should pass with valid JWT_SECRET")
 	}

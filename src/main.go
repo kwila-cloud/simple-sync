@@ -16,8 +16,10 @@ import (
 func main() {
 	// Print version information
 	log.Printf("Simple-Sync v%s (build: %s)", Version, BuildTime)
+	log.Printf("Starting application...")
 
 	// Load environment configuration
+	log.Printf("Loading environment configuration...")
 	envConfig := models.NewEnvironmentConfiguration()
 	if err := envConfig.LoadFromEnv(os.Getenv); err != nil {
 		log.Fatal("Environment configuration error:", err)
@@ -26,6 +28,7 @@ func main() {
 	if err := envConfig.Validate(); err != nil {
 		log.Fatal("Environment validation error:", err)
 	}
+	log.Printf("Environment loaded: PORT=%d, ENV=%s", envConfig.Port, envConfig.Environment)
 
 	// Initialize storage
 	store := storage.NewMemoryStorage()

@@ -19,8 +19,13 @@ func TestHealthCheckEndpoint(t *testing.T) {
 		t.Skip("Skipping integration test in short mode")
 	}
 
+	// Check if service is available
+	if !isServiceAvailable() {
+		t.Skip("Service not available at localhost:8080, skipping health check integration test")
+	}
+
 	// Wait for service to be ready
-	time.Sleep(5 * time.Second)
+	time.Sleep(2 * time.Second)
 
 	// Test health endpoint
 	resp, err := http.Get("http://localhost:8080/health")

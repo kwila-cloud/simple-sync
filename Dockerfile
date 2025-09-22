@@ -22,8 +22,8 @@ COPY src/ ./src/
 # Runtime stage
 FROM alpine:latest
 
-# Install ca-certificates and wget for HTTPS requests and health checks
-RUN apk --no-cache add ca-certificates wget
+# Install ca-certificates and curl for HTTPS requests and health checks
+RUN apk --no-cache add ca-certificates curl
 
 # Create non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup

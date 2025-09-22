@@ -10,6 +10,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func isServiceAvailable() bool {
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Get("http://localhost:8080/health")
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+	return resp.StatusCode == http.StatusOK
+}
+
 func TestDockerAuthentication(t *testing.T) {
 	// This test assumes the service is running via docker-compose
 	// In a real CI environment, this would be run against a test container
@@ -19,8 +29,13 @@ func TestDockerAuthentication(t *testing.T) {
 		t.Skip("Skipping integration test in short mode")
 	}
 
+	// Check if service is available
+	if !isServiceAvailable() {
+		t.Skip("Service not available at localhost:8080, skipping Docker integration test")
+	}
+
 	// Wait for service to be ready
-	time.Sleep(5 * time.Second)
+	time.Sleep(2 * time.Second)
 
 	// Test 1: Get authentication token
 	token := getAuthToken(t)

@@ -20,7 +20,7 @@ func TestDockerContainerStartup(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
 
-	buildCmd := exec.CommandContext(ctx, "docker", "build", "-t", "simple-sync-test", ".")
+	buildCmd := exec.CommandContext(ctx, "docker", "build", "-t", "simple-sync-test", "../..")
 	output, err := buildCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("Failed to build Docker image: %v\nOutput: %s", err, string(output))
@@ -30,7 +30,7 @@ func TestDockerContainerStartup(t *testing.T) {
 	runCmd := exec.CommandContext(ctx, "docker", "run", "-d",
 		"--name", "simple-sync-test-container",
 		"-p", "8081:8080",
-		"-e", "JWT_SECRET=test-docker-secret-key-for-testing-only",
+		"-e", "JWT_SECRET=test-docker-secret-key-for-testing-only-at-least-32-chars",
 		"-e", "PORT=8080",
 		"simple-sync-test")
 
@@ -60,8 +60,14 @@ func TestDockerContainerStartup(t *testing.T) {
 
 	// Check health endpoint
 	healthCmd := exec.Command("docker", "exec", containerIDStr,
-		"wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health")
+		"curl", "-f", "-s", "http://localhost:8080/health")
 	err = healthCmd.Run()
+	if err != nil {
+		// Get container logs for debugging
+		logsCmd := exec.Command("docker", "logs", containerIDStr)
+		logs, _ := logsCmd.Output()
+		t.Logf("Container logs: %s", string(logs))
+	}
 	assert.NoError(t, err, "Health check should pass")
 }
 
