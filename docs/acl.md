@@ -67,4 +67,4 @@ ACL rules are evaluated in order. The first rule that matches the user, item, an
 
 ## ACL Management
 
-The ACL can be retrieved and updated using the `/acl` endpoint. See the [API Specification](api.md) for details.
+The ACL can be retrieved and updated using the `/api/v1/acl` endpoint. See the [v1 API Specification](api/v1.md) for details.
