@@ -34,8 +34,7 @@ func main() {
 	store := storage.NewMemoryStorage()
 
 	// Initialize handlers
-	h := handlers.NewHandlers(store, envConfig.JWT_SECRET)
-	h.SetVersion(Version)
+	h := handlers.NewHandlers(store, envConfig.JWT_SECRET, Version)
 
 	// Setup Gin router
 	router := gin.Default()

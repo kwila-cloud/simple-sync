@@ -20,7 +20,7 @@ func TestGetEvents(t *testing.T) {
 
 	// Setup storage and handlers
 	store := storage.NewMemoryStorage()
-	h := handlers.NewHandlers(store, "test-secret")
+	h := handlers.NewHandlers(store, "test-secret", "test")
 
 	// Register routes with auth
 	auth := router.Group("/")

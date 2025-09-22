@@ -21,7 +21,7 @@ func TestGetEventsProtected(t *testing.T) {
 
 	// Setup storage and handlers
 	store := storage.NewMemoryStorage()
-	h := handlers.NewHandlers(store, "test-secret")
+	h := handlers.NewHandlers(store, "test-secret", "test")
 
 	// Register routes with auth middleware
 	auth := router.Group("/")
@@ -52,7 +52,7 @@ func TestGetEventsWithValidToken(t *testing.T) {
 
 	// Setup storage and handlers
 	store := storage.NewMemoryStorage()
-	h := handlers.NewHandlers(store, "test-secret")
+	h := handlers.NewHandlers(store, "test-secret", "test")
 
 	// Register routes with auth middleware
 	auth := router.Group("/")
@@ -85,7 +85,7 @@ func TestGetEventsWithInvalidToken(t *testing.T) {
 
 	// Setup storage and handlers
 	store := storage.NewMemoryStorage()
-	h := handlers.NewHandlers(store, "test-secret")
+	h := handlers.NewHandlers(store, "test-secret", "test")
 
 	// Register routes with auth middleware
 	auth := router.Group("/")

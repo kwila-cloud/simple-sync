@@ -25,7 +25,7 @@ func TestPostEvents(t *testing.T) {
 
 	// Setup storage and handlers
 	store := storage.NewMemoryStorage()
-	h := handlers.NewHandlers(store, "test-secret")
+	h := handlers.NewHandlers(store, "test-secret", "test")
 
 	// Register routes with auth middleware
 	auth := router.Group("/")
@@ -78,7 +78,7 @@ func TestConcurrentPostEvents(t *testing.T) {
 
 	// Setup storage and handlers
 	store := storage.NewMemoryStorage()
-	h := handlers.NewHandlers(store, "test-secret")
+	h := handlers.NewHandlers(store, "test-secret", "test")
 
 	// Register routes with auth
 	auth := router.Group("/")

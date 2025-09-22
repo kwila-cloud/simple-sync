@@ -20,7 +20,7 @@ func TestHealthEndpointPerformance(t *testing.T) {
 
 	// Setup storage and handlers
 	store := storage.NewMemoryStorage()
-	h := handlers.NewHandlers(store, "test-secret")
+	h := handlers.NewHandlers(store, "test-secret", "test")
 
 	// Register health route
 	router.GET("/health", h.GetHealth)

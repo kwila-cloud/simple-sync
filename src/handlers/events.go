@@ -21,11 +21,11 @@ type Handlers struct {
 }
 
 // NewHandlers creates a new handlers instance
-func NewHandlers(storage storage.Storage, jwtSecret string) *Handlers {
+func NewHandlers(storage storage.Storage, jwtSecret, version string) *Handlers {
 	return &Handlers{
 		storage:       storage,
 		authService:   services.NewAuthService(jwtSecret, storage),
-		healthHandler: NewHealthHandler("dev"), // Default version, will be overridden
+		healthHandler: NewHealthHandler(version),
 	}
 }
 
@@ -37,12 +37,6 @@ func (h *Handlers) AuthService() *services.AuthService {
 // GetHealth handles GET /health
 func (h *Handlers) GetHealth(c *gin.Context) {
 	h.healthHandler.GetHealth(c)
-}
-
-// SetVersion sets the version for the health handler
-// This is called from main.go to inject the build-time version into the health endpoint
-func (h *Handlers) SetVersion(version string) {
-	h.healthHandler.version = version
 }
 
 // GetEvents handles GET /events

@@ -22,7 +22,7 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 
 	// Setup storage and handlers
 	store := storage.NewMemoryStorage()
-	h := handlers.NewHandlers(store, "test-secret")
+	h := handlers.NewHandlers(store, "test-secret", "test")
 
 	// Register routes
 	router.POST("/auth/token", h.PostAuthToken)
