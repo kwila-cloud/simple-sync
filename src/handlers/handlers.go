@@ -29,6 +29,16 @@ func NewHandlers(storage storage.Storage, jwtSecret, version string) *Handlers {
 	}
 }
 
+// NewTestHandlers creates a new handlers instance with test defaults
+func NewTestHandlers() *Handlers {
+	return NewTestHandlersWithStorage(storage.NewMemoryStorage())
+}
+
+// NewTestHandlersWithStorage creates a new handlers instance with test defaults and custom storage
+func NewTestHandlersWithStorage(store storage.Storage) *Handlers {
+	return NewHandlers(store, "test-secret", "test")
+}
+
 // AuthService returns the auth service instance
 func (h *Handlers) AuthService() *services.AuthService {
 	return h.authService

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"simple-sync/src/handlers"
-	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -18,9 +17,8 @@ func TestHealthEndpointPerformance(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// Setup storage and handlers
-	store := storage.NewMemoryStorage()
-	h := handlers.NewHandlers(store, "test-secret", "test")
+	// Setup handlers
+	h := handlers.NewTestHandlers()
 
 	// Register health route
 	router.GET("/health", h.GetHealth)

@@ -12,7 +12,6 @@ import (
 	"simple-sync/src/handlers"
 	"simple-sync/src/middleware"
 	"simple-sync/src/models"
-	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -23,9 +22,8 @@ func TestPostEvents(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// Setup storage and handlers
-	store := storage.NewMemoryStorage()
-	h := handlers.NewHandlers(store, "test-secret", "test")
+	// Setup handlers
+	h := handlers.NewTestHandlers()
 
 	// Register routes with auth middleware
 	auth := router.Group("/")
@@ -76,9 +74,8 @@ func TestConcurrentPostEvents(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// Setup storage and handlers
-	store := storage.NewMemoryStorage()
-	h := handlers.NewHandlers(store, "test-secret", "test")
+	// Setup handlers
+	h := handlers.NewTestHandlers()
 
 	// Register routes with auth
 	auth := router.Group("/")
