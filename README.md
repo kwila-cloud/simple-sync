@@ -7,19 +7,47 @@ Built with [Go](https://go.dev/), [Gin](https://github.com/gin-gonic/gin), [SQLi
 
 ## Quick Start
 
-**NOTE** - This isn't implemented yet. Docker support will be added in #1
+To run `simple-sync` using Docker Compose:
 
-To run `simple-sync` using Docker Compose, follow these steps:
+### Prerequisites
+- Docker and Docker Compose installed
+- Git (to clone the repository)
 
-1.  Download the [`docker-compose.yml`](docker-compose.yml) file from the repository.
-1.  Create a `.env` file with the following content:
-    ```
-    JWT_SECRET=your_generated_jwt_secret
-    ```
-1.  Replace `your_generated_jwt_secret` with a securely generated random string. You can generate one using `openssl rand -base64 32`.
-    **⚠️ REQUIRED:** JWT_SECRET is mandatory - the application will exit with an error if not set.
-1.  Add your frontend to `docker-compose.yml` (for example, [Home-Chores](https://github.com/el-apps/Home-Chores)).
-1.  Run `docker-compose up -d` to start the services in detached mode.
+### Setup
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/kwila-cloud/simple-sync.git
+   cd simple-sync
+   ```
+
+2. Create a `.env` file with your JWT secret:
+   ```bash
+   echo "JWT_SECRET=$(openssl rand -base64 32)" > .env
+   ```
+    **⚠️ REQUIRED:** JWT_SECRET is mandatory and must be at least 32 characters long - the application will exit with an error if not set or too short.
+
+3. Start the services:
+   ```bash
+   docker compose up -d
+   ```
+
+4. Verify the service is running:
+   ```bash
+   curl http://localhost:8080/health
+   ```
+   You should see a JSON response with status "healthy".
+
+### Optional: Add Frontend
+To run with a frontend application, add it as an additional service in `docker-compose.yml`. For example:
+```yaml
+services:
+  frontend:
+    image: your-frontend-image
+    ports:
+      - "3000:3000"
+    depends_on:
+      - simple-sync
+```
 
 ## Development
 

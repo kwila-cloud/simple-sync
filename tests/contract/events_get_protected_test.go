@@ -8,7 +8,6 @@ import (
 
 	"simple-sync/src/handlers"
 	"simple-sync/src/middleware"
-	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -19,9 +18,8 @@ func TestGetEventsProtected(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// Setup storage and handlers
-	store := storage.NewMemoryStorage()
-	h := handlers.NewHandlers(store, "test-secret")
+	// Setup handlers
+	h := handlers.NewTestHandlers()
 
 	// Register routes with auth middleware
 	auth := router.Group("/")
@@ -50,9 +48,8 @@ func TestGetEventsWithValidToken(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// Setup storage and handlers
-	store := storage.NewMemoryStorage()
-	h := handlers.NewHandlers(store, "test-secret")
+	// Setup handlers
+	h := handlers.NewTestHandlers()
 
 	// Register routes with auth middleware
 	auth := router.Group("/")
@@ -83,9 +80,8 @@ func TestGetEventsWithInvalidToken(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// Setup storage and handlers
-	store := storage.NewMemoryStorage()
-	h := handlers.NewHandlers(store, "test-secret")
+	// Setup handlers
+	h := handlers.NewTestHandlers()
 
 	// Register routes with auth middleware
 	auth := router.Group("/")

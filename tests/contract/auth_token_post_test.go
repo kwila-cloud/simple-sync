@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"simple-sync/src/handlers"
-	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -19,9 +18,8 @@ func TestPostAuthToken(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// Setup storage and handlers
-	store := storage.NewMemoryStorage()
-	h := handlers.NewHandlers(store, "test-secret")
+	// Setup handlers
+	h := handlers.NewTestHandlers()
 
 	// Register routes
 	router.POST("/auth/token", h.PostAuthToken)
@@ -58,9 +56,8 @@ func TestPostAuthTokenInvalidRequest(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// Setup storage and handlers
-	store := storage.NewMemoryStorage()
-	h := handlers.NewHandlers(store, "test-secret")
+	// Setup handlers
+	h := handlers.NewTestHandlers()
 
 	// Register routes
 	router.POST("/auth/token", h.PostAuthToken)
@@ -86,9 +83,8 @@ func TestPostAuthTokenInvalidCredentials(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// Setup storage and handlers
-	store := storage.NewMemoryStorage()
-	h := handlers.NewHandlers(store, "test-secret")
+	// Setup handlers
+	h := handlers.NewTestHandlers()
 
 	// Register routes
 	router.POST("/auth/token", h.PostAuthToken)

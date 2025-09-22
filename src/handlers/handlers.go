@@ -13,23 +13,40 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers contains the HTTP handlers for events
+// Handlers contains the HTTP handlers for the API
 type Handlers struct {
-	storage     storage.Storage
-	authService *services.AuthService
+	storage       storage.Storage
+	authService   *services.AuthService
+	healthHandler *HealthHandler
 }
 
 // NewHandlers creates a new handlers instance
-func NewHandlers(storage storage.Storage, jwtSecret string) *Handlers {
+func NewHandlers(storage storage.Storage, jwtSecret, version string) *Handlers {
 	return &Handlers{
-		storage:     storage,
-		authService: services.NewAuthService(jwtSecret, storage),
+		storage:       storage,
+		authService:   services.NewAuthService(jwtSecret, storage),
+		healthHandler: NewHealthHandler(version),
 	}
+}
+
+// NewTestHandlers creates a new handlers instance with test defaults
+func NewTestHandlers() *Handlers {
+	return NewTestHandlersWithStorage(storage.NewMemoryStorage())
+}
+
+// NewTestHandlersWithStorage creates a new handlers instance with test defaults and custom storage
+func NewTestHandlersWithStorage(store storage.Storage) *Handlers {
+	return NewHandlers(store, "test-secret", "test")
 }
 
 // AuthService returns the auth service instance
 func (h *Handlers) AuthService() *services.AuthService {
 	return h.authService
+}
+
+// GetHealth handles GET /health
+func (h *Handlers) GetHealth(c *gin.Context) {
+	h.healthHandler.GetHealth(c)
 }
 
 // GetEvents handles GET /events

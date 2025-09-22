@@ -2,3 +2,6 @@
 
 # Build artifacts
 simple-sync
+
+# Environment variables
+.env
