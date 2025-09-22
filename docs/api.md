@@ -4,7 +4,7 @@ This document describes the API endpoints for the `simple-sync` system.
 
 ## Authentication
 
-All endpoints (except `/api/v1/auth/token` and `/api/v1/health`) require authentication. The authentication mechanism involves a JSON Web Token (JWT) passed in the `Authorization` header.
+All endpoints (except `/api/v1/auth/token` and `/api/v1/health`) require authentication via JSON Web Token (JWT) passed in the `Authorization` header. `/api/v1/auth/token` require authentication via username and password.
 
 ## Events
 
