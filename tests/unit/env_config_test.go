@@ -56,3 +56,54 @@ func TestIsProduction(t *testing.T) {
 	config.Environment = "development"
 	assert.False(t, config.IsProduction())
 }
+
+func TestValidate_Port80Allowed(t *testing.T) {
+	config := &models.EnvironmentConfiguration{
+		JWT_SECRET:  "test-secret-key-32-chars-long-enough",
+		Port:        80,
+		Environment: "development",
+	}
+
+	err := config.Validate()
+
+	assert.NoError(t, err)
+}
+
+func TestLoadFromEnv_PortTooLow(t *testing.T) {
+	// Set up test environment with port below 80
+	os.Setenv("JWT_SECRET", "test-secret-key-32-chars-long")
+	os.Setenv("PORT", "79")
+	defer func() {
+		os.Unsetenv("JWT_SECRET")
+		os.Unsetenv("PORT")
+	}()
+
+	config := models.NewEnvironmentConfiguration()
+	err := config.LoadFromEnv(os.Getenv)
+
+	if err == nil {
+		t.Error("Expected error for port too low")
+	}
+
+	if err.Error() != "PORT must be between 80 and 65535" {
+		t.Errorf("Expected specific error message, got %v", err)
+	}
+}
+
+func TestValidate_PortTooLow(t *testing.T) {
+	config := &models.EnvironmentConfiguration{
+		JWT_SECRET:  "test-secret-key-32-chars-long-enough",
+		Port:        79,
+		Environment: "development",
+	}
+
+	err := config.Validate()
+
+	if err == nil {
+		t.Error("Expected error for port too low")
+	}
+
+	if err.Error() != "PORT must be between 80 and 65535" {
+		t.Errorf("Expected specific error message, got %v", err)
+	}
+}

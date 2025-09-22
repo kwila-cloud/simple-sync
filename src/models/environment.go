@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	minPort = 1024
+	minPort = 80
 	maxPort = 65535
 )
 
@@ -47,7 +47,7 @@ func (ec *EnvironmentConfiguration) LoadFromEnv(getenv func(string) string) erro
 			return errors.New("PORT must be a valid integer")
 		}
 		if !isValidPort(port) {
-			return errors.New("PORT must be between 1024 and 65535")
+			return errors.New("PORT must be between 80 and 65535")
 		}
 		ec.Port = port
 	}
@@ -72,7 +72,7 @@ func (ec *EnvironmentConfiguration) Validate() error {
 	}
 
 	if !isValidPort(ec.Port) {
-		return errors.New("PORT must be between 1024 and 65535")
+		return errors.New("PORT must be between 80 and 65535")
 	}
 
 	return nil
