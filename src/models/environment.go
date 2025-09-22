@@ -5,6 +5,16 @@ import (
 	"strconv"
 )
 
+const (
+	minPort = 1024
+	maxPort = 65535
+)
+
+// isValidPort checks if a port number is within the valid range
+func isValidPort(port int) bool {
+	return port >= minPort && port <= maxPort
+}
+
 // EnvironmentConfiguration manages environment-specific settings
 type EnvironmentConfiguration struct {
 	JWT_SECRET  string `json:"jwt_secret"`  // Required JWT signing secret
@@ -36,7 +46,7 @@ func (ec *EnvironmentConfiguration) LoadFromEnv(getenv func(string) string) erro
 		if err != nil {
 			return errors.New("PORT must be a valid integer")
 		}
-		if port < 1024 || port > 65535 {
+		if !isValidPort(port) {
 			return errors.New("PORT must be between 1024 and 65535")
 		}
 		ec.Port = port
@@ -61,7 +71,7 @@ func (ec *EnvironmentConfiguration) Validate() error {
 		return errors.New("JWT_SECRET should be at least 32 characters long")
 	}
 
-	if ec.Port < 1024 || ec.Port > 65535 {
+	if !isValidPort(ec.Port) {
 		return errors.New("PORT must be between 1024 and 65535")
 	}
 

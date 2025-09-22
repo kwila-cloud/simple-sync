@@ -40,6 +40,7 @@ func (h *Handlers) GetHealth(c *gin.Context) {
 }
 
 // SetVersion sets the version for the health handler
+// This is called from main.go to inject the build-time version into the health endpoint
 func (h *Handlers) SetVersion(version string) {
 	h.healthHandler.version = version
 }

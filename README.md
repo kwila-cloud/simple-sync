@@ -24,7 +24,7 @@ To run `simple-sync` using Docker Compose:
    ```bash
    echo "JWT_SECRET=$(openssl rand -base64 32)" > .env
    ```
-   **⚠️ REQUIRED:** JWT_SECRET is mandatory - the application will exit with an error if not set.
+    **⚠️ REQUIRED:** JWT_SECRET is mandatory and must be at least 32 characters long - the application will exit with an error if not set or too short.
 
 3. Start the services:
    ```bash
