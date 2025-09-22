@@ -16,7 +16,7 @@ To run `simple-sync` using Docker Compose:
 ### Setup
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-org/simple-sync.git
+   git clone https://github.com/kwila-cloud/simple-sync.git
    cd simple-sync
    ```
 

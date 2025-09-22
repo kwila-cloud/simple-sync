@@ -6,7 +6,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - JWT_SECRET=${JWT_SECRET:-your-development-secret-key-change-this-in-production}
+      - JWT_SECRET=${JWT_SECRET}
       - PORT=8080
     volumes:
       - ./data:/app/data
