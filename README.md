@@ -7,8 +7,6 @@ Built with [Go](https://go.dev/), [Gin](https://github.com/gin-gonic/gin), [SQLi
 
 ## Quick Start
 
-**NOTE** - This isn't implemented yet. Docker support will be added in #1
-
 To run `simple-sync` using Docker Compose, follow these steps:
 
 1.  Download the [`docker-compose.yml`](docker-compose.yml) file from the repository.

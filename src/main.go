@@ -3,9 +3,11 @@ package main
 import (
 	"log"
 	"os"
+	"strconv"
 
 	"simple-sync/src/handlers"
 	"simple-sync/src/middleware"
+	"simple-sync/src/models"
 	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
@@ -15,17 +17,22 @@ func main() {
 	// Print version information
 	log.Printf("Simple-Sync v%s (build: %s)", Version, BuildTime)
 
-	// Get JWT secret from environment - required for security
-	jwtSecret := os.Getenv("JWT_SECRET")
-	if jwtSecret == "" {
-		log.Fatal("Error: JWT_SECRET environment variable is required. Please set a secure JWT secret key.")
+	// Load environment configuration
+	envConfig := models.NewEnvironmentConfiguration()
+	if err := envConfig.LoadFromEnv(os.Getenv); err != nil {
+		log.Fatal("Environment configuration error:", err)
+	}
+
+	if err := envConfig.Validate(); err != nil {
+		log.Fatal("Environment validation error:", err)
 	}
 
 	// Initialize storage
 	store := storage.NewMemoryStorage()
 
 	// Initialize handlers
-	h := handlers.NewHandlers(store, jwtSecret)
+	h := handlers.NewHandlers(store, envConfig.JWT_SECRET)
+	h.SetVersion(Version)
 
 	// Setup Gin router
 	router := gin.Default()
@@ -42,15 +49,15 @@ func main() {
 	// Auth routes (no middleware)
 	router.POST("/auth/token", h.PostAuthToken)
 
-	// Get port from environment or default
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
+	// Health check route (no middleware)
+	router.GET("/health", h.GetHealth)
+
+	// Use port from environment configuration
+	port := envConfig.Port
 
 	// Start server
-	log.Printf("Starting server on port %s", port)
-	if err := router.Run(":" + port); err != nil {
+	log.Printf("Starting server on port %d", port)
+	if err := router.Run(":" + strconv.Itoa(port)); err != nil {
 		log.Fatal("Failed to start server:", err)
 	}
 }

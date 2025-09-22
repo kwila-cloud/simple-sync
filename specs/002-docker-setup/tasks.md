@@ -43,41 +43,41 @@
 - Paths shown below assume single project - adjust based on plan.md structure
 
 ## Phase 3.1: Setup
-- [ ] T001 Create .dockerignore file to optimize build context
-- [ ] T002 Create Dockerfile with multi-stage build (Go builder + Alpine runtime)
-- [ ] T003 Create docker-compose.yml for local development and deployment
-- [ ] T004 Update .github/workflows/release.yml to build and push Docker images to GHCR on releases
+- [x] T001 Create .dockerignore file to optimize build context
+- [x] T002 Create Dockerfile with multi-stage build (Go builder + Alpine runtime)
+- [x] T003 Create docker-compose.yml for local development and deployment
+- [x] T004 Update .github/workflows/release.yml to build and push Docker images to GHCR on releases
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**
-- [ ] T005 [P] Contract test GET /health in tests/contract/test_health_get.go
-- [ ] T006 [P] Integration test Docker container startup in tests/integration/test_docker_startup.go
-- [ ] T007 [P] Integration test health check endpoint in tests/integration/test_health_check.go
-- [ ] T008 [P] Integration test environment variable configuration in tests/integration/test_env_config.go
-- [ ] T009 [P] Integration test API authentication in Docker in tests/integration/test_docker_auth.go
+- [x] T005 [P] Contract test GET /health in tests/contract/test_health_get.go
+- [x] T006 [P] Integration test Docker container startup in tests/integration/test_docker_startup.go
+- [x] T007 [P] Integration test health check endpoint in tests/integration/test_health_check.go
+- [x] T008 [P] Integration test environment variable configuration in tests/integration/test_env_config.go
+- [x] T009 [P] Integration test API authentication in Docker in tests/integration/test_docker_auth.go
 
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
-- [ ] T010 [P] HealthCheckResponse model in src/models/health.go
-- [ ] T011 [P] DockerContainer configuration model in src/models/docker.go
-- [ ] T012 [P] EnvironmentConfiguration model in src/models/environment.go
-- [ ] T013 GET /health endpoint handler in src/handlers/health.go
-- [ ] T014 Update main.go to include health endpoint and environment validation
-- [ ] T015 Add health check endpoint to existing handlers/events.go
+- [x] T010 [P] HealthCheckResponse model in src/models/health.go
+- [x] T011 [P] DockerContainer configuration model in src/models/docker.go
+- [x] T012 [P] EnvironmentConfiguration model in src/models/environment.go
+- [x] T013 GET /health endpoint handler in src/handlers/health.go
+- [x] T014 Update main.go to include health endpoint and environment validation
+- [x] T015 Add health check endpoint to existing handlers/events.go
 
 ## Phase 3.4: Integration
-- [ ] T016 Configure environment variable validation in main.go
-- [ ] T017 Add version information to health response
-- [ ] T018 Add uptime tracking to health response
-- [ ] T019 Configure Docker health checks in docker-compose.yml
+- [x] T016 Configure environment variable validation in main.go
+- [x] T017 Add version information to health response
+- [x] T018 Add uptime tracking to health response
+- [x] T019 Configure Docker health checks in docker-compose.yml
 
 ## Phase 3.5: Polish
-- [ ] T019 [P] Unit tests for health response model in tests/unit/test_health_model.go
-- [ ] T020 [P] Unit tests for environment configuration in tests/unit/test_env_config.go
-- [ ] T021 Performance tests for health endpoint (<10ms response)
-- [ ] T022 [P] Update README.md with Docker deployment instructions
-- [ ] T023 [P] Update docs/api.md with health endpoint documentation
-- [ ] T024 Validate docker-compose up works and service is accessible
-- [ ] T025 Run manual testing from quickstart.md
+- [x] T020 [P] Unit tests for health response model in tests/unit/test_health_model.go
+- [x] T021 [P] Unit tests for environment configuration in tests/unit/test_env_config.go
+- [x] T022 Performance tests for health endpoint (<10ms response)
+- [x] T023 [P] Update README.md with Docker deployment instructions
+- [x] T024 [P] Update docs/api.md with health endpoint documentation
+- [x] T025 Validate docker-compose up works and service is accessible
+- [x] T026 Run manual testing from quickstart.md
 
 ## Dependencies
 - Tests (T004-T008) before implementation (T009-T018)

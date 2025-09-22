@@ -15,21 +15,33 @@ import (
 
 // Handlers contains the HTTP handlers for events
 type Handlers struct {
-	storage     storage.Storage
-	authService *services.AuthService
+	storage       storage.Storage
+	authService   *services.AuthService
+	healthHandler *HealthHandler
 }
 
 // NewHandlers creates a new handlers instance
 func NewHandlers(storage storage.Storage, jwtSecret string) *Handlers {
 	return &Handlers{
-		storage:     storage,
-		authService: services.NewAuthService(jwtSecret, storage),
+		storage:       storage,
+		authService:   services.NewAuthService(jwtSecret, storage),
+		healthHandler: NewHealthHandler("dev"), // Default version, will be overridden
 	}
 }
 
 // AuthService returns the auth service instance
 func (h *Handlers) AuthService() *services.AuthService {
 	return h.authService
+}
+
+// GetHealth handles GET /health
+func (h *Handlers) GetHealth(c *gin.Context) {
+	h.healthHandler.GetHealth(c)
+}
+
+// SetVersion sets the version for the health handler
+func (h *Handlers) SetVersion(version string) {
+	h.healthHandler.version = version
 }
 
 // GetEvents handles GET /events

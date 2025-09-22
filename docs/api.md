@@ -201,6 +201,32 @@ All endpoints (except `/auth/token`) require authentication. The authentication 
 
 Access to the `/acl` endpoint is restricted to administrators. Administrators are defined via a list of usernames in the server's configuration (TOML) file. See [ACL Documentation](docs/acl.md) for more details on the ACL structure and syntax.
 
+## Health Check
+
+### `GET /health`
+
+*   **Purpose:** Check the health status of the service.
+*   **Method:** GET
+*   **Request:** None
+*   **Response:**
+    *   Success (200 OK): A JSON object containing the service health information.
+*   **Example Request:**
+
+    ```
+    GET /health
+    ```
+
+*   **Example Response:**
+
+    ```json
+    {
+        "status": "healthy",
+        "timestamp": "2025-09-22T08:14:09Z",
+        "version": "0.1.0",
+        "uptime": 123
+    }
+    ```
+
 ## Authentication
 
 ### `POST /auth/token`
