@@ -21,11 +21,12 @@ func TestHealthEndpointPerformance(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register health route
-	router.GET("/health", h.GetHealth)
+	v1 := router.Group("/api/v1")
+	v1.GET("/health", h.GetHealth)
 
 	// Test health endpoint performance
 	start := time.Now()
-	req, _ := http.NewRequest("GET", "/health", nil)
+	req, _ := http.NewRequest("GET", "/api/v1/health", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)

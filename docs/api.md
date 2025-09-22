@@ -4,11 +4,11 @@ This document describes the API endpoints for the `simple-sync` system.
 
 ## Authentication
 
-All endpoints (except `/auth/token`) require authentication. The authentication mechanism involves a JSON Web Token (JWT) passed in the `Authorization` header.
+All endpoints (except `/api/v1/auth/token`) require authentication. The authentication mechanism involves a JSON Web Token (JWT) passed in the `Authorization` header.
 
 ## Events
 
-### `GET /events`
+### `GET /api/v1/events`
 
 *   **Purpose:** Retrieve the authoritative event history.
 *   **Method:** GET
@@ -20,7 +20,7 @@ All endpoints (except `/auth/token`) require authentication. The authentication 
 *   **Example Request:**
 
     ```
-    GET /events?fromTimestamp=1678886400
+    GET /api/v1/events?fromTimestamp=1678886400
     Authorization: Bearer <JWT>
     ```
 
@@ -47,7 +47,7 @@ All endpoints (except `/auth/token`) require authentication. The authentication 
     ]
     ```
 
-### `POST /events`
+### `POST /api/v1/events`
 
 *   **Purpose:** Push the client's diff history to the server.
 *   **Method:** POST
@@ -59,7 +59,7 @@ All endpoints (except `/auth/token`) require authentication. The authentication 
 *   **Example Request:**
 
     ```
-    POST /events
+    POST /api/v1/events
     Authorization: Bearer <JWT>
     Content-Type: application/json
 
@@ -108,7 +108,7 @@ All endpoints (except `/auth/token`) require authentication. The authentication 
 
 ## ACL
 
-### `GET /acl`
+### `GET /api/v1/acl`
 
 *   **Purpose:** Retrieve the current ACL.
 *   **Method:** GET
@@ -119,7 +119,7 @@ All endpoints (except `/auth/token`) require authentication. The authentication 
 *   **Example Request:**
 
     ```
-    GET /acl
+    GET /api/v1/acl
     Authorization: Bearer <JWT>
     ```
 
@@ -150,7 +150,7 @@ All endpoints (except `/auth/token`) require authentication. The authentication 
     }
     ```
 
-### `PUT /acl`
+### `PUT /api/v1/acl`
 
 *   **Purpose:** Update the ACL.
 *   **Method:** PUT
@@ -163,7 +163,7 @@ All endpoints (except `/auth/token`) require authentication. The authentication 
 *   **Example Request:**
 
     ```
-    PUT /acl
+    PUT /api/v1/acl
     Authorization: Bearer <JWT>
     Content-Type: application/json
 
@@ -199,11 +199,11 @@ All endpoints (except `/auth/token`) require authentication. The authentication 
 
 ### ACL Access Control
 
-Access to the `/acl` endpoint is restricted to administrators. Administrators are defined via a list of usernames in the server's configuration (TOML) file. See [ACL Documentation](docs/acl.md) for more details on the ACL structure and syntax.
+Access to the `/api/v1/acl` endpoint is restricted to administrators. Administrators are defined via a list of usernames in the server's configuration (TOML) file. See [ACL Documentation](docs/acl.md) for more details on the ACL structure and syntax.
 
 ## Health Check
 
-### `GET /health`
+### `GET /api/v1/health`
 
 *   **Purpose:** Check the health status of the service.
 *   **Method:** GET
@@ -213,7 +213,7 @@ Access to the `/acl` endpoint is restricted to administrators. Administrators ar
 *   **Example Request:**
 
     ```
-    GET /health
+    GET /api/v1/health
     ```
 
 *   **Example Response:**
@@ -229,7 +229,7 @@ Access to the `/acl` endpoint is restricted to administrators. Administrators ar
 
 ## Authentication
 
-### `POST /auth/token`
+### `POST /api/v1/auth/token`
 
 *   **Purpose:** Obtain an authentication token.
 *   **Method:** POST
@@ -241,7 +241,7 @@ Access to the `/acl` endpoint is restricted to administrators. Administrators ar
 *   **Example Request:**
 
     ```
-    POST /auth/token
+    POST /api/v1/auth/token
     Content-Type: application/json
 
     {
@@ -262,7 +262,7 @@ Access to the `/acl` endpoint is restricted to administrators. Administrators ar
 
 The following endpoints are part of the Admin API and are used for managing users. These endpoints use the same authentication mechanism as the regular user API. Access to these endpoints is restricted to administrators defined via a list of usernames in the server's configuration (TOML) file.
 
-### `POST /admin/users`
+### `POST /api/v1/admin/users`
 
 *   **Purpose:** Create a new user.
 *   **Method:** POST
@@ -275,7 +275,7 @@ The following endpoints are part of the Admin API and are used for managing user
 *   **Example Request:**
 
     ```
-    POST /admin/users
+    POST /api/v1/admin/users
     Authorization: Bearer <JWT>
     Content-Type: application/json
 
@@ -295,7 +295,7 @@ The following endpoints are part of the Admin API and are used for managing user
     }
     ```
 
-### `PUT /admin/users/{uuid}`
+### `PUT /api/v1/admin/users/{uuid}`
 
 *   **Purpose:** Update a user's username and/or password.
 *   **Method:** PUT
@@ -310,7 +310,7 @@ The following endpoints are part of the Admin API and are used for managing user
 *   **Example Request:**
 
     ```
-    PUT /admin/users/newuser123
+    PUT /api/v1/admin/users/newuser123
     Authorization: Bearer <JWT>
     Content-Type: application/json
 

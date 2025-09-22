@@ -24,7 +24,8 @@ func TestAuthEndpointPerformance(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register routes
-	router.POST("/auth/token", h.PostAuthToken)
+	v1 := router.Group("/api/v1")
+	v1.POST("/auth/token", h.PostAuthToken)
 
 	// Test auth endpoint performance
 	authRequest := map[string]string{
@@ -34,7 +35,7 @@ func TestAuthEndpointPerformance(t *testing.T) {
 	authBody, _ := json.Marshal(authRequest)
 
 	start := time.Now()
-	req, _ := http.NewRequest("POST", "/auth/token", bytes.NewBuffer(authBody))
+	req, _ := http.NewRequest("POST", "/api/v1/auth/token", bytes.NewBuffer(authBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 

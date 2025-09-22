@@ -33,7 +33,7 @@ To run `simple-sync` using Docker Compose:
 
 4. Verify the service is running:
    ```bash
-   curl http://localhost:8080/health
+    curl http://localhost:8080/api/v1/health
    ```
    You should see a JSON response with status "healthy".
 

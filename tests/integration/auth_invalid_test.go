@@ -22,8 +22,9 @@ func TestInvalidCredentialsHandling(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register routes
-	router.POST("/auth/token", h.PostAuthToken)
-	router.GET("/events", h.GetEvents)
+	v1 := router.Group("/api/v1")
+	v1.POST("/auth/token", h.PostAuthToken)
+	v1.GET("/events", h.GetEvents)
 
 	// Test 1: Invalid username/password
 	authRequest := map[string]string{
@@ -32,7 +33,7 @@ func TestInvalidCredentialsHandling(t *testing.T) {
 	}
 	authBody, _ := json.Marshal(authRequest)
 
-	authReq, _ := http.NewRequest("POST", "/auth/token", bytes.NewBuffer(authBody))
+	authReq, _ := http.NewRequest("POST", "/api/v1/auth/token", bytes.NewBuffer(authBody))
 	authReq.Header.Set("Content-Type", "application/json")
 	authW := httptest.NewRecorder()
 
@@ -53,7 +54,7 @@ func TestInvalidCredentialsHandling(t *testing.T) {
 	}
 	malformedBody, _ := json.Marshal(malformedRequest)
 
-	malformedReq, _ := http.NewRequest("POST", "/auth/token", bytes.NewBuffer(malformedBody))
+	malformedReq, _ := http.NewRequest("POST", "/api/v1/auth/token", bytes.NewBuffer(malformedBody))
 	malformedReq.Header.Set("Content-Type", "application/json")
 	malformedW := httptest.NewRecorder()
 
@@ -63,7 +64,7 @@ func TestInvalidCredentialsHandling(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, malformedW.Code)
 
 	// Test 3: Access with invalid token
-	getReq, _ := http.NewRequest("GET", "/events", nil)
+	getReq, _ := http.NewRequest("GET", "/api/v1/events", nil)
 	getReq.Header.Set("Authorization", "Bearer invalid-token")
 	getW := httptest.NewRecorder()
 
@@ -74,7 +75,7 @@ func TestInvalidCredentialsHandling(t *testing.T) {
 
 	// Test 4: Access with expired token (simulate)
 	// Note: This would require implementing token expiration
-	getExpiredReq, _ := http.NewRequest("GET", "/events", nil)
+	getExpiredReq, _ := http.NewRequest("GET", "/api/v1/events", nil)
 	getExpiredReq.Header.Set("Authorization", "Bearer expired-jwt-token")
 	getExpiredW := httptest.NewRecorder()
 

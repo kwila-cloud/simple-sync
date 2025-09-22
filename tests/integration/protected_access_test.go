@@ -23,16 +23,16 @@ func TestProtectedEndpointAccess(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register routes
-	router.POST("/auth/token", h.PostAuthToken)
+	router.POST("/api/v1/auth/token", h.PostAuthToken)
 
 	// Protected routes with auth middleware
-	auth := router.Group("/")
+	auth := router.Group("/api/v1")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.GET("/events", h.GetEvents)
 	auth.POST("/events", h.PostEvents)
 
 	// Test 1: Access GET /events without token - should fail
-	getReq, _ := http.NewRequest("GET", "/events", nil)
+	getReq, _ := http.NewRequest("GET", "/api/v1/events", nil)
 	getW := httptest.NewRecorder()
 
 	router.ServeHTTP(getW, getReq)
@@ -50,7 +50,7 @@ func TestProtectedEndpointAccess(t *testing.T) {
 		"payload": "{}"
 	}]`
 
-	postReq, _ := http.NewRequest("POST", "/events", bytes.NewBufferString(eventJSON))
+	postReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	postReq.Header.Set("Content-Type", "application/json")
 	postW := httptest.NewRecorder()
 
@@ -66,7 +66,7 @@ func TestProtectedEndpointAccess(t *testing.T) {
 	}
 	authBody, _ := json.Marshal(authRequest)
 
-	authReq, _ := http.NewRequest("POST", "/auth/token", bytes.NewBuffer(authBody))
+	authReq, _ := http.NewRequest("POST", "/api/v1/auth/token", bytes.NewBuffer(authBody))
 	authReq.Header.Set("Content-Type", "application/json")
 	authW := httptest.NewRecorder()
 
@@ -80,7 +80,7 @@ func TestProtectedEndpointAccess(t *testing.T) {
 	token := authResponse["token"]
 
 	// Now access with token
-	authGetReq, _ := http.NewRequest("GET", "/events", nil)
+	authGetReq, _ := http.NewRequest("GET", "/api/v1/events", nil)
 	authGetReq.Header.Set("Authorization", "Bearer "+token)
 	authGetW := httptest.NewRecorder()
 

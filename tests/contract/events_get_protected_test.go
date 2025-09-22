@@ -22,12 +22,13 @@ func TestGetEventsProtected(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register routes with auth middleware
-	auth := router.Group("/")
+	v1 := router.Group("/api/v1")
+	auth := v1.Group("/")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.GET("/events", h.GetEvents)
 
 	// Test without Authorization header - should fail with 401
-	req, _ := http.NewRequest("GET", "/events", nil)
+	req, _ := http.NewRequest("GET", "/api/v1/events", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -52,7 +53,8 @@ func TestGetEventsWithValidToken(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register routes with auth middleware
-	auth := router.Group("/")
+	v1 := router.Group("/api/v1")
+	auth := v1.Group("/")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.GET("/events", h.GetEvents)
 
@@ -61,7 +63,7 @@ func TestGetEventsWithValidToken(t *testing.T) {
 	token, _ := h.AuthService().GenerateToken(user)
 
 	// Test with valid Authorization header
-	req, _ := http.NewRequest("GET", "/events", nil)
+	req, _ := http.NewRequest("GET", "/api/v1/events", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	w := httptest.NewRecorder()
 
@@ -84,12 +86,13 @@ func TestGetEventsWithInvalidToken(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register routes with auth middleware
-	auth := router.Group("/")
+	v1 := router.Group("/api/v1")
+	auth := v1.Group("/")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.GET("/events", h.GetEvents)
 
 	// Test with invalid Authorization header
-	req, _ := http.NewRequest("GET", "/events", nil)
+	req, _ := http.NewRequest("GET", "/api/v1/events", nil)
 	req.Header.Set("Authorization", "Bearer invalid-token")
 	w := httptest.NewRecorder()
 

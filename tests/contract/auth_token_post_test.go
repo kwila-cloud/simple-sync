@@ -22,7 +22,8 @@ func TestPostAuthToken(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register routes
-	router.POST("/auth/token", h.PostAuthToken)
+	v1 := router.Group("/api/v1")
+	v1.POST("/auth/token", h.PostAuthToken)
 
 	// Test data from contract
 	authRequest := map[string]string{
@@ -32,7 +33,7 @@ func TestPostAuthToken(t *testing.T) {
 	requestBody, _ := json.Marshal(authRequest)
 
 	// Create test request
-	req, _ := http.NewRequest("POST", "/auth/token", bytes.NewBuffer(requestBody))
+	req, _ := http.NewRequest("POST", "/api/v1/auth/token", bytes.NewBuffer(requestBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
@@ -60,7 +61,8 @@ func TestPostAuthTokenInvalidRequest(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register routes
-	router.POST("/auth/token", h.PostAuthToken)
+	v1 := router.Group("/api/v1")
+	v1.POST("/auth/token", h.PostAuthToken)
 
 	// Invalid request - missing password
 	invalidRequest := map[string]string{
@@ -68,7 +70,7 @@ func TestPostAuthTokenInvalidRequest(t *testing.T) {
 	}
 	requestBody, _ := json.Marshal(invalidRequest)
 
-	req, _ := http.NewRequest("POST", "/auth/token", bytes.NewBuffer(requestBody))
+	req, _ := http.NewRequest("POST", "/api/v1/auth/token", bytes.NewBuffer(requestBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
@@ -87,7 +89,8 @@ func TestPostAuthTokenInvalidCredentials(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register routes
-	router.POST("/auth/token", h.PostAuthToken)
+	v1 := router.Group("/api/v1")
+	v1.POST("/auth/token", h.PostAuthToken)
 
 	// Invalid credentials
 	authRequest := map[string]string{
@@ -96,7 +99,7 @@ func TestPostAuthTokenInvalidCredentials(t *testing.T) {
 	}
 	requestBody, _ := json.Marshal(authRequest)
 
-	req, _ := http.NewRequest("POST", "/auth/token", bytes.NewBuffer(requestBody))
+	req, _ := http.NewRequest("POST", "/api/v1/auth/token", bytes.NewBuffer(requestBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
