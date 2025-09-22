@@ -27,7 +27,7 @@ Data MUST be persisted to SQLite database for reliability and performance. The s
 ACL rules MUST be evaluated in order, with deny-by-default behavior. Wildcard support MUST be provided for flexible permission management. Rationale: Ensures fine-grained control over data access while maintaining security.
 
 ## Technology Stack
-The project MUST use Go with Gin web framework, SQLite for data storage, JWT for authentication, and TOML for configuration. All dependencies MUST be justified for simplicity, performance, and maintainability. Rationale: Chosen stack optimizes for the project's goals of simple code and high maintainability.
+The project MUST use Go with Gin web framework, SQLite for data storage, and JWT for authentication. All dependencies MUST be justified for simplicity, performance, and maintainability. Rationale: Chosen stack optimizes for the project's goals of simple code and high maintainability.
 
 ## Development Workflow
 Development MUST follow an issue-driven workflow using GitHub CLI for tracking. Features MUST be implemented incrementally with testing. Code MUST be committed with descriptive messages referencing issues. Test files MUST follow Go naming conventions with "_test.go" suffix. Rationale: Ensures structured progress, accountability, and adherence to Go testing standards.

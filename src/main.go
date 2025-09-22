@@ -43,16 +43,18 @@ func main() {
 	router.SetTrustedProxies([]string{})
 
 	// Register routes
-	auth := router.Group("/")
+	v1 := router.Group("/api/v1")
+
+	auth := v1.Group("/")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.GET("/events", h.GetEvents)
 	auth.POST("/events", h.PostEvents)
 
 	// Auth routes (no middleware)
-	router.POST("/auth/token", h.PostAuthToken)
+	v1.POST("/auth/token", h.PostAuthToken)
 
 	// Health check route (no middleware)
-	router.GET("/health", h.GetHealth)
+	v1.GET("/health", h.GetHealth)
 
 	// Use port from environment configuration
 	port := envConfig.Port

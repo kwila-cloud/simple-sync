@@ -23,10 +23,11 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register routes
-	router.POST("/auth/token", h.PostAuthToken)
+	v1 := router.Group("/api/v1")
+	v1.POST("/auth/token", h.PostAuthToken)
 
 	// Protected routes with auth middleware
-	auth := router.Group("/")
+	auth := v1.Group("/")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.GET("/events", h.GetEvents)
 	auth.POST("/events", h.PostEvents)
@@ -38,7 +39,7 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 	}
 	authBody, _ := json.Marshal(authRequest)
 
-	authReq, _ := http.NewRequest("POST", "/auth/token", bytes.NewBuffer(authBody))
+	authReq, _ := http.NewRequest("POST", "/api/v1/auth/token", bytes.NewBuffer(authBody))
 	authReq.Header.Set("Content-Type", "application/json")
 	authW := httptest.NewRecorder()
 
@@ -54,7 +55,7 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 	assert.NotEmpty(t, token)
 
 	// Step 2: Use token to access protected GET /events
-	getReq, _ := http.NewRequest("GET", "/events", nil)
+	getReq, _ := http.NewRequest("GET", "/api/v1/events", nil)
 	getReq.Header.Set("Authorization", "Bearer "+token)
 	getW := httptest.NewRecorder()
 
@@ -73,7 +74,7 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 		"payload": "{}"
 	}]`
 
-	postReq, _ := http.NewRequest("POST", "/events", bytes.NewBufferString(eventJSON))
+	postReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	postReq.Header.Set("Content-Type", "application/json")
 	postReq.Header.Set("Authorization", "Bearer "+token)
 	postW := httptest.NewRecorder()

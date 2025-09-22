@@ -21,10 +21,11 @@ func TestGetHealth(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register routes
-	router.GET("/health", h.GetHealth)
+	v1 := router.Group("/api/v1")
+	v1.GET("/health", h.GetHealth)
 
-	// Test GET /health endpoint
-	req, _ := http.NewRequest("GET", "/health", nil)
+	// Test GET /api/v1/health endpoint
+	req, _ := http.NewRequest("GET", "/api/v1/health", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)

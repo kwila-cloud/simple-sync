@@ -23,7 +23,8 @@ func TestPostEventsProtected(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register routes with auth middleware
-	auth := router.Group("/")
+	v1 := router.Group("/api/v1")
+	auth := v1.Group("/")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/events", h.PostEvents)
 
@@ -38,7 +39,7 @@ func TestPostEventsProtected(t *testing.T) {
 	}]`
 
 	// Test without Authorization header - should fail with 401
-	req, _ := http.NewRequest("POST", "/events", bytes.NewBufferString(eventJSON))
+	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
@@ -64,7 +65,8 @@ func TestPostEventsWithValidToken(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register routes with auth
-	auth := router.Group("/")
+	v1 := router.Group("/api/v1")
+	auth := v1.Group("/")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/events", h.PostEvents)
 
@@ -83,7 +85,7 @@ func TestPostEventsWithValidToken(t *testing.T) {
 	}]`
 
 	// Test with valid Authorization header
-	req, _ := http.NewRequest("POST", "/events", bytes.NewBufferString(eventJSON))
+	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 	w := httptest.NewRecorder()
@@ -107,7 +109,8 @@ func TestPostEventsWithInvalidToken(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register routes with auth
-	auth := router.Group("/")
+	v1 := router.Group("/api/v1")
+	auth := v1.Group("/")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/events", h.PostEvents)
 
@@ -122,7 +125,7 @@ func TestPostEventsWithInvalidToken(t *testing.T) {
 	}]`
 
 	// Test with invalid Authorization header
-	req, _ := http.NewRequest("POST", "/events", bytes.NewBufferString(eventJSON))
+	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer invalid-token")
 	w := httptest.NewRecorder()

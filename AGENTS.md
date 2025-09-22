@@ -32,42 +32,13 @@ Simple-sync is a lightweight REST API built in Go that provides event storage an
 
 **Documentation:**
 - `README.md` - Setup and deployment instructions
-- `docs/api.md` - Complete API specification and examples
+- `docs/api/` - Complete API specification and examples
 - `docs/acl.md` - ACL system documentation and permission model
 - `AGENTS.md` - This file - AI development guide
 - `docker-compose.yml` - Local development environment
 - Frontend integration examples in `/examples`
 
 ## GitHub CLI Instructions
-
-**Fetching Issue Information:**
-```bash
-# List all open issues
-gh issue list --state open
-
-# Get detailed issue description
-gh issue view <issue-number>
-
-# Get issue in JSON format for parsing
-gh issue view <issue-number> --json title,body,labels,assignees
-
-# List issues by label
-gh issue list --label "enhancement" --label "backend"
-```
-
-**Working with Issues:**
-```bash
-# Assign issue to yourself
-gh issue edit <issue-number> --add-assignee @me
-
-# Create branch from issue
-gh issue develop <issue-number> --checkout
-
-# Link commits to issues (use in commit messages)
-git commit -m "feat: implement ACL endpoints
-
-Closes #<issue-number>"
-```
 
 ## Development Workflow
 
@@ -77,13 +48,13 @@ Closes #<issue-number>"
 gh issue view <issue-number>
 
 # Create feature branch
-gh issue develop <issue-number> --checkout
+gh issue main <issue-number> --checkout
 # Or manually: git checkout -b feat/issue-<number>-description
 ```
 
 **2. Development Process:**
 - Read the full issue description and acceptance criteria
-- Check `docs/api.md` for API specifications and `docs/acl.md` for ACL system details
+- Check `docs/api/` for API specifications and `docs/acl.md` for ACL system details
 - Check dependencies listed in the issue
 - Implement features incrementally, testing as you go
 - Follow the existing code patterns and structure
@@ -117,6 +88,12 @@ Closes #<issue-number>"
 
 # Push to remote
 git push origin feat/issue-<number>-description
+```
+
+**5. View Pull Request:**
+```bash
+# This will automatically get the PR for the current branch
+gh pr view
 ```
 
 **CHANGELOG Reminder:**

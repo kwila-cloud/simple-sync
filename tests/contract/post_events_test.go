@@ -26,7 +26,8 @@ func TestPostEvents(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register routes with auth middleware
-	auth := router.Group("/")
+	v1 := router.Group("/api/v1")
+	auth := v1.Group("/")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/events", h.PostEvents)
 
@@ -45,7 +46,7 @@ func TestPostEvents(t *testing.T) {
 	token, _ := h.AuthService().GenerateToken(user)
 
 	// Create test request
-	req, _ := http.NewRequest("POST", "/events", bytes.NewBufferString(eventJSON))
+	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 	w := httptest.NewRecorder()
@@ -78,7 +79,8 @@ func TestConcurrentPostEvents(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register routes with auth
-	auth := router.Group("/")
+	v1 := router.Group("/api/v1")
+	auth := v1.Group("/")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/events", h.PostEvents)
 	auth.GET("/events", h.GetEvents)
@@ -100,7 +102,7 @@ func TestConcurrentPostEvents(t *testing.T) {
 			for j := 0; j < eventsPerGoroutine; j++ {
 				uuid := fmt.Sprintf("%d-%d", id, j)
 				event := fmt.Sprintf(`[{"uuid":"%s","timestamp":%d,"userUuid":"u","itemUuid":"i","action":"a","payload":"p"}]`, uuid, id*100+j+1)
-				req, _ := http.NewRequest("POST", "/events", bytes.NewBufferString(event))
+				req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(event))
 				req.Header.Set("Content-Type", "application/json")
 				req.Header.Set("Authorization", "Bearer "+token) // Add token
 				w := httptest.NewRecorder()
@@ -116,7 +118,7 @@ func TestConcurrentPostEvents(t *testing.T) {
 	wg.Wait()
 
 	// Check total events
-	req, _ := http.NewRequest("GET", "/events", nil)
+	req, _ := http.NewRequest("GET", "/api/v1/events", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)

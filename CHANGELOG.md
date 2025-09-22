@@ -1,6 +1,8 @@
 # Changelog
 
 ## [0.2.0] - unreleased
+- [#25](https://github.com/kwila-cloud/simple-sync/pull/25): Add v1 API prefix for future versioning
+  - Updated all API endpoints to start with /api/v1/
 - [#24](https://github.com/kwila-cloud/simple-sync/pull/24): Docker configuration for easy deployment
   - Added multi-stage Dockerfile with Go 1.25 and Alpine runtime
   - Created docker-compose.yml for local development with health checks

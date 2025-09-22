@@ -22,7 +22,8 @@ func TestGetEventsWithTimestamp(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register routes with auth
-	auth := router.Group("/")
+	v1 := router.Group("/api/v1")
+	auth := v1.Group("/")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.GET("/events", h.GetEvents)
 
@@ -31,7 +32,7 @@ func TestGetEventsWithTimestamp(t *testing.T) {
 	token, _ := h.AuthService().GenerateToken(user)
 
 	// Create test request with timestamp query
-	req, _ := http.NewRequest("GET", "/events?fromTimestamp=1640995200", nil)
+	req, _ := http.NewRequest("GET", "/api/v1/events?fromTimestamp=1640995200", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	w := httptest.NewRecorder()
 
@@ -56,7 +57,8 @@ func TestGetEventsWithTimestampFiltering(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register routes with auth
-	auth := router.Group("/")
+	v1 := router.Group("/api/v1")
+	auth := v1.Group("/")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.GET("/events", h.GetEvents)
 	auth.POST("/events", h.PostEvents)
@@ -68,7 +70,7 @@ func TestGetEventsWithTimestampFiltering(t *testing.T) {
 	// Post some events with different timestamps
 	eventJSON := `[{"uuid":"1","timestamp":100,"userUuid":"u1","itemUuid":"i1","action":"a","payload":"p"}, {"uuid":"2","timestamp":200,"userUuid":"u2","itemUuid":"i2","action":"b","payload":"q"}, {"uuid":"3","timestamp":300,"userUuid":"u3","itemUuid":"i3","action":"c","payload":"r"}]`
 
-	req, _ := http.NewRequest("POST", "/events", bytes.NewBufferString(eventJSON))
+	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 	w := httptest.NewRecorder()
@@ -76,7 +78,7 @@ func TestGetEventsWithTimestampFiltering(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	// Now GET with fromTimestamp=150
-	req2, _ := http.NewRequest("GET", "/events?fromTimestamp=150", nil)
+	req2, _ := http.NewRequest("GET", "/api/v1/events?fromTimestamp=150", nil)
 	req2.Header.Set("Authorization", "Bearer "+token)
 	w2 := httptest.NewRecorder()
 	router.ServeHTTP(w2, req2)
