@@ -16,7 +16,7 @@ export default defineConfig({
 					autogenerate: { directory: 'api' },
 				},
 				{ label: 'ACL 🛡️', slug: 'acl' },
-				{ label: 'Download as PDF 📄', link: 'https://kwila.github.io/simple-sync/docs.pdf', attrs: { target: '_blank' } },
+				{ label: 'Download as PDF 📄', link: '/docs.pdf', attrs: { target: '_blank' } },
 			],
 		}),
 	],

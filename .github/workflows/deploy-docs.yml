@@ -37,7 +37,7 @@ jobs:
       - name: Run Preview
         run: |
           cd docs
-          npm run preview
+          npm run preview &
 
       - name: Wait for preview startup
         run: sleep 5
