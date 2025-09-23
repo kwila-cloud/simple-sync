@@ -77,7 +77,7 @@ jobs:
       - name: Generate PDF
         run: |
           cd docs
-          npx starlight-to-pdf http://localhost:4321/simple-sync/overview -p ./dist --filename docs --pdf-outline --contents-links internal --contents-name "Simple Sync" --browser-executable /usr/bin/chromium-browser
+          npx starlight-to-pdf http://localhost:4321/simple-sync -p ./dist --filename docs --pdf-outline --contents-links internal --contents-name "Simple Sync" --browser-executable /usr/bin/chromium-browser
 
       - name: Stop preview server
         run: |
