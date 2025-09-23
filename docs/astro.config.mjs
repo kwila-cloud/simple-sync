@@ -10,6 +10,7 @@ export default defineConfig({
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/kwila/simple-sync' }],
 			sidebar: [
 				{ label: 'Overview', slug: 'index' },
+				{ label: 'System Overview', slug: 'overview' },
 				{
 					label: 'API',
 					autogenerate: { directory: 'api' },
