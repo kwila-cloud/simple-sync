@@ -1,4 +1,4 @@
-# simple-sync
+# Simple Sync
 A simple sync system for local-first apps.
 
 Built with [Go](https://go.dev/), [Gin](https://github.com/gin-gonic/gin), [SQLite](https://www.sqlite.org/index.html) and [JWT](https://jwt.io/). See the [Tech Stack](docs/tech-stack.md) document for details on the technologies used in this project and the rationale behind those choices.
@@ -7,11 +7,11 @@ Built with [Go](https://go.dev/), [Gin](https://github.com/gin-gonic/gin), [SQLi
 
 ## Documentation
 
-📚 [View Documentation](https://kwila.github.io/simple-sync/) - Complete API reference, ACL system, and technical guides.
+📚 [View Documentation](https://kwila-cloud.github.io/simple-sync/) - Complete API reference, ACL system, and technical guides.
 
 ## Quick Start
 
-To run `simple-sync` using Docker Compose:
+To run Simple Sync using Docker Compose:
 
 ### Prerequisites
 - Docker and Docker Compose installed
