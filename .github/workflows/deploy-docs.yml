@@ -34,7 +34,7 @@ jobs:
       - name: Generate PDF
         run: |
           cd docs
-          npm run build && (npm run preview > /dev/null & sleep 5); lsof -ti:4321 > preview.pid; npx starlight-to-pdf http://localhost:4321 -p ./dist --filename docs --pdf-outline; kill $(cat preview.pid) && rm preview.pid && echo 'PDF script finished'
+          (npm run preview > /dev/null & sleep 5); lsof -ti:4321 > preview.pid; npx starlight-to-pdf http://localhost:4321 -p ./dist --filename docs --pdf-outline; kill $(cat preview.pid) && rm preview.pid && echo 'PDF script finished'
 
       - name: Upload artifacts
         uses: actions/upload-pages-artifact@v3
