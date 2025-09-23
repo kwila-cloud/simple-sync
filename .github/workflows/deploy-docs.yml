@@ -37,12 +37,17 @@ jobs:
       - name: Run Preview
         run: |
           cd docs
-          npm run preview & echo$! > preview.pid
+          npm run preview
 
       - name: Wait for preview startup
         run: sleep 5
         shell: bash
 
+        # Process ID will be used later to shut down the server
+      - name: Record preview server's process ID
+        run: lsof -ti:4321 > preview.pid
+
+      # From https://github.com/Linkerin/starlight-to-pdf/issues/4#issuecomment-2603255906
       - name: Generate PDF
         run: |
           cd docs
