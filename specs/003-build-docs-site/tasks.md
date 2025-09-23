@@ -41,7 +41,7 @@
 - All paths relative to repository root unless specified
 
 ## Phase 3.1: Setup
-- [ ] T001 Rename existing docs/ directory to old-docs/
+- [X] T001 Rename existing docs/ directory to old-docs/
 - [ ] T002 Initialize Astro + Starlight project in docs/ with npm create astro
 - [ ] T003 [P] Configure TypeScript and linting in docs/tsconfig.json and docs/package.json
 
