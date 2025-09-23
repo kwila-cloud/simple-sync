@@ -3,8 +3,6 @@ title: Access Control List (ACL)
 description: Specification for the Access Control List system in simple-sync
 ---
 
-# simple-sync Access Control List (ACL) Specification
-
 The Access Control List (ACL) defines the relationships between users, items, and actions. It determines which users are allowed to perform which actions on which items.
 
 ## Default Behavior

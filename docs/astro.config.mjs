@@ -6,17 +6,16 @@ import starlight from '@astrojs/starlight';
 export default defineConfig({
 	integrations: [
 		starlight({
-			title: 'Simple-Sync Documentation',
-			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/kwila/simple-sync' }],
+			title: 'Simple-Sync Docs',
+			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/kwila-cloud/simple-sync' }],
 			sidebar: [
-				{ label: 'Overview', slug: 'index' },
-				{ label: 'System Overview', slug: 'overview' },
+				{ label: 'Overview', slug: 'overview' },
+				{ label: 'Tech Stack', slug: 'tech-stack' },
 				{
 					label: 'API',
 					autogenerate: { directory: 'api' },
 				},
 				{ label: 'ACL', slug: 'acl' },
-				{ label: 'Tech Stack', slug: 'tech-stack' },
 			],
 		}),
 	],
