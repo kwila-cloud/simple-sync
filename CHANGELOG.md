@@ -1,6 +1,7 @@
 # Changelog
 
 ## [0.3.0] - unreleased
+- [#31](https://github.com/kwila-cloud/simple-sync/pull/31): Fixed docs deployment
 - [#30](https://github.com/kwila-cloud/simple-sync/pull/30): Added docs site
 - [#28](https://github.com/kwila-cloud/simple-sync/pull/28): Fixed healthcheck URL in docker compose file
 - [#27](https://github.com/kwila-cloud/simple-sync/pull/27): Fixed image URL in docker compose file
