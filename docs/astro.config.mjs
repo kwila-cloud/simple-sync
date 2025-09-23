@@ -4,6 +4,8 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
+	base: '/simple-sync',
+	site: 'https://kwila-cloud.github.io/simple-sync',
 	integrations: [
 		starlight({
 			title: 'Simple Sync Docs',
