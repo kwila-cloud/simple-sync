@@ -1,4 +1,7 @@
-# simple-sync Technology Stack
+---
+title: Technology Stack
+description: Overview of the technology choices for simple-sync
+---
 
 This document outlines the technology stack chosen for the `simple-sync` project, along with the pros and cons of each choice. The primary goals are simple code, above-average performance, and very high maintainability.
 

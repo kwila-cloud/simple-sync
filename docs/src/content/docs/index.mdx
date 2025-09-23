@@ -1,0 +1,34 @@
+---
+title: Simple Sync
+description: Documentation for Simple Sync, a simple sync system for local-first apps.
+template: splash
+hero:
+  tagline: A simple sync system for local-first apps.
+  image:
+    file: ../../assets/houston.webp
+  actions:
+    - text: Overview
+      link: /overview
+      icon: right-arrow
+    - text: View on GitHub
+      link: https://github.com/kwila-cloud/simple-sync
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+<CardGrid stagger>
+	<Card title="Tech Stack" icon="seti:json">
+		Built with Go, Gin, SQLite, and JWT.
+		<LinkCard title="Tech Stack Docs" href="/tech-stack" />
+	</Card>
+	<Card title="API " icon="rocket">
+		Access your data through a simple REST API.
+		<LinkCard title="API Spec v1" href="/api/v1" />
+	</Card>
+	<Card title="ACL System" icon="seti:lock">
+		All access is secured through the ACL system.
+		<LinkCard title="ACL Docs" href="/acl" />
+	</Card>
+</CardGrid>
