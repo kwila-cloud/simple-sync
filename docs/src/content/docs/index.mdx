@@ -8,7 +8,7 @@ hero:
     file: ../../assets/houston.webp
   actions:
     - text: Overview
-      link: /overview
+      link: /simple-sync/overview
       icon: right-arrow
     - text: View on GitHub
       link: https://github.com/kwila-cloud/simple-sync
@@ -21,14 +21,14 @@ import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 <CardGrid stagger>
 	<Card title="Tech Stack" icon="seti:json">
 		Built with Go, Gin, SQLite, and JWT.
-		<LinkCard title="Tech Stack Docs" href="/tech-stack" />
+		<LinkCard title="Tech Stack Docs" href="/simple-sync/tech-stack" />
 	</Card>
 	<Card title="API " icon="rocket">
 		Access your data through a simple REST API.
-		<LinkCard title="API Spec v1" href="/api/v1" />
+		<LinkCard title="API Spec v1" href="/simple-sync/api/v1" />
 	</Card>
 	<Card title="ACL System" icon="seti:lock">
 		All access is secured through the ACL system.
-		<LinkCard title="ACL Docs" href="/acl" />
+		<LinkCard title="ACL Docs" href="/simple-sync/acl" />
 	</Card>
 </CardGrid>
