@@ -16,19 +16,19 @@ hero:
       variant: minimal
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 
 <CardGrid stagger>
-	<Card title="Tech Stack" icon="setting">
-		Technical details about the implementation and deployment.
+	<Card title="Tech Stack" icon="seti:json">
+		Built with Go, Gin, SQLite, and JWT.
+		<LinkCard title="Tech Stack Docs" href="/tech-stack" />
 	</Card>
-	<Card title="API Reference" icon="rocket">
-		Complete API documentation for endpoints, authentication, and data models.
+	<Card title="API " icon="rocket">
+		Access your data through a simple REST API.
+		<LinkCard title="API Spec v1" href="/api/v1" />
 	</Card>
-	<Card title="ACL System" icon="shield">
-		Learn about the Access Control List system for user permissions.
-	</Card>
-	<Card title="Contributing" icon="open-book">
-		How to contribute to the project.
+	<Card title="ACL System" icon="seti:lock">
+		All access is secured through the ACL system.
+		<LinkCard title="ACL Docs" href="/acl" />
 	</Card>
 </CardGrid>
