@@ -42,26 +42,26 @@
 
 ## Phase 3.1: Setup
 - [X] T001 Rename existing docs/ directory to old-docs/
-- [ ] T002 Initialize Astro + Starlight project in docs/ with npm create astro
-- [ ] T003 [P] Configure TypeScript and linting in docs/tsconfig.json and docs/package.json
+- [X] T002 Initialize Astro + Starlight project in docs/ with npm create astro
+- [X] T003 [P] Configure TypeScript and linting in docs/tsconfig.json and docs/package.json
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**
-- [ ] T004 [P] Integration test for local build in docs/test_build.js
-- [ ] T005 [P] Integration test for link checking in docs/test_links.js
+- [X] T004 [P] Integration test for local build in docs/test_build.js
+- [X] T005 [P] Integration test for link checking in docs/test_links.js
 
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
-- [ ] T006 Configure Starlight in docs/astro.config.mjs
-- [ ] T007 Move existing docs content to docs/src/content/docs/
+- [X] T006 Configure Starlight in docs/astro.config.mjs
+- [X] T007 Move existing docs content to docs/src/content/docs/
 
 ## Phase 3.4: Integration
-- [ ] T009 Setup GitHub Actions workflow in .github/workflows/deploy-docs.yml
-- [ ] T008 Add starlight-to-pdf CLI execution with --contents-links internal option to GitHub Actions workflow in .github/workflows/deploy-docs.yml
+- [X] T009 Setup GitHub Actions workflow in .github/workflows/deploy-docs.yml
+- [X] T008 Add starlight-to-pdf CLI execution with --contents-links internal option to GitHub Actions workflow in .github/workflows/deploy-docs.yml
 
 ## Phase 3.5: Polish
-- [ ] T010 [P] Add performance testing script in docs/test_performance.js
-- [ ] T011 Run manual testing per quickstart.md
-- [ ] T012 Update README.md with docs site link
+- [X] T010 [P] Add performance testing script in docs/test_performance.js
+- [X] T011 Run manual testing per quickstart.md
+- [X] T012 Update README.md with docs site link
 
 ## Dependencies
 - T001 blocks T002

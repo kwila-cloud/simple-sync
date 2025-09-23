@@ -1,0 +1,57 @@
+name: Deploy Docs
+
+# Build runs on PRs for validation, deploy only on main branch pushes
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'docs/**', '.github/workflows/deploy-docs.yml' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'docs/**', '.github/workflows/deploy-docs.yml' ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          cd docs
+          npm ci
+
+      - name: Build
+        run: |
+          cd docs
+          npm run build
+
+      - name: Generate PDF
+        run: |
+          cd docs
+          npx @linkerin/starlight-to-pdf --contents-links internal
+
+      - name: Upload artifacts
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/dist
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

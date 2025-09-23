@@ -1,36 +1,38 @@
 ---
-title: Welcome to Starlight
-description: Get started building your docs site with Starlight.
+title: Simple-Sync Documentation
+description: Documentation for Simple-Sync, a lightweight REST API for event storage and access control.
 template: splash
 hero:
-  tagline: Congrats on setting up a new Starlight project!
+  tagline: Simple-Sync API Documentation
   image:
     file: ../../assets/houston.webp
   actions:
-    - text: Example Guide
-      link: /guides/example/
+    - text: Get Started
+      link: /api/v1
       icon: right-arrow
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
+    - text: View on GitHub
+      link: https://github.com/kwila/simple-sync
       icon: external
       variant: minimal
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-## Next steps
+## Overview
+
+Simple-Sync is a lightweight REST API built in Go that provides event storage and access control functionality.
 
 <CardGrid stagger>
-	<Card title="Update content" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
+	<Card title="API Reference" icon="rocket">
+		Complete API documentation for endpoints, authentication, and data models.
 	</Card>
-	<Card title="Add new content" icon="add-document">
-		Add Markdown or MDX files to `src/content/docs` to create new pages.
+	<Card title="ACL System" icon="shield">
+		Learn about the Access Control List system for user permissions.
 	</Card>
-	<Card title="Configure your site" icon="setting">
-		Edit your `sidebar` and other config in `astro.config.mjs`.
+	<Card title="Tech Stack" icon="setting">
+		Technical details about the implementation and deployment.
 	</Card>
-	<Card title="Read the docs" icon="open-book">
-		Learn more in [the Starlight Docs](https://starlight.astro.build/).
+	<Card title="Contributing" icon="open-book">
+		How to contribute to the project.
 	</Card>
 </CardGrid>
