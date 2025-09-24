@@ -31,7 +31,7 @@ Each event has the following schema of 6 fields, represented as a JSON object.
    - Uppercase letters
    - Numbers
    - The following punctuation: `.`, `/`, `:`, `-`, and `_` (`.` is preferred as a separator between segments, for example: `admin.123` rather than `admin-123`).
-1. Users, items, and actions that begin with `.` are *reserverd* for internal usage and subject to additional validation
+1. Users, items, and actions that begin with `.` are *reserved* for internal usage and subject to additional validation
    - `"user": ".root"` events must only be from the root user
    - `"item": ".acl"` events must contain a valid ACL rule in the payload
 1. The payload must be a valid JSON object encoded as a string
