@@ -1,6 +1,7 @@
 # Release History
 
 ## [0.3.0] - unreleased
+- [#34](https://github.com/kwila-cloud/simple-sync/pull/34): Updated ACL documentation to event-based system with specificity evaluation
 - [#32](https://github.com/kwila-cloud/simple-sync/pull/32): Fixed links on docs home page
 - [#31](https://github.com/kwila-cloud/simple-sync/pull/31): Fixed docs deployment
 - [#30](https://github.com/kwila-cloud/simple-sync/pull/30): Added docs site
