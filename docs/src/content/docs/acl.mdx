@@ -1,0 +1,153 @@
+---
+title: Access Control List (ACL)
+description: Specification for the Access Control List system in Simple Sync
+---
+import { Aside } from '@astrojs/starlight/components';
+
+The Access Control List (ACL) defines the relationships between users, items, and actions. It determines which users are allowed to perform which actions on which items.
+
+## Default Behavior
+
+*   All users can view all events. This means that Simple Sync is **only** appropriate for situations where **all** users of the system can be trusted to view **all** data in the system.
+*   By default, a user cannot perform any action on any item unless explicitly allowed by an ACL rule (deny all by default).
+     * Note: there is a difference between viewing items and performing actions on items. All users can view all items because they can read all the events. However, they can not submit new events that perform actions on items without ACL rules to allow it.
+*   The `.root` user has implicit access to all items and actions, bypassing ACL checks.
+
+## ACL Structure
+
+ACL rules are managed through events on a special `.acl` item. Each ACL event has an action of either `allow` or `deny` and a payload containing the rule details:
+
+```json
+{
+  "user": "string",
+  "item": "string",
+  "action": "string"
+}
+```
+
+<Aside type="caution">
+Rules with empty user, item, or action fields are not allowed.
+</Aside>
+
+Each field supports:
+- Specific values (e.g., user ID, item ID, action name)
+- Wildcard (`*`) for all matches
+- Prefix wildcards (e.g., `admin.*`, `task.*`, `edit.*`) for prefix-based matching
+
+ACL events are submitted via [`POST /api/v1/events`](/simple-sync/api/v1#post-apiv1events) and are validated against the current ACL before being added to the authoritative event history. Invalid ACL events are ignored. 
+
+## Wildcard Support
+
+The `user`, `item`, and `action` fields support the wildcard (`*`) to match all, and also support prefix-based wildcards (e.g., `task.*`, `admin.*`, `edit.*`) to match all that start with the specified prefix.
+
+## Rule Evaluation
+
+ACL rules are evaluated based on specificity. For a given user, item, and action, the rule with the highest specificity score determines whether the action is allowed or denied. Specificity is calculated as the character count of the user, item, and action portions of a matching rule (wildcards are worth 0.5 specificity points).
+
+1. Item specificity takes first precedence.
+2. If there is a tie in item specificity, user specificity takes second precedence.
+3. If there is a tie in user specificity, action specificity takes third precedence.
+4. If there is still a tie, the most recently added rule (highest timestamp) takes precedence.
+
+If no rule matches, the default behavior (deny all actions) applies.
+
+### Specificity Examples
+
+For a request by user `user.123` to perform `edit` on item `task.456`:
+
+| Rule | Item     | User      | Action | Item Score | User Score | Action Score |
+|------|----------|-----------|--------|------------|------------|--------------|
+| A    | \*       | \*        | \*     | 0.5        | 0.5        | 0.5          |
+| B    | \*       | user.123  | \*     | 0.5        | 8          | 0.5          |
+| C    | task.\*  | \*        | \*     | 5.5        | 0.5        | 0.5          |
+| D    | \*       | \*        | edit   | 0.5        | 0.5        | 4            |
+
+Compare item specificity: Rule C (5.5) > others (0.5) → Rule C wins.
+
+For item `task.456` and action `edit`, assuming no higher item matches:
+
+| Rule | Item     | User | Action | Item Score | User Score | Action Score |
+|------|----------|------|--------|------------|------------|--------------|
+| E    | task.\*  | \*   | edit   | 5.5        | 0.5        | 4            |
+| F    | \*       | \*   | edit   | 0.5        | 0.5        | 4            |
+
+Item specificity: Rule E (5.5) > Rule F (0.5) → Rule E wins.
+
+For item `task.456`, user `admin.123`, action `edit`, with item specificity tied:
+
+| Rule | Item     | User      | Action | Item Score | User Score | Action Score |
+|------|----------|-----------|--------|------------|------------|--------------|
+| G    | task.\*  | \*        | \*     | 5.5        | 0.5        | 0.5          |
+| H    | task.\*  | admin.\*  | \*     | 5.5        | 6.5        | 0.5          |
+
+Item specificity tied (5.5), compare user: Rule H (6.5) > Rule G (0.5) → Rule H wins.
+
+For item `task.456`, user `admin.123`, action `edit.description`, with item and user specificity tied:
+
+| Rule | Item     | User      | Action    | Item Score | User Score | Action Score |
+|------|----------|-----------|-----------|------------|------------|--------------|
+| I    | task.\*  | admin.\*  | \*        | 5.5        | 6.5        | 0.5          |
+| J    | task.\*  | admin.\*  | edit.\*   | 5.5        | 6.5        | 5.5          |
+
+Item and user tied, compare action: Rule J (5.5) > Rule I (0.5) → Rule J wins.
+
+## Rule Examples
+
+To allow all users to mark "task.123" as complete:
+
+```json
+{
+  "uuid": "01997af2-df11-73b3-8329-e5c3affc9a05",
+  "timestamp": 1758704361233,
+  "user": "admin.user1",
+  "item": ".acl",
+  "action": "allow",
+  "payload": {
+    "user": "*",
+    "item": "task.123",
+    "action": "markComplete"
+  }
+}
+```
+
+To allow user "user.456" to edit any item:
+
+```json
+{
+  "uuid": "01997af3-4299-7be7-8bd7-d01636e06d73",
+  "timestamp": 1758704386713,
+  "user": "admin.user1",
+  "item": ".acl",
+  "action": "allow",
+  "payload": {
+    "user": "user.456",
+    "item": "*",
+    "action": "edit"
+  }
+}
+```
+
+To allow all admin users to perform any delete action on any task:
+
+```json
+{
+  "uuid": "01997af3-7a2f-7b65-9055-8439f87d7450",
+  "timestamp": 1758704400943,
+  "user": "admin.user1",
+  "item": ".acl",
+  "action": "allow",
+  "payload": {
+    "user": "admin.*",
+    "item": "task.*",
+    "action": "delete.*"
+  }
+}
+```
+
+## ACL Management
+
+ACL rules are managed by submitting events to the [`POST /api/v1/events`](/simple-sync/api/v1#post-apiv1events) endpoint with `item` set to `.acl` and `action` set to `allow` or `deny`. The payload must contain `user`, `item`, and `action` fields defining the rule. ACL events are validated against the current ACL before being added to the authoritative history; invalid ACL events are ignored.
+
+The current ACL state can be inferred from the authoritative event history by filtering for `.acl` events. See the [v1 API Specification](/simple-sync/api/v1) for details on event submission.
+
+**Note:** ACL events require appropriate permissions based on existing rules. The `.root` user has implicit access to submit any ACL events.

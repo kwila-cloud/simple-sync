@@ -32,8 +32,8 @@ Simple-sync is a lightweight REST API built in Go that provides event storage an
 
 **Documentation:**
 - `README.md` - Setup and deployment instructions
-- `docs/api/` - Complete API specification and examples
-- `docs/acl.md` - ACL system documentation and permission model
+- `docs/src/content/docs/api/` - Complete API specification and examples
+- `docs/src/content/docs/acl.md` - ACL system documentation and permission model
 - `AGENTS.md` - This file - AI development guide
 - `docker-compose.yml` - Local development environment
 - Frontend integration examples in `/examples`
@@ -54,7 +54,7 @@ gh issue main <issue-number> --checkout
 
 **2. Development Process:**
 - Read the full issue description and acceptance criteria
-- Check `docs/api/` for API specifications and `docs/acl.md` for ACL system details
+- Check `docs/src/content/docs` for the project design
 - Check dependencies listed in the issue
 - Implement features incrementally, testing as you go
 - Follow the existing code patterns and structure
