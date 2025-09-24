@@ -29,40 +29,46 @@ ACL rules are managed through events on a special ".acl" item. Each ACL event ha
 Rules with empty user, item, or action fields are not allowed.
 </Aside>
 
-*   `user`: Specifies the user or users to which the rule applies. Can be a specific user UUID or a wildcard (`*`) to match all users.
-*   `item`: Specifies the item or items to which the rule applies. Can be a specific item UUID, a wildcard (`*`) to match all items, or a prefix-based wildcard (e.g., `task-*`) to match all items with a UUID that starts with the specified prefix.
-*   `action`: Specifies the action to which the rule applies. Can be a specific action name (e.g., "create", "update", "delete") or a wildcard (`*`) to match all actions.
+Each field supports:
+- Specific values (e.g., user ID, item ID, action name)
+- Wildcard (`*`) for all matches
+- Prefix wildcards (e.g., `admin.*`, `task.*`, `edit.*`) for prefix-based matching
 
 ACL events are submitted via POST /api/v1/events and are validated against the current ACL before being added to the authoritative event history. Invalid ACL events are ignored.
 
 ## Wildcard Support
 
-The `user` and `action` fields support the wildcard (`*`) to match multiple users or actions. The `item` field supports the wildcard (`*`) to match all items, and also supports prefix-based wildcards (e.g., `task-*`) to match all items with a UUID that starts with the specified prefix.
+The `user`, `item`, and `action` fields support the wildcard (`*`) to match all, and also support prefix-based wildcards (e.g., `task.*`, `admin.*`, `edit.*`) to match all that start with the specified prefix.
 
 ## Rule Evaluation
 
-ACL rules are evaluated based on specificity. For a given user, item, and action, the rule with the highest specificity score determines whether the action is allowed or denied. Specificity is calculated as the total character count of the user, item, and action portions of a matching rule (excluding the wildcard).
+ACL rules are evaluated based on specificity. For a given user, item, and action, the rule with the highest specificity score determines whether the action is allowed or denied. Specificity is calculated as the character count of the user, item, and action portions of a matching rule (wildcards are worth 0.5 specifity points).
+
+1. Item specificity takes first precedence.
+2. If there is a tie in item specificity, user specificity takes second precedence.
+3. If there is a tie in user specificity, action specificity takes third precedence.
 
 ### Specificity Examples
 
-For a request by user "user123" to perform "edit" on item "task-456":
+For a request by user "user123" to perform "edit" on item "task.456":
 
-- Rule: user="*", item="*", action="*" → score: 0 + 0 + 0 = 0
-- Rule: user="user123", item="*", action="*" → score: 7 + 0 + 0 = 7 (exact user match)
-- Rule: user="*", item="task-*", action="*" → score: 0 + 6.5 + 0 = 6.5 (prefix item match: "task-" = 5 + 0.5 = 5.5, "-" = 1, total 6.5)
-- Rule: user="*", item="*", action="edit" → score: 0 + 0 + 4 = 4 (exact action match)
+- Rule: user="*", item="*", action="*" → score: 0.5 + 0.5 + 0.5 = 1.5
+- Rule: user="user123", item="*", action="*" → score: 7 + 0.5 + 0.5 = 8 (exact user match)
+- Rule: user="*", item="task.*", action="*" → score: 0.5 + 5.5 + 0.5 = 6.5 (prefix item match)
+- Rule: user="*", item="*", action="edit" → score: 0.5 + 0.5 + 4 = 5 (exact action match)
 
 The rule with user="user123" wins with score 7.
 
-For item "task-456" and action "edit", if no exact user match:
+For item "task.456" and action "edit", if no exact user match:
 
-- Rule: user="*", item="task-*", action="edit" → score: 0 + 6.5 + 4 = 10.5
+- Rule: user="*", item="task.*", action="*" → score: 0 + 6.5 + 4 = 10.5
 - Rule: user="*", item="*", action="edit" → score: 0 + 0 + 4 = 4
 
 The prefix rule wins with 10.5.
+
 ### Tie Breakers
 
-If multiple rules have the same score, the most recently added rule (highest timestamp) takes precedence. If no rule matches, the default behavior (deny all actions) applies.
+If multiple rules have the same item, user, and action specificity, the most recently added rule (highest timestamp) takes precedence. If no rule matches, the default behavior (deny all actions) applies.
 
 ## Examples
 
@@ -70,10 +76,10 @@ To allow all users to mark "task.123" as complete:
 
 ```json
 {
-  "uuid": "acl-event-1",
-  "timestamp": 1678886400,
-  "userUuid": "admin.user1",
-  "itemUuid": ".acl",
+  "uuid": "01997af2-df11-73b3-8329-e5c3affc9a05",
+  "timestamp": 1758704361233,
+  "user": "admin.user1",
+  "item": ".acl",
   "action": "allow",
   "payload": {
     "user": "*",
@@ -83,43 +89,43 @@ To allow all users to mark "task.123" as complete:
 }
 ```
 
-To allow user "user456" to edit any item:
+To allow user "user.456" to edit any item:
 
 ```json
 {
-  "uuid": "acl-event-2",
-  "timestamp": 1678886401,
-  "userUuid": "admin.user1",
-  "itemUuid": ".acl",
+  "uuid": "01997af3-4299-7be7-8bd7-d01636e06d73",
+  "timestamp": 1758704386713,
+  "user": "admin.user1",
+  "item": ".acl",
   "action": "allow",
   "payload": {
-    "user": "user456",
+    "user": "user.456",
     "item": "*",
     "action": "edit"
   }
 }
 ```
 
-To allow all admin users to delete any task:
+To allow all admin users to perform any delete action on any task:
 
 ```json
 {
-  "uuid": "acl-event-3",
-  "timestamp": 1678886402,
-  "userUuid": "admin.user1",
-  "itemUuid": ".acl",
+  "uuid": "01997af3-7a2f-7b65-9055-8439f87d7450",
+  "timestamp": 1758704400943,
+  "user": "admin.user1",
+  "item": ".acl",
   "action": "allow",
   "payload": {
     "user": "admin.*",
     "item": "task.*",
-    "action": "delete"
+    "action": "delete.*"
   }
 }
 ```
 
 ## ACL Management
 
-ACL rules are managed by submitting events to the POST /api/v1/events endpoint with `itemUuid` set to ".acl" and `action` set to "allow" or "deny". The payload must contain `user`, `item`, and `action` fields defining the rule. ACL events are validated against the current ACL before being added to the authoritative history; invalid ACL events are ignored.
+ACL rules are managed by submitting events to the POST /api/v1/events endpoint with `item` set to ".acl" and `action` set to "allow" or "deny". The payload must contain `user`, `item`, and `action` fields defining the rule. ACL events are validated against the current ACL before being added to the authoritative history; invalid ACL events are ignored.
 
 The current ACL state can be inferred from the authoritative event history by filtering for ".acl" events. See the [v1 API Specification](/simple-sync/api/v1) for details on event submission.
 
