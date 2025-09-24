@@ -11,11 +11,11 @@ The Access Control List (ACL) defines the relationships between users, items, an
 *   All users can view all events. This means that Simple Sync is **only** appropriate for situations where **all** users of the system can be trusted to view **all** data in the system.
 *   By default, a user cannot perform any action on any item unless explicitly allowed by an ACL rule (deny all by default).
      * Note: there is a difference between viewing items and performing actions on items. All users can view all items because they can read all the events. However, they can not submit new events that perform actions on items without ACL rules to allow it.
-*   The ".root" user has implicit access to all items and actions, bypassing ACL checks.
+*   The `.root` user has implicit access to all items and actions, bypassing ACL checks.
 
 ## ACL Structure
 
-ACL rules are managed through events on a special ".acl" item. Each ACL event has an action of either "allow" or "deny" and a payload containing the rule details:
+ACL rules are managed through events on a special `.acl` item. Each ACL event has an action of either `allow` or `deny` and a payload containing the rule details:
 
 ```json
 {
@@ -34,7 +34,7 @@ Each field supports:
 - Wildcard (`*`) for all matches
 - Prefix wildcards (e.g., `admin.*`, `task.*`, `edit.*`) for prefix-based matching
 
-ACL events are submitted via POST /api/v1/events and are validated against the current ACL before being added to the authoritative event history. Invalid ACL events are ignored.
+ACL events are submitted via [`POST /api/v1/events`](/simple-sync/api/v1#post-apiv1events) and are validated against the current ACL before being added to the authoritative event history. Invalid ACL events are ignored. 
 
 ## Wildcard Support
 
@@ -53,7 +53,7 @@ If no rule matches, the default behavior (deny all actions) applies.
 
 ### Specificity Examples
 
-For a request by user "user.123" to perform "edit" on item "task.456":
+For a request by user `user.123` to perform `edit` on item `task.456`:
 
 | Rule | Item     | User      | Action | Item Score | User Score | Action Score |
 |------|----------|-----------|--------|------------|------------|--------------|
@@ -64,7 +64,7 @@ For a request by user "user.123" to perform "edit" on item "task.456":
 
 Compare item specificity: Rule C (5.5) > others (0.5) → Rule C wins.
 
-For item "task.456" and action "edit", assuming no higher item matches:
+For item `task.456` and action `edit`, assuming no higher item matches:
 
 | Rule | Item     | User | Action | Item Score | User Score | Action Score |
 |------|----------|------|--------|------------|------------|--------------|
@@ -73,7 +73,7 @@ For item "task.456" and action "edit", assuming no higher item matches:
 
 Item specificity: Rule E (5.5) > Rule F (0.5) → Rule E wins.
 
-For item "task.456", user "admin.123", action "edit", with item specificity tied:
+For item `task.456`, user `admin.123`, action `edit`, with item specificity tied:
 
 | Rule | Item     | User      | Action | Item Score | User Score | Action Score |
 |------|----------|-----------|--------|------------|------------|--------------|
@@ -82,7 +82,7 @@ For item "task.456", user "admin.123", action "edit", with item specificity tied
 
 Item specificity tied (5.5), compare user: Rule H (6.5) > Rule G (0.5) → Rule H wins.
 
-For item "task.456", user "admin.123", action "edit.description", with item and user specificity tied:
+For item `task.456`, user `admin.123`, action `edit.description`, with item and user specificity tied:
 
 | Rule | Item     | User      | Action    | Item Score | User Score | Action Score |
 |------|----------|-----------|-----------|------------|------------|--------------|
@@ -91,7 +91,7 @@ For item "task.456", user "admin.123", action "edit.description", with item and 
 
 Item and user tied, compare action: Rule J (5.5) > Rule I (0.5) → Rule J wins.
 
-## Examples
+## Rule Examples
 
 To allow all users to mark "task.123" as complete:
 
@@ -146,8 +146,8 @@ To allow all admin users to perform any delete action on any task:
 
 ## ACL Management
 
-ACL rules are managed by submitting events to the POST /api/v1/events endpoint with `item` set to ".acl" and `action` set to "allow" or "deny". The payload must contain `user`, `item`, and `action` fields defining the rule. ACL events are validated against the current ACL before being added to the authoritative history; invalid ACL events are ignored.
+ACL rules are managed by submitting events to the [`POST /api/v1/events`](/simple-sync/api/v1#post-apiv1events) endpoint with `item` set to `.acl` and `action` set to `allow` or `deny`. The payload must contain `user`, `item`, and `action` fields defining the rule. ACL events are validated against the current ACL before being added to the authoritative history; invalid ACL events are ignored.
 
-The current ACL state can be inferred from the authoritative event history by filtering for ".acl" events. See the [v1 API Specification](/simple-sync/api/v1) for details on event submission.
+The current ACL state can be inferred from the authoritative event history by filtering for `.acl` events. See the [v1 API Specification](/simple-sync/api/v1) for details on event submission.
 
-**Note:** ACL events require appropriate permissions based on existing rules. The ".root" user has implicit access to submit any ACL events.
+**Note:** ACL events require appropriate permissions based on existing rules. The `.root` user has implicit access to submit any ACL events.
