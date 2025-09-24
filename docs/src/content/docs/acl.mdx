@@ -1,6 +1,6 @@
 ---
 title: Access Control List (ACL)
-description: Specification for the Access Control List system in Simple SYnc
+description: Specification for the Access Control List system in Simple Sync
 ---
 import { Aside } from '@astrojs/starlight/components';
 
@@ -8,7 +8,7 @@ The Access Control List (ACL) defines the relationships between users, items, an
 
 ## Default Behavior
 
-*   All users can view all events. This means that Simple SYnc is **only** appropriate for situations where **all** users of the system can be trusted to view **all** data in the system.
+*   All users can view all events. This means that Simple Sync is **only** appropriate for situations where **all** users of the system can be trusted to view **all** data in the system.
 *   By default, a user cannot perform any action on any item unless explicitly allowed by an ACL rule (deny all by default).
      * Note: there is a difference between viewing items and performing actions on items. All users can view all items because they can read all the events. However, they can not submit new events that perform actions on items without ACL rules to allow it.
 *   The ".root" user has implicit access to all items and actions, bypassing ACL checks.
@@ -42,33 +42,54 @@ The `user`, `item`, and `action` fields support the wildcard (`*`) to match all,
 
 ## Rule Evaluation
 
-ACL rules are evaluated based on specificity. For a given user, item, and action, the rule with the highest specificity score determines whether the action is allowed or denied. Specificity is calculated as the character count of the user, item, and action portions of a matching rule (wildcards are worth 0.5 specifity points).
+ACL rules are evaluated based on specificity. For a given user, item, and action, the rule with the highest specificity score determines whether the action is allowed or denied. Specificity is calculated as the character count of the user, item, and action portions of a matching rule (wildcards are worth 0.5 specificity points).
 
 1. Item specificity takes first precedence.
 2. If there is a tie in item specificity, user specificity takes second precedence.
 3. If there is a tie in user specificity, action specificity takes third precedence.
+4. If there is still a tie, the most recently added rule (highest timestamp) takes precedence.
+
+If no rule matches, the default behavior (deny all actions) applies.
 
 ### Specificity Examples
 
-For a request by user "user123" to perform "edit" on item "task.456":
+For a request by user "user.123" to perform "edit" on item "task.456":
 
-- Rule: user="*", item="*", action="*" → score: 0.5 + 0.5 + 0.5 = 1.5
-- Rule: user="user123", item="*", action="*" → score: 7 + 0.5 + 0.5 = 8 (exact user match)
-- Rule: user="*", item="task.*", action="*" → score: 0.5 + 5.5 + 0.5 = 6.5 (prefix item match)
-- Rule: user="*", item="*", action="edit" → score: 0.5 + 0.5 + 4 = 5 (exact action match)
+| Rule | Item     | User      | Action | Item Score | User Score | Action Score |
+|------|----------|-----------|--------|------------|------------|--------------|
+| A    | \*       | \*        | \*     | 0.5        | 0.5        | 0.5          |
+| B    | \*       | user.123  | \*     | 0.5        | 8          | 0.5          |
+| C    | task.\*  | \*        | \*     | 5.5        | 0.5        | 0.5          |
+| D    | \*       | \*        | edit   | 0.5        | 0.5        | 4            |
 
-The rule with user="user123" wins with score 7.
+Compare item specificity: Rule C (5.5) > others (0.5) → Rule C wins.
 
-For item "task.456" and action "edit", if no exact user match:
+For item "task.456" and action "edit", assuming no higher item matches:
 
-- Rule: user="*", item="task.*", action="*" → score: 0 + 6.5 + 4 = 10.5
-- Rule: user="*", item="*", action="edit" → score: 0 + 0 + 4 = 4
+| Rule | Item     | User | Action | Item Score | User Score | Action Score |
+|------|----------|------|--------|------------|------------|--------------|
+| E    | task.\*  | \*   | edit   | 5.5        | 0.5        | 4            |
+| F    | \*       | \*   | edit   | 0.5        | 0.5        | 4            |
 
-The prefix rule wins with 10.5.
+Item specificity: Rule E (5.5) > Rule F (0.5) → Rule E wins.
 
-### Tie Breakers
+For item "task.456", user "admin.123", action "edit", with item specificity tied:
 
-If multiple rules have the same item, user, and action specificity, the most recently added rule (highest timestamp) takes precedence. If no rule matches, the default behavior (deny all actions) applies.
+| Rule | Item     | User      | Action | Item Score | User Score | Action Score |
+|------|----------|-----------|--------|------------|------------|--------------|
+| G    | task.\*  | \*        | \*     | 5.5        | 0.5        | 0.5          |
+| H    | task.\*  | admin.\*  | \*     | 5.5        | 6.5        | 0.5          |
+
+Item specificity tied (5.5), compare user: Rule H (6.5) > Rule G (0.5) → Rule H wins.
+
+For item "task.456", user "admin.123", action "edit.description", with item and user specificity tied:
+
+| Rule | Item     | User      | Action    | Item Score | User Score | Action Score |
+|------|----------|-----------|-----------|------------|------------|--------------|
+| I    | task.\*  | admin.\*  | \*        | 5.5        | 6.5        | 0.5          |
+| J    | task.\*  | admin.\*  | edit.\*   | 5.5        | 6.5        | 5.5          |
+
+Item and user tied, compare action: Rule J (5.5) > Rule I (0.5) → Rule J wins.
 
 ## Examples
 

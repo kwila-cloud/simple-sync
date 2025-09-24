@@ -13,12 +13,32 @@ Each event has the following schema of 6 fields, represented as a JSON object.
 {
   "uuid": "string",
   "timestamp": "uint64",
-  "userUuid": "string",
-  "itemUuid": "string",
+  "user": "string",
+  "item": "string",
   "action": "string",
   "payload": "string"
 }
 ```
+
+### Validation
+
+1. All events are evaluated against the [ACL](/simple-sync/acl).
+1. The UUID must be a valid v7 UUID.
+1. The timestamp must be a valid 64 bit unsigned number of milliseconds since the epoch.
+1. The timestamp must match the timestamp value encoded in the UUID.
+1. The user, item, and action may contain any of the following characters
+   - Lowercase letters
+   - Uppercase letters
+   - Numbers
+   - The following punctuation: `.`, `/`, `:`, `-`, and `_` (`.` is preferred as a separator between segments, for example: `admin.123` rather than `admin-123`).
+1. Users, items, and actions that begin with `.` are *reserverd* for internal usage and subject to additional validation
+   - `"user": ".root"` events must only be from the root user
+   - `"item": ".acl"` events must contain a valid ACL rule in the payload
+1. The payload must be a valid JSON object encoded as a string
+
+Any event that fails validation is *not* added to the authoritative history.
+
+### Data Querying
 
 All data querying is handled locally. This means that `simple-sync` is inappropriate for situations that require large numbers of items. It is much better suited for systems that need to store a small amount of items that don't change too frequently.
 
