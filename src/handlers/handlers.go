@@ -25,7 +25,7 @@ type Handlers struct {
 func NewHandlers(storage storage.Storage, encryptionKey, version string) *Handlers {
 	return &Handlers{
 		storage:       storage,
-		authService:   services.NewAuthService(encryptionKey, storage),
+		authService:   services.NewAuthService(storage),
 		healthHandler: NewHealthHandler(version),
 	}
 }

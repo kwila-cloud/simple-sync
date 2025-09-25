@@ -11,7 +11,7 @@ import (
 
 func TestGenerateSetupToken(t *testing.T) {
 	store := storage.NewMemoryStorage()
-	authService := services.NewAuthService("test-encryption-key-32-bytes-123", store)
+	authService := services.NewAuthService(store)
 
 	// Test generating setup token for existing user
 	setupToken, err := authService.GenerateSetupToken("user-123")
@@ -27,7 +27,7 @@ func TestGenerateSetupToken(t *testing.T) {
 
 func TestExchangeSetupToken(t *testing.T) {
 	store := storage.NewMemoryStorage()
-	authService := services.NewAuthService("test-encryption-key-32-bytes-123", store)
+	authService := services.NewAuthService(store)
 
 	// Generate setup token
 	setupToken, err := authService.GenerateSetupToken("user-123")
@@ -52,7 +52,7 @@ func TestExchangeSetupToken(t *testing.T) {
 
 func TestValidateApiKey(t *testing.T) {
 	store := storage.NewMemoryStorage()
-	authService := services.NewAuthService("test-encryption-key-32-bytes-123", store)
+	authService := services.NewAuthService(store)
 
 	// Generate and exchange setup token to get API key
 	setupToken, err := authService.GenerateSetupToken("user-123")
