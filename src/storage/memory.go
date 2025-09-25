@@ -63,6 +63,7 @@ func (m *MemoryStorage) LoadEvents() ([]models.Event, error) {
 	m.mutex.RLock()
 	defer m.mutex.RUnlock()
 
+	// Return a copy to prevent external modification
 	allEvents := make([]models.Event, len(m.events))
 	copy(allEvents, m.events)
 

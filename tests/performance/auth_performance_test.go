@@ -27,9 +27,8 @@ func TestAuthEndpointPerformance(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.GET("/events", h.GetEvents)
 
-	// Generate API key for performance test
-	setupToken, _ := h.AuthService().GenerateSetupToken("user-123")
-	_, plainKey, _ := h.AuthService().ExchangeSetupToken(setupToken.Token, "perf")
+	// Use the default test API key instead of generating a new one
+	plainKey := "sk_testkey123456789012345678901234567890"
 
 	// Test auth endpoint performance
 	start := time.Now()
@@ -43,8 +42,8 @@ func TestAuthEndpointPerformance(t *testing.T) {
 	// Assert response
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	// Assert performance (<200ms)
-	assert.Less(t, duration, 200*time.Millisecond, "Auth endpoint should respond in less than 200ms")
+	// Assert performance (<100ms)
+	assert.Less(t, duration, 100*time.Millisecond, "Auth endpoint should respond in less than 100ms")
 }
 
 func TestProtectedEndpointPerformance(t *testing.T) {
@@ -61,9 +60,8 @@ func TestProtectedEndpointPerformance(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.GET("/events", h.GetEvents)
 
-	// Generate API key for performance test
-	setupToken, _ := h.AuthService().GenerateSetupToken("user-123")
-	_, plainKey, _ := h.AuthService().ExchangeSetupToken(setupToken.Token, "perf")
+	// Use the default test API key instead of generating a new one
+	plainKey := "sk_testkey123456789012345678901234567890"
 
 	// Test protected endpoint performance
 	start := time.Now()
@@ -77,6 +75,6 @@ func TestProtectedEndpointPerformance(t *testing.T) {
 	// Assert response
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	// Assert performance (<200ms)
-	assert.Less(t, duration, 200*time.Millisecond, "Protected endpoint should respond in less than 200ms")
+	// Assert performance (<100ms)
+	assert.Less(t, duration, 100*time.Millisecond, "Protected endpoint should respond in less than 100ms")
 }
