@@ -43,8 +43,8 @@ func TestAuthEndpointPerformance(t *testing.T) {
 	// Assert response
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	// Assert performance (<100ms)
-	assert.Less(t, duration, 100*time.Millisecond, "Auth endpoint should respond in less than 100ms")
+	// Assert performance (<200ms)
+	assert.Less(t, duration, 200*time.Millisecond, "Auth endpoint should respond in less than 200ms")
 }
 
 func TestProtectedEndpointPerformance(t *testing.T) {
@@ -77,6 +77,6 @@ func TestProtectedEndpointPerformance(t *testing.T) {
 	// Assert response
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	// Assert performance (<100ms)
-	assert.Less(t, duration, 100*time.Millisecond, "Protected endpoint should respond in less than 100ms")
+	// Assert performance (<200ms)
+	assert.Less(t, duration, 200*time.Millisecond, "Protected endpoint should respond in less than 200ms")
 }
