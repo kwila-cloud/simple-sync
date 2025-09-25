@@ -58,18 +58,13 @@ func (m *MemoryStorage) SaveEvents(events []models.Event) error {
 	return nil
 }
 
-// LoadEvents returns stored events up to the specified limit
-func (m *MemoryStorage) LoadEvents(limit int) ([]models.Event, error) {
+// LoadEvents returns all stored events
+func (m *MemoryStorage) LoadEvents() ([]models.Event, error) {
 	m.mutex.RLock()
 	defer m.mutex.RUnlock()
 
 	allEvents := make([]models.Event, len(m.events))
 	copy(allEvents, m.events)
-
-	// Apply limit if specified
-	if limit > 0 && len(allEvents) > limit {
-		allEvents = allEvents[len(allEvents)-limit:]
-	}
 
 	return allEvents, nil
 }
