@@ -1,0 +1,46 @@
+---
+title: Internal Events
+description: Documentation for internal events used in Simple Sync for special functionality and audit trails.
+---
+
+Any event that uses a `.` prefix for the item or action is **reserved** for internal usage.
+
+Internal events are used in two ways.
+
+First, to allow users to trigger special functionality within the server. These events are marked **Trigger: User** below.
+
+Second, to allow the server to create an audit history for all actions triggered through the API. These events are marked **Trigger: API** below. These events will **always** be rejected if users attempt to add them.
+
+## ACL
+
+**Trigger: User**
+
+The `.acl` item is used for updating the [ACL](/simple-sync/acl). The payload must contain a valid ACL rule. The event's `action` field must be either `.acl.allow` or `.acl.deny`.
+
+## Users
+
+The `.user.` item prefix is used for events related to user administration and authentication.
+
+### Create User
+
+**Trigger: User**
+
+The `.user.create` action is used for creating new users. The new user's ID is given in the event's `item` field (for example `"item": ".user.bob"`). If the given user ID already exists, the event is rejected.
+
+### Generate User Token
+
+**Trigger: API**
+
+The `.user.generateToken` action is used to log calls to the `/api/v1/user/generateToken` API endpoint. 
+
+### Exchange User Token
+
+**Trigger: API**
+
+The `.user.exchangeToken` action is used to log calls to the `/api/v1/user/exchangeToken` API endpoint. 
+
+### Reset User Key
+
+**Trigger: API**
+
+The `.user.resetKey` action is used to log calls to the `/api/v1/user/resetKey` API endpoint. 
