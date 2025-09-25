@@ -60,7 +60,6 @@ func TestPostEvents(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
-	// Should return the posted events (with user overridden by authenticated user)
 	expectedJSON := `[{
  		"uuid": "123e4567-e89b-12d3-a456-426614174000",
  		"timestamp": 1640995200,
