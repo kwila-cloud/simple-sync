@@ -72,14 +72,14 @@ This document outlines the technology stack chosen for the `simple-sync` project
         *   Pros: (None - highly discouraged)
         *   Cons: Poor scalability, data integrity issues, not recommended.
 
-## 4. Authentication: JWT (JSON Web Tokens)
+## 4. Authentication: API Key Encryption
 
-*   **Choice:** [JWT (JSON Web Tokens)](https://jwt.io/)
+*   **Choice:** AES-256-GCM encryption with bcrypt hashing for API keys
 *   **Pros:**
-    *   **Stateless:** Server doesn't need to store session information, simplifies scaling.
-    *   **Standardized:** Widely adopted standard, excellent library support.
-    *   **Security:** Secure when used correctly (strong secret key, proper validation).
+    *   **Security:** Strong encryption for stored API keys, secure hashing for authentication.
+    *   **Long-lived:** API keys don't expire like JWTs, reducing refresh complexity.
+    *   **Simple:** No token refresh logic needed, straightforward key validation.
+    *   **Performance:** Fast validation using hash comparison.
 *   **Cons:**
-    *   **Complexity:** Requires understanding JWT concepts and proper implementation.
-    *   **Token Size:** Can be larger than simple tokens.
-    *   **Secret Key Management:** Requires secure storage and management of the secret key.
+    *   **Key Management:** Requires secure storage and rotation of encryption keys.
+    *   **Revocation:** API keys need to be explicitly revoked rather than expiring naturally.

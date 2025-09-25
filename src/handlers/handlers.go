@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"net/http"
+	"strconv"
 	"time"
 
 	"simple-sync/src/models"
@@ -58,8 +59,18 @@ func (h *Handlers) GetEvents(c *gin.Context) {
 		return
 	}
 
-	// Load all events
-	events, err := h.storage.LoadEvents()
+	// Parse limit parameter (default to 100, max 1000)
+	limitStr := c.DefaultQuery("limit", "100")
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit <= 0 {
+		limit = 100
+	}
+	if limit > 1000 {
+		limit = 1000
+	}
+
+	// Load events with limit
+	events, err := h.storage.LoadEvents(limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
