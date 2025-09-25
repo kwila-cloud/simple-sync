@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"io"
+	"log"
 	"time"
 
 	"simple-sync/src/models"
@@ -99,7 +100,7 @@ func (s *AuthService) generateToken() (string, error) {
 	}
 
 	token := make([]byte, 9) // 4 + 1 + 4 = 9
-	for i := 0; i < 4; i++ {
+	for i := range 4 {
 		token[i] = charset[tokenBytes[i]%byte(len(charset))]
 	}
 	token[4] = '-'
@@ -110,10 +111,28 @@ func (s *AuthService) generateToken() (string, error) {
 	return string(token), nil
 }
 
-// ValidateAPIKey validates an API key and returns the associated user ID
-func (s *AuthService) ValidateAPIKey(apiKey string) (string, error) {
-	// TEMP: return user-123 for testing
-	return "user-123", nil
+// ValidateApiKey validates an API key and returns the associated user ID
+func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
+	// Get all API keys and find the one that matches
+	apiKeys, err := s.storage.GetAllAPIKeys()
+	if err != nil {
+		return "", errors.New("failed to retrieve API keys")
+	}
+
+	for _, apiKeyModel := range apiKeys {
+		if bcrypt.CompareHashAndPassword([]byte(apiKeyModel.KeyHash), []byte(apiKey)) == nil {
+			// Update last used timestamp
+			apiKeyModel.UpdateLastUsed()
+			err = s.storage.UpdateAPIKey(apiKeyModel)
+			if err != nil {
+				// Log error but don't fail authentication
+				log.Printf("failed to update API key last used: %v", err)
+			}
+			return apiKeyModel.UserID, nil
+		}
+	}
+
+	return "", errors.New("invalid API key")
 }
 
 // GenerateAPIKey generates a new API key for a user

@@ -22,7 +22,7 @@ func AuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
 		}
 
 		// Validate API key
-		userID, err := authService.ValidateAPIKey(apiKey)
+		userID, err := authService.ValidateApiKey(apiKey)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid API key"})
 			c.Abort()
