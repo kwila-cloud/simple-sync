@@ -1,0 +1,83 @@
+openapi: 3.0.3
+info:
+  title: Reset Key API
+  description: Generate setup tokens for user authentication
+  version: 1.0.0
+
+paths:
+  /api/v1/user/resetKey:
+    post:
+      summary: Generate setup token for user
+      description: Generate a short-lived setup token for the specified user. Requires .user.resetKey ACL permission for the target user, or .root access.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: user
+          in: query
+          required: true
+          schema:
+            type: string
+          description: ID of the user to generate setup token for
+      responses:
+        '200':
+          description: Setup token generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    pattern: '^[A-Z0-9]{4}-[A-Z0-9]{4}$'
+                    description: Setup token in XXXX-XXXX format
+                  expiresAt:
+                    type: string
+                    format: date-time
+                    description: Token expiration timestamp
+                required:
+                  - token
+                  - expiresAt
+        '401':
+          description: Authentication failed or insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Unauthorized"
+                required:
+                  - error
+        '401':
+          description: Authentication failed or insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Unauthorized"
+                required:
+                  - error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error"
+                required:
+                  - error
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: API key authentication</content>
+</xai:function_call">**Output**: reset-key-api.yaml contract specification

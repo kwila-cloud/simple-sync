@@ -61,11 +61,13 @@ As a user of the simple-sync system, I want to authenticate using long-lived API
 ### Acceptance Scenarios
 1. **Given** a new user is created, **When** the user account exists, **Then** it has no API key or setup token until explicitly reset.
 2. **Given** a user needs initial access, **When** an authorized user calls generateToken or resetKey, **Then** the system generates a setup token for that user.
-3. **Given** a user has a setup token, **When** they exchange it for an API key, **Then** they receive a long-lived API key for ongoing authentication.
+3. **Given** a user has a setup token, **When** they exchange it for an API key without additional authorization, **Then** they receive a long-lived API key for ongoing authentication.
 4. **Given** a user has an API key, **When** they make API requests, **Then** the system authenticates them without requiring password management or token refresh.
-5. **Given** a user needs to reset their access, **When** an authorized user calls generateToken or resetKey, **Then** the system generates a new setup token for that user.
-6. **Given** a user attempts to exchange an invalid setup token, **When** they call the exchange endpoint, **Then** the system returns an auth error.
-7. **Given** a user attempts operations on a non-existent user, **When** they call resetKey or token exchange, **Then** the system returns an auth error.
+5. **Given** a user has multiple API keys, **When** they use any valid key for authentication, **Then** the system authenticates them successfully.
+6. **Given** a user needs to reset their access, **When** an authorized user calls generateToken or resetKey, **Then** the system generates a new setup token for that user.
+7. **Given** a user attempts to exchange an invalid setup token, **When** they call the exchange endpoint, **Then** the system returns an auth error.
+8. **Given** a user attempts operations on a non-existent user, **When** they call resetKey, **Then** the system returns an auth error (preventing user enumeration).
+9. **Given** a user attempts to exchange a token for a non-existent user, **When** they call token exchange, **Then** the system returns an auth error (preventing user enumeration).
 
 ### Edge Cases
 - What happens when a setup token expires before use? (Return auth error)
@@ -80,19 +82,20 @@ As a user of the simple-sync system, I want to authenticate using long-lived API
 ### Functional Requirements
 - **FR-001**: System MUST NOT generate API keys or setup tokens automatically for new users
 - **FR-002**: System MUST provide resetKey endpoint that generates setup tokens when called
-- **FR-003**: System MUST restrict resetKey endpoint to users with `.user.resetKey` ACL permission for the target user
-- **FR-004**: System MUST restrict generateToken endpoint to users with `.user.generateToken` ACL permission for the target user
-- **FR-005**: System MUST restrict exchangeToken endpoint to users with `.user.exchangeToken` ACL permission for the target user
+- **FR-003**: System MUST restrict resetKey endpoint to users with `.user.resetKey` ACL permission for the target user ID
+- **FR-004**: System MUST restrict generateToken endpoint to users with `.user.generateToken` ACL permission for the target user ID
+- **FR-005**: System MUST authenticate exchangeToken requests using the setup token itself
 - **FR-006**: System MUST allow `.root` user unrestricted access to all user management endpoints
 - **FR-007**: System MUST allow exchange of setup tokens for API keys
-- **FR-008**: System MUST authenticate users using API keys instead of passwords
-- **FR-009**: System MUST maintain user identity resolution from API keys
-- **FR-010**: System MUST ensure setup tokens expire after 24 hours
-- **FR-011**: System MUST enforce single-use constraint on setup tokens
-- **FR-012**: System MUST allow only one valid setup token per user at a time
-- **FR-013**: System MUST return auth error for invalid setup token exchanges
-- **FR-014**: System MUST return auth error for operations on non-existent users
-- **FR-015**: System MUST eliminate password management complexity
+- **FR-008**: System MUST support multiple API keys per user for simultaneous client authentication
+- **FR-009**: System MUST authenticate users using API keys instead of passwords
+- **FR-010**: System MUST maintain user identity resolution from API keys
+- **FR-011**: System MUST ensure setup tokens expire after 24 hours
+- **FR-012**: System MUST enforce single-use constraint on setup tokens
+- **FR-013**: System MUST allow only one valid setup token per user at a time
+- **FR-014**: System MUST return auth error for invalid setup token exchanges
+- **FR-015**: System MUST return auth error for all operations on non-existent users (preventing user enumeration)
+- **FR-016**: System MUST eliminate password management complexity
 
 ### Key Entities *(include if feature involves data)*
 - **API Key**: Cryptographically random credential with sk_ prefix for user authentication, never expires, stored separately from event data
