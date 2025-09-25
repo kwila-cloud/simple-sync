@@ -3,6 +3,9 @@ package storage
 import (
 	"errors"
 	"sync"
+	"time"
+
+	"golang.org/x/crypto/bcrypt"
 
 	"simple-sync/src/models"
 )
@@ -10,8 +13,8 @@ import (
 // MemoryStorage implements in-memory storage
 type MemoryStorage struct {
 	events      []models.Event
-	users       map[string]*models.User       // username -> user
-	apiKeys     map[string]*models.APIKey     // hash -> api key
+	users       map[string]*models.User       // id -> user
+	apiKeys     map[string]*models.APIKey     // uuid -> api key
 	setupTokens map[string]*models.SetupToken // token -> setup token
 	mutex       sync.RWMutex
 }
@@ -26,8 +29,23 @@ func NewMemoryStorage() *MemoryStorage {
 	}
 
 	// Add default user
-	defaultUser, _ := models.NewUserWithPassword("user-123", "testuser", "testpass123", false)
+	defaultUser, _ := models.NewUser("user-123")
 	storage.SaveUser(defaultUser)
+
+	// Add default API key for test user
+	plainKey := "sk_testkey123456789012345678901234567890"
+	keyHash, _ := bcrypt.GenerateFromPassword([]byte(plainKey), bcrypt.DefaultCost)
+	now := time.Now()
+	apiKey := &models.APIKey{
+		UUID:         "test-api-key-uuid",
+		UserID:       "user-123",
+		KeyHash:      string(keyHash),
+		EncryptedKey: "encrypted-test-key", // Not used in tests
+		Description:  "Test API Key",
+		CreatedAt:    now,
+		LastUsedAt:   &now,
+	}
+	storage.CreateAPIKey(apiKey)
 
 	return storage
 }
@@ -64,42 +82,30 @@ func (m *MemoryStorage) LoadEvents(fromTimestamp *uint64) ([]models.Event, error
 	return filteredEvents, nil
 }
 
-// SaveUser stores a user by username
+// SaveUser stores a user by id
 func (m *MemoryStorage) SaveUser(user *models.User) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
-	m.users[user.Username] = user
+	m.users[user.Id] = user
 	return nil
 }
 
-// GetUserByUsername retrieves a user by username
-func (m *MemoryStorage) GetUserByUsername(username string) (*models.User, error) {
+// GetUserById retrieves a user by id
+func (m *MemoryStorage) GetUserById(id string) (*models.User, error) {
 	m.mutex.RLock()
 	defer m.mutex.RUnlock()
-	user, exists := m.users[username]
+	user, exists := m.users[id]
 	if !exists {
 		return nil, errors.New("user not found")
 	}
 	return user, nil
 }
 
-// GetUserByUUID retrieves a user by UUID
-func (m *MemoryStorage) GetUserByUUID(uuid string) (*models.User, error) {
-	m.mutex.RLock()
-	defer m.mutex.RUnlock()
-	for _, user := range m.users {
-		if user.UUID == uuid {
-			return user, nil
-		}
-	}
-	return nil, errors.New("user not found")
-}
-
 // CreateAPIKey stores a new API key
 func (m *MemoryStorage) CreateAPIKey(apiKey *models.APIKey) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
-	m.apiKeys[apiKey.KeyHash] = apiKey
+	m.apiKeys[apiKey.UUID] = apiKey
 	return nil
 }
 
@@ -107,18 +113,30 @@ func (m *MemoryStorage) CreateAPIKey(apiKey *models.APIKey) error {
 func (m *MemoryStorage) GetAPIKeyByHash(hash string) (*models.APIKey, error) {
 	m.mutex.RLock()
 	defer m.mutex.RUnlock()
-	apiKey, exists := m.apiKeys[hash]
-	if !exists {
-		return nil, errors.New("API key not found")
+	for _, apiKey := range m.apiKeys {
+		if apiKey.KeyHash == hash {
+			return apiKey, nil
+		}
 	}
-	return apiKey, nil
+	return nil, errors.New("API key not found")
+}
+
+// GetAllAPIKeys retrieves all API keys
+func (m *MemoryStorage) GetAllAPIKeys() ([]*models.APIKey, error) {
+	m.mutex.RLock()
+	defer m.mutex.RUnlock()
+	keys := make([]*models.APIKey, 0, len(m.apiKeys))
+	for _, k := range m.apiKeys {
+		keys = append(keys, k)
+	}
+	return keys, nil
 }
 
 // UpdateAPIKey updates an existing API key
 func (m *MemoryStorage) UpdateAPIKey(apiKey *models.APIKey) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
-	m.apiKeys[apiKey.KeyHash] = apiKey
+	m.apiKeys[apiKey.UUID] = apiKey
 	return nil
 }
 

@@ -24,7 +24,8 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 
 	// Register routes
 	v1 := router.Group("/api/v1")
-	v1.POST("/auth/token", h.PostAuthToken)
+	v1.POST("/user/generateToken", h.PostUserGenerateToken)
+	v1.POST("/setup/exchangeToken", h.PostSetupExchangeToken)
 
 	// Protected routes with auth middleware
 	auth := v1.Group("/")
@@ -32,39 +33,51 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 	auth.GET("/events", h.GetEvents)
 	auth.POST("/events", h.PostEvents)
 
-	// Step 1: Authenticate and get token
-	authRequest := map[string]string{
-		"username": "testuser",
-		"password": "testpass123",
-	}
-	authBody, _ := json.Marshal(authRequest)
+	// Step 1: Generate setup token
+	setupReq, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=user-123", nil)
+	setupReq.Header.Set("Authorization", "Bearer sk_testkey123456789012345678901234567890") // Use test key
+	setupW := httptest.NewRecorder()
 
-	authReq, _ := http.NewRequest("POST", "/api/v1/auth/token", bytes.NewBuffer(authBody))
-	authReq.Header.Set("Content-Type", "application/json")
-	authW := httptest.NewRecorder()
+	router.ServeHTTP(setupW, setupReq)
 
-	router.ServeHTTP(authW, authReq)
+	assert.Equal(t, http.StatusOK, setupW.Code)
 
-	// Should get token (will fail until implemented)
-	assert.Equal(t, http.StatusOK, authW.Code)
-
-	var authResponse map[string]string
-	err := json.Unmarshal(authW.Body.Bytes(), &authResponse)
+	var setupResponse map[string]string
+	err := json.Unmarshal(setupW.Body.Bytes(), &setupResponse)
 	assert.NoError(t, err)
-	token := authResponse["token"]
-	assert.NotEmpty(t, token)
+	setupToken := setupResponse["token"]
+	assert.NotEmpty(t, setupToken)
 
-	// Step 2: Use token to access protected GET /events
+	// Step 2: Exchange for API key
+	exchangeRequest := map[string]interface{}{
+		"token": setupToken,
+	}
+	exchangeBody, _ := json.Marshal(exchangeRequest)
+
+	exchangeReq, _ := http.NewRequest("POST", "/api/v1/setup/exchangeToken", bytes.NewBuffer(exchangeBody))
+	exchangeReq.Header.Set("Content-Type", "application/json")
+	exchangeW := httptest.NewRecorder()
+
+	router.ServeHTTP(exchangeW, exchangeReq)
+
+	assert.Equal(t, http.StatusOK, exchangeW.Code)
+
+	var exchangeResponse map[string]interface{}
+	err = json.Unmarshal(exchangeW.Body.Bytes(), &exchangeResponse)
+	assert.NoError(t, err)
+	apiKey := exchangeResponse["apiKey"].(string)
+	assert.NotEmpty(t, apiKey)
+
+	// Step 3: Use API key to access protected GET /events
 	getReq, _ := http.NewRequest("GET", "/api/v1/events", nil)
-	getReq.Header.Set("Authorization", "Bearer "+token)
+	getReq.Header.Set("Authorization", "Bearer "+apiKey)
 	getW := httptest.NewRecorder()
 
 	router.ServeHTTP(getW, getReq)
 
-	// Should succeed (will fail until middleware implemented)
 	assert.Equal(t, http.StatusOK, getW.Code)
 
-	// Step 3: Use token to POST events
+	// Step 4: Use API key to POST events
 	eventJSON := `[{
 		"uuid": "123e4567-e89b-12d3-a456-426614174000",
 		"timestamp": 1640995200,
@@ -76,7 +89,7 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 
 	postReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	postReq.Header.Set("Content-Type", "application/json")
-	postReq.Header.Set("Authorization", "Bearer "+token)
+	postReq.Header.Set("Authorization", "Bearer "+apiKey)
 	postW := httptest.NewRecorder()
 
 	router.ServeHTTP(postW, postReq)

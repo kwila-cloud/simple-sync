@@ -70,9 +70,11 @@ func TestPostEventsWithValidToken(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/events", h.PostEvents)
 
-	// Get valid token
-	user, _ := h.AuthService().Authenticate("testuser", "testpass123")
-	token, _ := h.AuthService().GenerateToken(user)
+	// Generate setup token and exchange for API key
+	setupToken, err := h.AuthService().GenerateSetupToken("user-123")
+	assert.NoError(t, err)
+	_, plainKey, err := h.AuthService().ExchangeSetupToken(setupToken.Token, "test")
+	assert.NoError(t, err)
 
 	// Test data - userUuid will be overridden by authenticated user
 	eventJSON := `[{
@@ -87,7 +89,7 @@ func TestPostEventsWithValidToken(t *testing.T) {
 	// Test with valid Authorization header
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Authorization", "Bearer "+plainKey)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)

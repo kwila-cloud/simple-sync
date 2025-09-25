@@ -58,13 +58,15 @@ func TestGetEventsWithValidToken(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.GET("/events", h.GetEvents)
 
-	// Get valid token
-	user, _ := h.AuthService().Authenticate("testuser", "testpass123")
-	token, _ := h.AuthService().GenerateToken(user)
+	// Generate setup token and exchange for API key
+	setupToken, err := h.AuthService().GenerateSetupToken("user-123")
+	assert.NoError(t, err)
+	_, plainKey, err := h.AuthService().ExchangeSetupToken(setupToken.Token, "test")
+	assert.NoError(t, err)
 
 	// Test with valid Authorization header
 	req, _ := http.NewRequest("GET", "/api/v1/events", nil)
-	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Authorization", "Bearer "+plainKey)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)

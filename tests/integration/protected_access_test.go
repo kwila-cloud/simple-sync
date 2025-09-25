@@ -23,7 +23,8 @@ func TestProtectedEndpointAccess(t *testing.T) {
 	h := handlers.NewTestHandlers()
 
 	// Register routes
-	router.POST("/api/v1/auth/token", h.PostAuthToken)
+	router.POST("/api/v1/user/generateToken", h.PostUserGenerateToken)
+	router.POST("/api/v1/setup/exchangeToken", h.PostSetupExchangeToken)
 
 	// Protected routes with auth middleware
 	auth := router.Group("/api/v1")
@@ -59,29 +60,43 @@ func TestProtectedEndpointAccess(t *testing.T) {
 	// Expected: 401
 	assert.Equal(t, http.StatusUnauthorized, postW.Code)
 
-	// Test 3: Get token, then access with token - should succeed
-	authRequest := map[string]string{
-		"username": "testuser",
-		"password": "testpass123",
-	}
-	authBody, _ := json.Marshal(authRequest)
+	// Test 3: Get API key, then access with API key - should succeed
+	// Generate setup token
+	setupReq, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=user-123", nil)
+	setupReq.Header.Set("Authorization", "Bearer sk_testkey123456789012345678901234567890")
+	setupW := httptest.NewRecorder()
 
-	authReq, _ := http.NewRequest("POST", "/api/v1/auth/token", bytes.NewBuffer(authBody))
-	authReq.Header.Set("Content-Type", "application/json")
-	authW := httptest.NewRecorder()
+	router.ServeHTTP(setupW, setupReq)
 
-	router.ServeHTTP(authW, authReq)
+	assert.Equal(t, http.StatusOK, setupW.Code)
 
-	assert.Equal(t, http.StatusOK, authW.Code)
-
-	var authResponse map[string]string
-	err := json.Unmarshal(authW.Body.Bytes(), &authResponse)
+	var setupResponse map[string]string
+	err := json.Unmarshal(setupW.Body.Bytes(), &setupResponse)
 	assert.NoError(t, err)
-	token := authResponse["token"]
+	setupToken := setupResponse["token"]
 
-	// Now access with token
+	// Exchange for API key
+	exchangeRequest := map[string]interface{}{
+		"token": setupToken,
+	}
+	exchangeBody, _ := json.Marshal(exchangeRequest)
+
+	exchangeReq, _ := http.NewRequest("POST", "/api/v1/setup/exchangeToken", bytes.NewBuffer(exchangeBody))
+	exchangeReq.Header.Set("Content-Type", "application/json")
+	exchangeW := httptest.NewRecorder()
+
+	router.ServeHTTP(exchangeW, exchangeReq)
+
+	assert.Equal(t, http.StatusOK, exchangeW.Code)
+
+	var exchangeResponse map[string]interface{}
+	err = json.Unmarshal(exchangeW.Body.Bytes(), &exchangeResponse)
+	assert.NoError(t, err)
+	apiKey := exchangeResponse["apiKey"].(string)
+
+	// Now access with API key
 	authGetReq, _ := http.NewRequest("GET", "/api/v1/events", nil)
-	authGetReq.Header.Set("Authorization", "Bearer "+token)
+	authGetReq.Header.Set("Authorization", "Bearer "+apiKey)
 	authGetW := httptest.NewRecorder()
 
 	router.ServeHTTP(authGetW, authGetReq)

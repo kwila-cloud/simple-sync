@@ -37,7 +37,7 @@ func NewTestHandlers() *Handlers {
 
 // NewTestHandlersWithStorage creates a new handlers instance with test defaults and custom storage
 func NewTestHandlersWithStorage(store storage.Storage) *Handlers {
-	return NewHandlers(store, "test-encryption-key-32-chars-long", "test")
+	return NewHandlers(store, "test-encryption-key-32-bytes-123", "test")
 }
 
 // AuthService returns the auth service instance

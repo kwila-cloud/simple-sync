@@ -41,14 +41,16 @@ func TestPostEvents(t *testing.T) {
 		"payload": "{}"
 	}]`
 
-	// Get test token
-	user, _ := h.AuthService().Authenticate("testuser", "testpass123")
-	token, _ := h.AuthService().GenerateToken(user)
+	// Generate setup token and exchange for API key
+	setupToken, err := h.AuthService().GenerateSetupToken("user-123")
+	assert.NoError(t, err)
+	_, plainKey, err := h.AuthService().ExchangeSetupToken(setupToken.Token, "test")
+	assert.NoError(t, err)
 
 	// Create test request
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Authorization", "Bearer "+plainKey)
 	w := httptest.NewRecorder()
 
 	// Perform request
@@ -85,9 +87,11 @@ func TestConcurrentPostEvents(t *testing.T) {
 	auth.POST("/events", h.PostEvents)
 	auth.GET("/events", h.GetEvents)
 
-	// Get test token
-	user, _ := h.AuthService().Authenticate("testuser", "testpass123")
-	token, _ := h.AuthService().GenerateToken(user)
+	// Generate setup token and exchange for API key
+	setupToken, err := h.AuthService().GenerateSetupToken("user-123")
+	assert.NoError(t, err)
+	_, plainKey, err := h.AuthService().ExchangeSetupToken(setupToken.Token, "test")
+	assert.NoError(t, err)
 
 	var wg sync.WaitGroup
 	numGoroutines := 10
@@ -104,7 +108,7 @@ func TestConcurrentPostEvents(t *testing.T) {
 				event := fmt.Sprintf(`[{"uuid":"%s","timestamp":%d,"userUuid":"u","itemUuid":"i","action":"a","payload":"p"}]`, uuid, id*100+j+1)
 				req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(event))
 				req.Header.Set("Content-Type", "application/json")
-				req.Header.Set("Authorization", "Bearer "+token) // Add token
+				req.Header.Set("Authorization", "Bearer "+plainKey) // Add API key
 				w := httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				assert.Equal(t, http.StatusOK, w.Code)
@@ -119,13 +123,13 @@ func TestConcurrentPostEvents(t *testing.T) {
 
 	// Check total events
 	req, _ := http.NewRequest("GET", "/api/v1/events", nil)
-	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Authorization", "Bearer "+plainKey)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var events []models.Event
-	err := json.Unmarshal(w.Body.Bytes(), &events)
+	err = json.Unmarshal(w.Body.Bytes(), &events)
 	assert.NoError(t, err)
 	assert.Equal(t, numGoroutines*eventsPerGoroutine, len(events))
 
