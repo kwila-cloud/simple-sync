@@ -85,12 +85,19 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 		return
 	}
 
+	// TODO(#5): Implement ACL permission checks for each event action on target items
+	// Check that the authenticated user has permission to perform each action on each item
+	// according to ACL rules before allowing the events to be saved
+
 	// Basic validation and set user UUID
 	for i := range events {
 		if events[i].UUID == "" || events[i].ItemUUID == "" || events[i].Action == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required fields"})
 			return
 		}
+
+		// TODO(#5): For .acl events, check that the user has permission to manage ACL rules
+		// Only users with appropriate ACL permissions or .root should be able to submit .acl.allow/.acl.deny events
 
 		// Enhanced timestamp validation
 		if err := validateTimestamp(events[i].Timestamp); err != nil {
@@ -144,13 +151,13 @@ func (h *Handlers) PostUserResetKey(c *gin.Context) {
 		return
 	}
 
-	// TODO: Implement proper ACL permission check for .user.resetKey
+	// TODO(#5): Implement proper ACL permission check for .user.resetKey
 	// For now, allow all authenticated users (temporary until ACL system is implemented)
 	// The .root user should always have access according to the specification
 	if callerUserID == ".root" {
 		// Allow .root user unrestricted access
 	} else {
-		// TODO: Check ACL rules for .user.resetKey permission on target user
+		// TODO(#5): Check ACL rules for .user.resetKey permission on target user
 	}
 
 	// Generate setup token
@@ -192,13 +199,13 @@ func (h *Handlers) PostUserGenerateToken(c *gin.Context) {
 		return
 	}
 
-	// TODO: Implement proper ACL permission check for .user.generateToken
+	// TODO(#5): Implement proper ACL permission check for .user.generateToken
 	// For now, allow all authenticated users (temporary until ACL system is implemented)
 	// The .root user should always have access according to the specification
 	if callerUserID == ".root" {
 		// Allow .root user unrestricted access
 	} else {
-		// TODO: Check ACL rules for .user.generateToken permission on target user
+		// TODO(#5): Check ACL rules for .user.generateToken permission on target user
 	}
 
 	// Generate setup token
