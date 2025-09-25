@@ -62,6 +62,7 @@ func (h *Handlers) GetEvents(c *gin.Context) {
 	// Load all events
 	events, err := h.storage.LoadEvents()
 	if err != nil {
+		log.Printf("GetEvents: failed to load events: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
@@ -120,6 +121,7 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 
 	// Save events
 	if err := h.storage.SaveEvents(events); err != nil {
+		log.Printf("PostEvents: failed to save events: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
@@ -127,6 +129,7 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 	// Return all events (including newly added)
 	allEvents, err := h.storage.LoadEvents()
 	if err != nil {
+		log.Printf("PostEvents: failed to load all events after save: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
