@@ -93,15 +93,15 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 
 	for _, apiKeyModel := range apiKeys {
 		if bcrypt.CompareHashAndPassword([]byte(apiKeyModel.KeyHash), []byte(apiKey)) == nil {
-			// Update last used timestamp (skip for test keys to improve performance)
-			if apiKeyModel.Description != "Test API Key" {
-				apiKeyModel.UpdateLastUsed()
-				err = s.storage.UpdateAPIKey(apiKeyModel)
-				if err != nil {
-					// Log error but don't fail authentication
+			// Update last used timestamp asynchronously to avoid blocking authentication
+			// Create a copy to avoid race conditions
+			keyCopy := *apiKeyModel
+			go func() {
+				keyCopy.UpdateLastUsed()
+				if err := s.storage.UpdateAPIKey(&keyCopy); err != nil {
 					log.Printf("failed to update API key last used: %v", err)
 				}
-			}
+			}()
 			return apiKeyModel.UserID, nil
 		}
 	}
