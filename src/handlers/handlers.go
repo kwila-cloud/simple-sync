@@ -106,8 +106,16 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 			return
 		}
 
-		// Override user ID with authenticated user
-		events[i].User = userID.(string)
+		// Validate that the event user matches the authenticated user
+		if events[i].User != "" && events[i].User != userID.(string) {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Cannot submit events for other users"})
+			return
+		}
+
+		// Set user ID if not provided (for backwards compatibility)
+		if events[i].User == "" {
+			events[i].User = userID.(string)
+		}
 	}
 
 	// Save events
@@ -116,8 +124,14 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 		return
 	}
 
-	// Return the saved events
-	c.JSON(http.StatusOK, events)
+	// Return all events (including newly added)
+	allEvents, err := h.storage.LoadEvents()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, allEvents)
 }
 
 // validateTimestamp performs enhanced timestamp validation
@@ -141,6 +155,7 @@ func validateTimestamp(timestamp uint64) error {
 func (h *Handlers) PostUserResetKey(c *gin.Context) {
 	userID := c.Query("user")
 	if userID == "" {
+		log.Printf("PostUserResetKey: missing user parameter")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "user parameter required"})
 		return
 	}
@@ -148,6 +163,7 @@ func (h *Handlers) PostUserResetKey(c *gin.Context) {
 	// Check if caller has permission (from middleware)
 	callerUserID, exists := c.Get("user_id")
 	if !exists {
+		log.Printf("PostUserResetKey: user_id not found in context")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
@@ -164,6 +180,7 @@ func (h *Handlers) PostUserResetKey(c *gin.Context) {
 	// Invalidate all existing API keys for the user
 	err := h.storage.InvalidateUserAPIKeys(userID)
 	if err != nil {
+		log.Printf("PostUserResetKey: failed to invalidate API keys for user %s: %v", userID, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
@@ -192,6 +209,7 @@ func (h *Handlers) PostUserResetKey(c *gin.Context) {
 func (h *Handlers) PostUserGenerateToken(c *gin.Context) {
 	userID := c.Query("user")
 	if userID == "" {
+		log.Printf("PostUserGenerateToken: missing user parameter")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "user parameter required"})
 		return
 	}
@@ -199,6 +217,7 @@ func (h *Handlers) PostUserGenerateToken(c *gin.Context) {
 	// Check if caller has permission (from middleware)
 	callerUserID, exists := c.Get("user_id")
 	if !exists {
+		log.Printf("PostUserGenerateToken: user_id not found in context")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
@@ -215,6 +234,7 @@ func (h *Handlers) PostUserGenerateToken(c *gin.Context) {
 	// Generate setup token
 	setupToken, err := h.authService.GenerateSetupToken(userID)
 	if err != nil {
+		log.Printf("PostUserGenerateToken: failed to generate setup token for user %s: %v", userID, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
