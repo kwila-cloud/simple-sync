@@ -29,7 +29,7 @@ To run Simple Sync using Docker Compose:
    docker compose up -d
    ```
 
-4. Verify the service is running:
+3. Verify the service is running:
    ```bash
     curl http://localhost:8080/api/v1/health
    ```
