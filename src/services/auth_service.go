@@ -8,6 +8,7 @@ import (
 	"errors"
 	"io"
 	"log"
+	"sync"
 	"time"
 
 	"simple-sync/src/models"
@@ -19,8 +20,9 @@ import (
 
 // AuthService handles authentication operations
 type AuthService struct {
-	encryptionKey []byte
-	storage       storage.Storage
+	encryptionKey   []byte
+	storage         storage.Storage
+	validationMutex sync.Mutex
 }
 
 // NewAuthService creates a new auth service
@@ -85,6 +87,9 @@ func (s *AuthService) decrypt(ciphertext string) ([]byte, error) {
 
 // ValidateApiKey validates an API key and returns the associated user ID
 func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
+	s.validationMutex.Lock()
+	defer s.validationMutex.Unlock()
+
 	// Get all API keys and find the one that matches
 	apiKeys, err := s.storage.GetAllAPIKeys()
 	if err != nil {
@@ -94,11 +99,19 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 	for _, apiKeyModel := range apiKeys {
 		if bcrypt.CompareHashAndPassword([]byte(apiKeyModel.KeyHash), []byte(apiKey)) == nil {
 			// Update last used timestamp asynchronously to avoid blocking authentication
-			// Create a copy to avoid race conditions
-			keyCopy := *apiKeyModel
+			// Create a copy to avoid race conditions (manual copy to avoid mutex issues)
+			keyCopy := &models.APIKey{
+				UUID:         apiKeyModel.UUID,
+				UserID:       apiKeyModel.UserID,
+				EncryptedKey: apiKeyModel.EncryptedKey,
+				KeyHash:      apiKeyModel.KeyHash,
+				CreatedAt:    apiKeyModel.CreatedAt,
+				LastUsedAt:   apiKeyModel.LastUsedAt,
+				Description:  apiKeyModel.Description,
+			}
 			go func() {
 				keyCopy.UpdateLastUsed()
-				if err := s.storage.UpdateAPIKey(&keyCopy); err != nil {
+				if err := s.storage.UpdateAPIKey(keyCopy); err != nil {
 					log.Printf("failed to update API key last used: %v", err)
 				}
 			}()
