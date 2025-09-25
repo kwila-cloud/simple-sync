@@ -24,13 +24,7 @@ To run Simple Sync using Docker Compose:
    cd simple-sync
    ```
 
-2. Create a `.env` file with your encryption key:
-   ```bash
-   echo "ENCRYPTION_KEY=$(openssl rand -base64 32)" > .env
-   ```
-    **⚠️ REQUIRED:** ENCRYPTION_KEY is mandatory and must be at least 32 characters long - the application will exit with an error if not set or too short.
-
-3. Start the services:
+2. Start the services:
    ```bash
    docker compose up -d
    ```
@@ -70,9 +64,6 @@ This will make a `simple-sync` executable file.
 To run the application locally:
 
 ```bash
-# Set encryption key (required)
-export ENCRYPTION_KEY="your-encryption-key-here"
-
 # Run the server
 go run ./src
 
