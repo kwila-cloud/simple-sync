@@ -9,6 +9,8 @@ import (
 
 	"simple-sync/src/handlers"
 	"simple-sync/src/middleware"
+	"simple-sync/src/models"
+	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -19,23 +21,40 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// Setup handlers
-	h := handlers.NewTestHandlers()
+	// Setup handlers with memory storage
+	store := storage.NewMemoryStorage()
+	h := handlers.NewTestHandlersWithStorage(store)
+
+	// Create root user
+	rootUser := &models.User{Id: ".root"}
+	err := store.SaveUser(rootUser)
+	assert.NoError(t, err)
+
+	// Create API key for root
+	_, adminApiKey, err := h.AuthService().GenerateApiKey(".root", "Test Key")
+	assert.NoError(t, err)
+
+	// Create the target user
+	user := &models.User{Id: "user-123"}
+	err = store.SaveUser(user)
+	assert.NoError(t, err)
 
 	// Register routes
 	v1 := router.Group("/api/v1")
-	v1.POST("/user/generateToken", h.PostUserGenerateToken)
-	v1.POST("/setup/exchangeToken", h.PostSetupExchangeToken)
 
-	// Protected routes with auth middleware
+	// Auth routes with middleware
 	auth := v1.Group("/")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
+	auth.POST("/user/generateToken", h.PostUserGenerateToken)
 	auth.GET("/events", h.GetEvents)
 	auth.POST("/events", h.PostEvents)
 
+	// Setup routes
+	v1.POST("/setup/exchangeToken", h.PostSetupExchangeToken)
+
 	// Step 1: Generate setup token
 	setupReq, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=user-123", nil)
-	setupReq.Header.Set("Authorization", "Bearer sk_testkey123456789012345678901234567890") // Use test key
+	setupReq.Header.Set("Authorization", "Bearer "+adminApiKey)
 	setupW := httptest.NewRecorder()
 
 	router.ServeHTTP(setupW, setupReq)
@@ -43,7 +62,7 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 	assert.Equal(t, http.StatusOK, setupW.Code)
 
 	var setupResponse map[string]string
-	err := json.Unmarshal(setupW.Body.Bytes(), &setupResponse)
+	err = json.Unmarshal(setupW.Body.Bytes(), &setupResponse)
 	assert.NoError(t, err)
 	setupToken := setupResponse["token"]
 	assert.NotEmpty(t, setupToken)

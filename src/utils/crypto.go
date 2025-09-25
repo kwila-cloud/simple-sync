@@ -61,8 +61,8 @@ func Decrypt(ciphertext string, key []byte) ([]byte, error) {
 	return plaintext, nil
 }
 
-// GenerateAPIKey generates a cryptographically secure random API key
-func GenerateAPIKey() (string, error) {
+// GenerateApiKey generates a cryptographically secure random API key
+func GenerateApiKey() (string, error) {
 	keyBytes := make([]byte, 32) // 256 bits
 	if _, err := rand.Read(keyBytes); err != nil {
 		return "", err

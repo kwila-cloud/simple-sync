@@ -107,10 +107,10 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 	return "", errors.New("invalid API key")
 }
 
-// GenerateAPIKey generates a new API key for a user
-func (s *AuthService) GenerateAPIKey(userID, description string) (*models.APIKey, string, error) {
+// GenerateApiKey generates a new API key for a user
+func (s *AuthService) GenerateApiKey(userID, description string) (*models.APIKey, string, error) {
 	// Generate a new API key
-	plainKey, err := utils.GenerateAPIKey()
+	plainKey, err := utils.GenerateApiKey()
 	if err != nil {
 		return nil, "", errors.New("failed to generate API key")
 	}
@@ -193,7 +193,7 @@ func (s *AuthService) ExchangeSetupToken(token, description string) (*models.API
 	}
 
 	// Generate API key for the user
-	apiKey, plainKey, err := s.GenerateAPIKey(setupToken.UserID, description)
+	apiKey, plainKey, err := s.GenerateApiKey(setupToken.UserID, description)
 	if err != nil {
 		return nil, "", err
 	}

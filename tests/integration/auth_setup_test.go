@@ -8,6 +8,9 @@ import (
 	"testing"
 
 	"simple-sync/src/handlers"
+	"simple-sync/src/middleware"
+	"simple-sync/src/models"
+	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -18,12 +21,32 @@ func TestUserSetupFlowIntegration(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// Setup handlers
-	h := handlers.NewTestHandlers()
+	// Setup handlers with memory storage
+	store := storage.NewMemoryStorage()
+	h := handlers.NewTestHandlersWithStorage(store)
+
+	// Create root user and API key for authentication
+	rootUser := &models.User{Id: ".root"}
+	err := store.SaveUser(rootUser)
+	assert.NoError(t, err)
+
+	_, adminApiKey, err := h.AuthService().GenerateApiKey(".root", "Admin Key")
+	assert.NoError(t, err)
+
+	// Create the target user for token generation
+	testUser := &models.User{Id: "testuser"}
+	err = store.SaveUser(testUser)
+	assert.NoError(t, err)
 
 	// Register routes
 	v1 := router.Group("/api/v1")
-	v1.POST("/user/generateToken", h.PostUserGenerateToken)
+
+	// Auth routes with middleware
+	auth := v1.Group("/")
+	auth.Use(middleware.AuthMiddleware(h.AuthService()))
+	auth.POST("/user/generateToken", h.PostUserGenerateToken)
+
+	// Setup routes (no middleware)
 	v1.POST("/setup/exchangeToken", h.PostSetupExchangeToken)
 
 	// Step 1: Generate setup token for user
@@ -34,7 +57,7 @@ func TestUserSetupFlowIntegration(t *testing.T) {
 
 	req1, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=testuser", bytes.NewBuffer(requestBody))
 	req1.Header.Set("Content-Type", "application/json")
-	req1.Header.Set("Authorization", "Bearer sk_admin123456789012345678901234567890")
+	req1.Header.Set("Authorization", "Bearer "+adminApiKey)
 	w1 := httptest.NewRecorder()
 
 	router.ServeHTTP(w1, req1)
@@ -43,7 +66,7 @@ func TestUserSetupFlowIntegration(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w1.Code)
 
 	var generateResponse map[string]string
-	err := json.Unmarshal(w1.Body.Bytes(), &generateResponse)
+	err = json.Unmarshal(w1.Body.Bytes(), &generateResponse)
 	assert.NoError(t, err)
 	assert.Contains(t, generateResponse, "token")
 	token := generateResponse["token"]

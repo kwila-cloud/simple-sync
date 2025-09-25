@@ -76,18 +76,6 @@ paths:
                     example: "Unauthorized"
                 required:
                   - error
-        '401':
-          description: Authentication failed, token expired/used, or insufficient permissions
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Unauthorized"
-                required:
-                  - error
         '500':
           description: Internal server error
           content:

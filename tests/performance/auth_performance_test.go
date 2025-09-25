@@ -1,8 +1,6 @@
 package performance
 
 import (
-	"bytes"
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -25,18 +23,18 @@ func TestAuthEndpointPerformance(t *testing.T) {
 
 	// Register routes
 	v1 := router.Group("/api/v1")
-	v1.POST("/auth/token", h.PostAuthToken)
+	auth := v1.Group("/")
+	auth.Use(middleware.AuthMiddleware(h.AuthService()))
+	auth.GET("/events", h.GetEvents)
+
+	// Generate API key for performance test
+	setupToken, _ := h.AuthService().GenerateSetupToken("user-123")
+	_, plainKey, _ := h.AuthService().ExchangeSetupToken(setupToken.Token, "perf")
 
 	// Test auth endpoint performance
-	authRequest := map[string]string{
-		"username": "testuser",
-		"password": "testpass123",
-	}
-	authBody, _ := json.Marshal(authRequest)
-
 	start := time.Now()
-	req, _ := http.NewRequest("POST", "/api/v1/auth/token", bytes.NewBuffer(authBody))
-	req.Header.Set("Content-Type", "application/json")
+	req, _ := http.NewRequest("GET", "/api/v1/events", nil)
+	req.Header.Set("Authorization", "Bearer "+plainKey)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -63,14 +61,14 @@ func TestProtectedEndpointPerformance(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.GET("/events", h.GetEvents)
 
-	// Get token
-	user, _ := h.AuthService().Authenticate("testuser", "testpass123")
-	token, _ := h.AuthService().GenerateToken(user)
+	// Generate API key for performance test
+	setupToken, _ := h.AuthService().GenerateSetupToken("user-123")
+	_, plainKey, _ := h.AuthService().ExchangeSetupToken(setupToken.Token, "perf")
 
 	// Test protected endpoint performance
 	start := time.Now()
 	req, _ := http.NewRequest("GET", "/api/v1/events", nil)
-	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Authorization", "Bearer "+plainKey)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)

@@ -129,14 +129,8 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 		return
 	}
 
-	// Return all events (including newly added)
-	allEvents, err := h.storage.LoadEvents(nil)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
-	}
-
-	c.JSON(http.StatusOK, allEvents)
+	// Return the saved events
+	c.JSON(http.StatusOK, events)
 }
 
 // validateTimestamp performs enhanced timestamp validation

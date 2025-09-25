@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"simple-sync/src/handlers"
+	"simple-sync/src/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -23,7 +24,9 @@ func TestPostUserResetKey(t *testing.T) {
 
 	// Register routes
 	v1 := router.Group("/api/v1")
-	v1.POST("/user/resetKey", h.PostUserResetKey)
+	auth := v1.Group("/")
+	auth.Use(middleware.AuthMiddleware(h.AuthService()))
+	auth.POST("/user/resetKey", h.PostUserResetKey)
 
 	// Test data - reset key for user
 	resetRequest := map[string]string{
@@ -64,7 +67,9 @@ func TestPostUserGenerateToken(t *testing.T) {
 
 	// Register routes
 	v1 := router.Group("/api/v1")
-	v1.POST("/user/generateToken", h.PostUserGenerateToken)
+	auth := v1.Group("/")
+	auth.Use(middleware.AuthMiddleware(h.AuthService()))
+	auth.POST("/user/generateToken", h.PostUserGenerateToken)
 
 	// Test data - generate token for user
 	generateRequest := map[string]string{
@@ -103,13 +108,17 @@ func TestPostSetupExchangeToken(t *testing.T) {
 	// Setup handlers
 	h := handlers.NewTestHandlers()
 
+	// Generate setup token first
+	setupToken, err := h.AuthService().GenerateSetupToken("user-123")
+	assert.NoError(t, err)
+
 	// Register routes
 	v1 := router.Group("/api/v1")
 	v1.POST("/setup/exchangeToken", h.PostSetupExchangeToken)
 
 	// Test data - exchange setup token
 	exchangeRequest := map[string]interface{}{
-		"token":       "ABCD-1234",
+		"token":       setupToken.Token,
 		"description": "Test Client",
 	}
 	requestBody, _ := json.Marshal(exchangeRequest)
@@ -128,7 +137,7 @@ func TestPostSetupExchangeToken(t *testing.T) {
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	var response map[string]interface{}
-	err := json.Unmarshal(w.Body.Bytes(), &response)
+	err = json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
 	assert.Contains(t, response, "keyUuid")
 	assert.Contains(t, response, "apiKey")
