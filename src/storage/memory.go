@@ -37,13 +37,12 @@ func NewMemoryStorage() *MemoryStorage {
 	keyHash, _ := bcrypt.GenerateFromPassword([]byte(plainKey), bcrypt.DefaultCost)
 	now := time.Now()
 	apiKey := &models.APIKey{
-		UUID:         "test-api-key-uuid",
-		UserID:       "user-123",
-		KeyHash:      string(keyHash),
-		EncryptedKey: "encrypted-test-key", // Not used in tests
-		Description:  "Test API Key",
-		CreatedAt:    now,
-		LastUsedAt:   &now,
+		UUID:        "test-api-key-uuid",
+		UserID:      "user-123",
+		KeyHash:     string(keyHash),
+		Description: "Test API Key",
+		CreatedAt:   now,
+		LastUsedAt:  &now,
 	}
 	storage.CreateAPIKey(apiKey)
 

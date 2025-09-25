@@ -9,13 +9,12 @@ import (
 
 // APIKey represents a long-lived API key for user authentication
 type APIKey struct {
-	UUID         string     `json:"uuid" db:"uuid"`
-	UserID       string     `json:"user_id" db:"user_id"`
-	EncryptedKey string     `json:"encrypted_key" db:"encrypted_key"`
-	KeyHash      string     `json:"key_hash" db:"key_hash"`
-	CreatedAt    time.Time  `json:"created_at" db:"created_at"`
-	LastUsedAt   *time.Time `json:"last_used_at,omitempty" db:"last_used_at"`
-	Description  string     `json:"description,omitempty" db:"description"`
+	UUID        string     `json:"uuid" db:"uuid"`
+	UserID      string     `json:"user_id" db:"user_id"`
+	KeyHash     string     `json:"key_hash" db:"key_hash"`
+	CreatedAt   time.Time  `json:"created_at" db:"created_at"`
+	LastUsedAt  *time.Time `json:"last_used_at,omitempty" db:"last_used_at"`
+	Description string     `json:"description,omitempty" db:"description"`
 }
 
 // Validate performs validation on the APIKey struct
@@ -32,10 +31,6 @@ func (k *APIKey) Validate() error {
 		return errors.New("user ID is required")
 	}
 
-	if k.EncryptedKey == "" {
-		return errors.New("encrypted key is required")
-	}
-
 	if k.KeyHash == "" {
 		return errors.New("key hash is required")
 	}
@@ -48,14 +43,13 @@ func (k *APIKey) Validate() error {
 }
 
 // NewAPIKey creates a new API key instance
-func NewAPIKey(userID, encryptedKey, keyHash, description string) *APIKey {
+func NewAPIKey(userID, keyHash, description string) *APIKey {
 	return &APIKey{
-		UUID:         uuid.New().String(),
-		UserID:       userID,
-		EncryptedKey: encryptedKey,
-		KeyHash:      keyHash,
-		CreatedAt:    time.Now(),
-		Description:  description,
+		UUID:        uuid.New().String(),
+		UserID:      userID,
+		KeyHash:     keyHash,
+		CreatedAt:   time.Now(),
+		Description: description,
 	}
 }
 

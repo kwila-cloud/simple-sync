@@ -12,22 +12,20 @@ import (
 func TestAPIKeyModelValidation(t *testing.T) {
 	// Test valid API key
 	validKey := &models.APIKey{
-		UUID:         "550e8400-e29b-41d4-a716-446655440000",
-		UserID:       "user-123",
-		EncryptedKey: "encrypted-data",
-		KeyHash:      "hash-data",
-		CreatedAt:    time.Now(),
-		Description:  "Test Key",
+		UUID:        "550e8400-e29b-41d4-a716-446655440000",
+		UserID:      "user-123",
+		KeyHash:     "hash-data",
+		CreatedAt:   time.Now(),
+		Description: "Test Key",
 	}
 	err := validKey.Validate()
 	assert.NoError(t, err)
 
 	// Test invalid API key - missing UUID
 	invalidKey := &models.APIKey{
-		UserID:       "user-123",
-		EncryptedKey: "encrypted-data",
-		KeyHash:      "hash-data",
-		CreatedAt:    time.Now(),
+		UserID:    "user-123",
+		KeyHash:   "hash-data",
+		CreatedAt: time.Now(),
 	}
 	err = invalidKey.Validate()
 	assert.Error(t, err)

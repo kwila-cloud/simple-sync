@@ -116,13 +116,12 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 			// Update last used timestamp asynchronously to avoid blocking authentication
 			// Create a copy to avoid race conditions (manual copy to avoid mutex issues)
 			keyCopy := &models.APIKey{
-				UUID:         apiKeyModel.UUID,
-				UserID:       apiKeyModel.UserID,
-				EncryptedKey: apiKeyModel.EncryptedKey,
-				KeyHash:      apiKeyModel.KeyHash,
-				CreatedAt:    apiKeyModel.CreatedAt,
-				LastUsedAt:   apiKeyModel.LastUsedAt,
-				Description:  apiKeyModel.Description,
+				UUID:        apiKeyModel.UUID,
+				UserID:      apiKeyModel.UserID,
+				KeyHash:     apiKeyModel.KeyHash,
+				CreatedAt:   apiKeyModel.CreatedAt,
+				LastUsedAt:  apiKeyModel.LastUsedAt,
+				Description: apiKeyModel.Description,
 			}
 			go func() {
 				keyCopy.UpdateLastUsed()
@@ -145,12 +144,6 @@ func (s *AuthService) GenerateApiKey(userID, description string) (*models.APIKey
 		return nil, "", errors.New("failed to generate API key")
 	}
 
-	// Encrypt the API key for storage
-	encryptedKey, err := s.encrypt([]byte(plainKey))
-	if err != nil {
-		return nil, "", errors.New("failed to encrypt API key")
-	}
-
 	// Hash the API key for authentication
 	keyHash, err := bcrypt.GenerateFromPassword([]byte(plainKey), bcrypt.DefaultCost)
 	if err != nil {
@@ -158,7 +151,7 @@ func (s *AuthService) GenerateApiKey(userID, description string) (*models.APIKey
 	}
 
 	// Create API key model
-	apiKey := models.NewAPIKey(userID, encryptedKey, string(keyHash), description)
+	apiKey := models.NewAPIKey(userID, string(keyHash), description)
 
 	// Store the API key
 	err = s.storage.CreateAPIKey(apiKey)
