@@ -28,7 +28,7 @@ func TestAuthEndpointPerformance(t *testing.T) {
 	auth.GET("/events", h.GetEvents)
 
 	// Use the default test API key instead of generating a new one
-	plainKey := "sk_testkey123456789012345678901234567890"
+	plainKey := "sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
 
 	// Test auth endpoint performance
 	start := time.Now()
@@ -61,7 +61,7 @@ func TestProtectedEndpointPerformance(t *testing.T) {
 	auth.GET("/events", h.GetEvents)
 
 	// Use the default test API key instead of generating a new one
-	plainKey := "sk_testkey123456789012345678901234567890"
+	plainKey := "sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
 
 	// Test protected endpoint performance
 	start := time.Now()

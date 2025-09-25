@@ -32,8 +32,8 @@ func NewMemoryStorage() *MemoryStorage {
 	defaultUser, _ := models.NewUser("user-123")
 	storage.SaveUser(defaultUser)
 
-	// Add default API key for test user
-	plainKey := "sk_testkey123456789012345678901234567890"
+	// Add default API key for test user (use a valid base64 key)
+	plainKey := "sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
 	keyHash, _ := bcrypt.GenerateFromPassword([]byte(plainKey), bcrypt.DefaultCost)
 	now := time.Now()
 	apiKey := &models.APIKey{
