@@ -174,7 +174,7 @@ func (h *Handlers) PostUserResetKey(c *gin.Context) {
 		UserUUID:  callerUserID.(string),
 		ItemUUID:  ".user." + userID,
 		Action:    ".user.resetKey",
-		Payload:   "",
+		Payload:   "{}",
 	}
 	h.storage.SaveEvents([]models.Event{event})
 
@@ -222,7 +222,7 @@ func (h *Handlers) PostUserGenerateToken(c *gin.Context) {
 		UserUUID:  callerUserID.(string),
 		ItemUUID:  ".user." + userID,
 		Action:    ".user.generateToken",
-		Payload:   "",
+		Payload:   "{}",
 	}
 	h.storage.SaveEvents([]models.Event{event})
 
@@ -258,7 +258,7 @@ func (h *Handlers) PostSetupExchangeToken(c *gin.Context) {
 		UserUUID:  apiKey.UserID,
 		ItemUUID:  ".user." + apiKey.UserID,
 		Action:    ".user.exchangeToken",
-		Payload:   "",
+		Payload:   "{}",
 	}
 	h.storage.SaveEvents([]models.Event{event})
 
