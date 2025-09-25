@@ -34,7 +34,7 @@ func main() {
 	store := storage.NewMemoryStorage()
 
 	// Initialize handlers
-	h := handlers.NewHandlers(store, envConfig.ENCRYPTION_KEY, Version)
+	h := handlers.NewHandlers(store, envConfig.EncryptionKey, Version)
 
 	// Setup Gin router
 	router := gin.Default()
