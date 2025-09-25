@@ -76,15 +76,15 @@ func TestPostEventsWithValidToken(t *testing.T) {
 	_, plainKey, err := h.AuthService().ExchangeSetupToken(setupToken.Token, "test")
 	assert.NoError(t, err)
 
-	// Test data - userUuid will be overridden by authenticated user
+	// Test data - user will be overridden by authenticated user
 	eventJSON := `[{
-		"uuid": "123e4567-e89b-12d3-a456-426614174000",
-		"timestamp": 1640995200,
-		"userUuid": "user-123",
-		"itemUuid": "item456",
-		"action": "create",
-		"payload": "{}"
-	}]`
+ 		"uuid": "123e4567-e89b-12d3-a456-426614174000",
+ 		"timestamp": 1640995200,
+ 		"user": "user-123",
+ 		"item": "item456",
+ 		"action": "create",
+ 		"payload": "{}"
+ 	}]`
 
 	// Test with valid Authorization header
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
@@ -118,13 +118,13 @@ func TestPostEventsWithInvalidToken(t *testing.T) {
 
 	// Test data
 	eventJSON := `[{
-		"uuid": "123e4567-e89b-12d3-a456-426614174000",
-		"timestamp": 1640995200,
-		"userUuid": "user123",
-		"itemUuid": "item456",
-		"action": "create",
-		"payload": "{}"
-	}]`
+ 		"uuid": "123e4567-e89b-12d3-a456-426614174000",
+ 		"timestamp": 1640995200,
+ 		"user": "user123",
+ 		"item": "item456",
+ 		"action": "create",
+ 		"payload": "{}"
+ 	}]`
 
 	// Test with invalid Authorization header
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))

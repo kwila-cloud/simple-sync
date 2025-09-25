@@ -59,13 +59,13 @@ func TestProtectedEndpointAccess(t *testing.T) {
 
 	// Test 2: Access POST /events without token - should fail
 	eventJSON := `[{
-		"uuid": "123e4567-e89b-12d3-a456-426614174000",
-		"timestamp": 1640995200,
-		"userUuid": "user123",
-		"itemUuid": "item456",
-		"action": "create",
-		"payload": "{}"
-	}]`
+ 		"uuid": "123e4567-e89b-12d3-a456-426614174000",
+ 		"timestamp": 1640995200,
+ 		"user": "user123",
+ 		"item": "item456",
+ 		"action": "create",
+ 		"payload": "{}"
+ 	}]`
 
 	postReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	postReq.Header.Set("Content-Type", "application/json")

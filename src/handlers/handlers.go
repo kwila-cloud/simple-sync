@@ -92,7 +92,7 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 
 	// Basic validation and set user UUID
 	for i := range events {
-		if events[i].UUID == "" || events[i].ItemUUID == "" || events[i].Action == "" {
+		if events[i].UUID == "" || events[i].Item == "" || events[i].Action == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required fields"})
 			return
 		}
@@ -107,7 +107,7 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 		}
 
 		// Override user ID with authenticated user
-		events[i].UserUUID = userID.(string)
+		events[i].User = userID.(string)
 	}
 
 	// Save events
@@ -172,8 +172,8 @@ func (h *Handlers) PostUserResetKey(c *gin.Context) {
 	event := models.Event{
 		UUID:      uuid.New().String(),
 		Timestamp: uint64(time.Now().Unix()),
-		UserUUID:  callerUserID.(string),
-		ItemUUID:  ".user." + userID,
+		User:      callerUserID.(string),
+		Item:      ".user." + userID,
 		Action:    ".user.resetKey",
 		Payload:   "{}",
 	}
@@ -223,8 +223,8 @@ func (h *Handlers) PostUserGenerateToken(c *gin.Context) {
 	event := models.Event{
 		UUID:      uuid.New().String(),
 		Timestamp: uint64(time.Now().Unix()),
-		UserUUID:  callerUserID.(string),
-		ItemUUID:  ".user." + userID,
+		User:      callerUserID.(string),
+		Item:      ".user." + userID,
 		Action:    ".user.generateToken",
 		Payload:   "{}",
 	}
@@ -263,8 +263,8 @@ func (h *Handlers) PostSetupExchangeToken(c *gin.Context) {
 	event := models.Event{
 		UUID:      uuid.New().String(),
 		Timestamp: uint64(time.Now().Unix()),
-		UserUUID:  apiKey.UserID,
-		ItemUUID:  ".user." + apiKey.UserID,
+		User:      apiKey.UserID,
+		Item:      ".user." + apiKey.UserID,
 		Action:    ".user.exchangeToken",
 		Payload:   "{}",
 	}

@@ -4,8 +4,8 @@ package models
 type Event struct {
 	UUID      string `json:"uuid"`
 	Timestamp uint64 `json:"timestamp"`
-	UserUUID  string `json:"userUuid"`
-	ItemUUID  string `json:"itemUuid"`
+	User      string `json:"user"`
+	Item      string `json:"item"`
 	Action    string `json:"action"`
 	Payload   string `json:"payload"`
 }

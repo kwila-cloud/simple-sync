@@ -98,13 +98,13 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 
 	// Step 4: Use API key to POST events
 	eventJSON := `[{
-		"uuid": "123e4567-e89b-12d3-a456-426614174000",
-		"timestamp": 1640995200,
-		"userUuid": "user123",
-		"itemUuid": "item456",
-		"action": "create",
-		"payload": "{}"
-	}]`
+ 		"uuid": "123e4567-e89b-12d3-a456-426614174000",
+ 		"timestamp": 1640995200,
+ 		"user": "user123",
+ 		"item": "item456",
+ 		"action": "create",
+ 		"payload": "{}"
+ 	}]`
 
 	postReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	postReq.Header.Set("Content-Type", "application/json")
@@ -118,12 +118,12 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 
 	// Expected response with authenticated user UUID
 	expectedJSON := `[{
-		"uuid": "123e4567-e89b-12d3-a456-426614174000",
-		"timestamp": 1640995200,
-		"userUuid": "user-123",
-		"itemUuid": "item456",
-		"action": "create",
-		"payload": "{}"
-	}]`
+ 		"uuid": "123e4567-e89b-12d3-a456-426614174000",
+ 		"timestamp": 1640995200,
+ 		"user": "user-123",
+ 		"item": "item456",
+ 		"action": "create",
+ 		"payload": "{}"
+ 	}]`
 	assert.JSONEq(t, expectedJSON, postW.Body.String())
 }
