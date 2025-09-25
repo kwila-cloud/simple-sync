@@ -1,7 +1,7 @@
 <!--
 Sync Impact Report:
-- Version change: 1.1.0 → 1.1.1
-- List of modified principles: VI. Development Workflow (added testing conventions)
+- Version change: 1.2.0 → 1.3.0
+- List of modified principles: VI. Development Workflow (added test/production parity principle)
 - Added sections: none
 - Removed sections: none
 - Templates requiring updates: none
@@ -30,9 +30,13 @@ ACL rules MUST be evaluated in order, with deny-by-default behavior. Wildcard su
 The project MUST use Go with Gin web framework, SQLite for data storage, and JWT for authentication. All dependencies MUST be justified for simplicity, performance, and maintainability. Rationale: Chosen stack optimizes for the project's goals of simple code and high maintainability.
 
 ## Development Workflow
-Development MUST follow an issue-driven workflow using GitHub CLI for tracking. Features MUST be implemented incrementally with testing. Code MUST be committed with descriptive messages referencing issues. Test files MUST follow Go naming conventions with "_test.go" suffix. Rationale: Ensures structured progress, accountability, and adherence to Go testing standards.
+Development MUST follow an issue-driven workflow using GitHub CLI for tracking. Features MUST be implemented incrementally with testing. Code MUST be committed with descriptive messages referencing issues. Test files MUST follow Go naming conventions with "_test.go" suffix.
+
+Code changes MUST be purposeful and justified - speculative features or "what if" implementations MUST NOT be committed without explicit approval. Performance test thresholds MUST NOT be adjusted without thorough analysis of the performance regression and documented rationale.
+
+Test and production code MUST follow identical execution paths - special case logic that behaves differently for test data (such as skipping operations for "test" entities) is STRICTLY PROHIBITED. All code must be designed to work identically in test and production environments. Rationale: Ensures code reliability, prevents test-specific bugs from being masked, and maintains identical behavior across environments.
 
 ## Governance
 Amendments to this constitution require consensus among maintainers and MUST be documented with rationale. Versioning follows semantic rules: MAJOR for breaking changes, MINOR for additions, PATCH for clarifications. All changes MUST be reviewed for compliance. Rationale: Maintains project integrity and guides decision-making.
 
-**Version**: 1.1.1 | **Ratified**: 2025-09-20 | **Last Amended**: 2025-09-20
+**Version**: 1.3.0 | **Ratified**: 2025-09-20 | **Last Amended**: 2025-09-25

@@ -1,7 +1,6 @@
 package unit
 
 import (
-	"os"
 	"testing"
 
 	"simple-sync/src/models"
@@ -9,37 +8,52 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// testEnv provides an abstraction for environment variables in tests
+type testEnv struct {
+	vars map[string]string
+}
+
+func newTestEnv() *testEnv {
+	return &testEnv{
+		vars: make(map[string]string),
+	}
+}
+
+func (te *testEnv) set(key, value string) {
+	te.vars[key] = value
+}
+
+func (te *testEnv) unset(key string) {
+	delete(te.vars, key)
+}
+
+func (te *testEnv) get(key string) string {
+	return te.vars[key]
+}
+
 func TestNewEnvironmentConfiguration(t *testing.T) {
 	config := models.NewEnvironmentConfiguration()
 
 	assert.Equal(t, 8080, config.Port)
 	assert.Equal(t, "development", config.Environment)
-	assert.Empty(t, config.JWT_SECRET)
 }
 
 func TestLoadFromEnv_Valid(t *testing.T) {
 	// Set up test environment
-	os.Setenv("JWT_SECRET", "test-secret-key-32-chars-long")
-	os.Setenv("PORT", "9090")
-	os.Setenv("ENVIRONMENT", "production")
-	defer func() {
-		os.Unsetenv("JWT_SECRET")
-		os.Unsetenv("PORT")
-		os.Unsetenv("ENVIRONMENT")
-	}()
+	env := newTestEnv()
+	env.set("PORT", "9090")
+	env.set("ENVIRONMENT", "production")
 
 	config := models.NewEnvironmentConfiguration()
-	err := config.LoadFromEnv(os.Getenv)
+	err := config.LoadFromEnv(env.get)
 
 	assert.NoError(t, err)
-	assert.Equal(t, "test-secret-key-32-chars-long", config.JWT_SECRET)
 	assert.Equal(t, 9090, config.Port)
 	assert.Equal(t, "production", config.Environment)
 }
 
 func TestValidate_Valid(t *testing.T) {
 	config := &models.EnvironmentConfiguration{
-		JWT_SECRET:  "test-secret-key-32-chars-long-enough",
 		Port:        8080,
 		Environment: "development",
 	}
@@ -59,7 +73,6 @@ func TestIsProduction(t *testing.T) {
 
 func TestValidate_Port80Allowed(t *testing.T) {
 	config := &models.EnvironmentConfiguration{
-		JWT_SECRET:  "test-secret-key-32-chars-long-enough",
 		Port:        80,
 		Environment: "development",
 	}
@@ -71,15 +84,11 @@ func TestValidate_Port80Allowed(t *testing.T) {
 
 func TestLoadFromEnv_PortTooLow(t *testing.T) {
 	// Set up test environment with port below 80
-	os.Setenv("JWT_SECRET", "test-secret-key-32-chars-long")
-	os.Setenv("PORT", "79")
-	defer func() {
-		os.Unsetenv("JWT_SECRET")
-		os.Unsetenv("PORT")
-	}()
+	env := newTestEnv()
+	env.set("PORT", "79")
 
 	config := models.NewEnvironmentConfiguration()
-	err := config.LoadFromEnv(os.Getenv)
+	err := config.LoadFromEnv(env.get)
 
 	if err == nil {
 		t.Error("Expected error for port too low")
@@ -92,7 +101,6 @@ func TestLoadFromEnv_PortTooLow(t *testing.T) {
 
 func TestValidate_PortTooLow(t *testing.T) {
 	config := &models.EnvironmentConfiguration{
-		JWT_SECRET:  "test-secret-key-32-chars-long-enough",
 		Port:        79,
 		Environment: "development",
 	}

@@ -1,7 +1,7 @@
 # Simple Sync
 A simple sync system for local-first apps.
 
-Built with [Go](https://go.dev/), [Gin](https://github.com/gin-gonic/gin), [SQLite](https://www.sqlite.org/index.html) and [JWT](https://jwt.io/). See the [Tech Stack](docs/tech-stack.md) document for details on the technologies used in this project and the rationale behind those choices.
+Built with [Go](https://go.dev/), [Gin](https://github.com/gin-gonic/gin), and [SQLite](https://www.sqlite.org/index.html). See the [Tech Stack](docs/tech-stack.md) document for details on the technologies used in this project and the rationale behind those choices.
 
 **NOTE** - This project is in the alpha stage. Many of the things documented here and elsewhere in this repo do not actually exist yet.
 
@@ -24,18 +24,12 @@ To run Simple Sync using Docker Compose:
    cd simple-sync
    ```
 
-2. Create a `.env` file with your JWT secret:
-   ```bash
-   echo "JWT_SECRET=$(openssl rand -base64 32)" > .env
-   ```
-    **⚠️ REQUIRED:** JWT_SECRET is mandatory and must be at least 32 characters long - the application will exit with an error if not set or too short.
-
-3. Start the services:
+2. Start the services:
    ```bash
    docker compose up -d
    ```
 
-4. Verify the service is running:
+3. Verify the service is running:
    ```bash
     curl http://localhost:8080/api/v1/health
    ```
@@ -70,9 +64,6 @@ This will make a `simple-sync` executable file.
 To run the application locally:
 
 ```bash
-# Set JWT secret (required)
-export JWT_SECRET="your-jwt-secret-here"
-
 # Run the server
 go run ./src
 

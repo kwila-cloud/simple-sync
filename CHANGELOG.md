@@ -1,6 +1,11 @@
 # Release History
 
 ## [0.3.0] - unreleased
+- [#37](https://github.com/kwila-cloud/simple-sync/pull/37): Replace JWT authentication with API key system
+  - Added API key generation and storage
+  - Implemented setup token generation and exchange endpoints
+  - Updated authentication middleware for API key validation
+  - Removed JWT and password management code
 - [#36](https://github.com/kwila-cloud/simple-sync/pull/36): More documentation improvements
   - Added new **Internal Events** page
 - [#34](https://github.com/kwila-cloud/simple-sync/pull/34): Updated ACL documentation to event-based system with specificity evaluation

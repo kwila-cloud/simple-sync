@@ -34,7 +34,7 @@ func main() {
 	store := storage.NewMemoryStorage()
 
 	// Initialize handlers
-	h := handlers.NewHandlers(store, envConfig.JWT_SECRET, Version)
+	h := handlers.NewHandlers(store, Version)
 
 	// Setup Gin router
 	router := gin.Default()
@@ -50,8 +50,12 @@ func main() {
 	auth.GET("/events", h.GetEvents)
 	auth.POST("/events", h.PostEvents)
 
-	// Auth routes (no middleware)
-	v1.POST("/auth/token", h.PostAuthToken)
+	// Auth routes (with middleware for permission checks)
+	auth.POST("/user/resetKey", h.PostUserResetKey)
+	auth.POST("/user/generateToken", h.PostUserGenerateToken)
+
+	// Setup routes (no middleware - token-based auth)
+	v1.POST("/setup/exchangeToken", h.PostSetupExchangeToken)
 
 	// Health check route (no middleware)
 	v1.GET("/health", h.GetHealth)

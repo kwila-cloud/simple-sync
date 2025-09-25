@@ -87,14 +87,6 @@ paths:
         - Events
       security:
         - bearerAuth: []
-      parameters:
-        - name: fromTimestamp
-          in: query
-          schema:
-            type: integer
-            format: int64
-          description: Only return events after this timestamp
-          example: 1678886400
       responses:
         '200':
           description: Events retrieved successfully

@@ -9,52 +9,63 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAuthenticate(t *testing.T) {
+func TestGenerateSetupToken(t *testing.T) {
 	store := storage.NewMemoryStorage()
-	authService := services.NewAuthService("test-secret", store)
+	authService := services.NewAuthService(store)
 
-	// Test valid credentials
-	user, err := authService.Authenticate("testuser", "testpass123")
+	// Test generating setup token for existing user
+	setupToken, err := authService.GenerateSetupToken("user-123")
 	assert.NoError(t, err)
-	assert.Equal(t, "user-123", user.UUID)
-	assert.Equal(t, "testuser", user.Username)
+	assert.NotEmpty(t, setupToken.Token)
+	assert.Equal(t, "user-123", setupToken.UserID)
+	assert.NotNil(t, setupToken.ExpiresAt)
 
-	// Test invalid username
-	_, err = authService.Authenticate("wronguser", "testpass123")
-	assert.Error(t, err)
-
-	// Test invalid password
-	_, err = authService.Authenticate("testuser", "wrongpass")
+	// Test generating for non-existent user
+	_, err = authService.GenerateSetupToken("non-existent")
 	assert.Error(t, err)
 }
 
-func TestGenerateToken(t *testing.T) {
+func TestExchangeSetupToken(t *testing.T) {
 	store := storage.NewMemoryStorage()
-	authService := services.NewAuthService("test-secret", store)
+	authService := services.NewAuthService(store)
 
-	user, _ := authService.Authenticate("testuser", "testpass123")
-	token, err := authService.GenerateToken(user)
+	// Generate setup token
+	setupToken, err := authService.GenerateSetupToken("user-123")
 	assert.NoError(t, err)
-	assert.NotEmpty(t, token)
-}
 
-func TestValidateToken(t *testing.T) {
-	store := storage.NewMemoryStorage()
-	authService := services.NewAuthService("test-secret", store)
-
-	user, _ := authService.Authenticate("testuser", "testpass123")
-	token, _ := authService.GenerateToken(user)
-
-	// Test valid token
-	claims, err := authService.ValidateToken(token)
+	// Test valid exchange
+	apiKey, plainKey, err := authService.ExchangeSetupToken(setupToken.Token, "Test Client")
 	assert.NoError(t, err)
-	assert.Equal(t, "user-123", claims.UserUUID)
-	assert.Equal(t, "testuser", claims.Username)
+	assert.NotEmpty(t, apiKey.UUID)
+	assert.NotEmpty(t, plainKey)
+	assert.Equal(t, "user-123", apiKey.UserID)
+	assert.Equal(t, "Test Client", apiKey.Description)
 
 	// Test invalid token
-	_, err = authService.ValidateToken("invalid-token")
+	_, _, err = authService.ExchangeSetupToken("invalid-token", "Test")
 	assert.Error(t, err)
 
-	// Test expired token (simulate by creating old token)
-	// Note: For full test, would need to mock time
+	// Test used token (exchange again)
+	_, _, err = authService.ExchangeSetupToken(setupToken.Token, "Test")
+	assert.Error(t, err)
+}
+
+func TestValidateApiKey(t *testing.T) {
+	store := storage.NewMemoryStorage()
+	authService := services.NewAuthService(store)
+
+	// Generate and exchange setup token to get API key
+	setupToken, err := authService.GenerateSetupToken("user-123")
+	assert.NoError(t, err)
+	_, plainKey, err := authService.ExchangeSetupToken(setupToken.Token, "Test")
+	assert.NoError(t, err)
+
+	// Test valid API key
+	userID, err := authService.ValidateApiKey(plainKey)
+	assert.NoError(t, err)
+	assert.Equal(t, "user-123", userID)
+
+	// Test invalid API key
+	_, err = authService.ValidateApiKey("invalid-key")
+	assert.Error(t, err)
 }
