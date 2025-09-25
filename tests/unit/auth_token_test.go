@@ -39,7 +39,7 @@ func TestSetupTokenModelValidation(t *testing.T) {
 		Token:     "ABCD-1234",
 		UserID:    "user-123",
 		ExpiresAt: time.Now().Add(24 * time.Hour),
-		Used:      false,
+		UsedAt:    time.Time{},
 	}
 	err := validToken.Validate()
 	assert.NoError(t, err)
@@ -50,7 +50,7 @@ func TestSetupTokenModelValidation(t *testing.T) {
 		Token:     "INVALID-FORMAT",
 		UserID:    "user-123",
 		ExpiresAt: time.Now().Add(24 * time.Hour),
-		Used:      false,
+		UsedAt:    time.Time{},
 	}
 	err = invalidToken.Validate()
 	assert.Error(t, err)

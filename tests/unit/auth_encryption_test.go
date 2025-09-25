@@ -42,7 +42,7 @@ func TestSetupTokenGeneration(t *testing.T) {
 	assert.NotEmpty(t, token)
 	assert.Equal(t, "user-123", token.UserID)
 	assert.Regexp(t, `^[A-Z0-9]{4}-[A-Z0-9]{4}$`, token.Token)
-	assert.False(t, token.Used)
+	assert.True(t, token.UsedAt.IsZero())
 	assert.True(t, token.ExpiresAt.After(token.ExpiresAt.Add(-25*time.Hour))) // Expires in ~24 hours
 }
 

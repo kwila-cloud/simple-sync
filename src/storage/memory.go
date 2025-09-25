@@ -159,9 +159,10 @@ func (m *MemoryStorage) UpdateSetupToken(token *models.SetupToken) error {
 func (m *MemoryStorage) InvalidateUserSetupTokens(userID string) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
+	now := time.Now()
 	for _, token := range m.setupTokens {
 		if token.UserID == userID {
-			token.Used = true
+			token.UsedAt = now
 		}
 	}
 	return nil

@@ -11,7 +11,7 @@ type SetupToken struct {
 	Token     string    `json:"token" db:"token"`
 	UserID    string    `json:"user_id" db:"user_id"`
 	ExpiresAt time.Time `json:"expires_at" db:"expires_at"`
-	Used      bool      `json:"used" db:"used"`
+	UsedAt    time.Time `json:"used_at" db:"used_at"`
 }
 
 // Validate performs validation on the SetupToken struct
@@ -44,12 +44,12 @@ func (t *SetupToken) IsExpired() bool {
 
 // IsValid checks if the token is valid for use
 func (t *SetupToken) IsValid() bool {
-	return !t.Used && !t.IsExpired()
+	return t.UsedAt.IsZero() && !t.IsExpired()
 }
 
 // MarkUsed marks the token as used
 func (t *SetupToken) MarkUsed() {
-	t.Used = true
+	t.UsedAt = time.Now()
 }
 
 // NewSetupToken creates a new setup token instance
@@ -58,6 +58,6 @@ func NewSetupToken(token, userID string, expiresAt time.Time) *SetupToken {
 		Token:     token,
 		UserID:    userID,
 		ExpiresAt: expiresAt,
-		Used:      false,
+		UsedAt:    time.Time{}, // zero value indicates not used
 	}
 }
