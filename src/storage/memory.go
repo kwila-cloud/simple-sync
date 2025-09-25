@@ -166,3 +166,15 @@ func (m *MemoryStorage) InvalidateUserSetupTokens(userID string) error {
 	}
 	return nil
 }
+
+// InvalidateUserAPIKeys removes all API keys for a user
+func (m *MemoryStorage) InvalidateUserAPIKeys(userID string) error {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	for uuid, apiKey := range m.apiKeys {
+		if apiKey.UserID == userID {
+			delete(m.apiKeys, uuid)
+		}
+	}
+	return nil
+}

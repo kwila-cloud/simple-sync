@@ -160,8 +160,8 @@ func (h *Handlers) PostUserResetKey(c *gin.Context) {
 		// TODO(#5): Check ACL rules for .user.resetKey permission on target user
 	}
 
-	// Generate setup token
-	setupToken, err := h.authService.GenerateSetupToken(userID)
+	// Invalidate all existing API keys for the user
+	err := h.storage.InvalidateUserAPIKeys(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
@@ -179,8 +179,7 @@ func (h *Handlers) PostUserResetKey(c *gin.Context) {
 	h.storage.SaveEvents([]models.Event{event})
 
 	c.JSON(http.StatusOK, gin.H{
-		"token":     setupToken.Token,
-		"expiresAt": setupToken.ExpiresAt,
+		"message": "API keys invalidated successfully",
 	})
 }
 

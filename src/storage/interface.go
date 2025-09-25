@@ -17,6 +17,7 @@ type Storage interface {
 	GetAPIKeyByHash(hash string) (*models.APIKey, error)
 	GetAllAPIKeys() ([]*models.APIKey, error)
 	UpdateAPIKey(apiKey *models.APIKey) error
+	InvalidateUserAPIKeys(userID string) error
 
 	// Setup Token operations
 	CreateSetupToken(token *models.SetupToken) error

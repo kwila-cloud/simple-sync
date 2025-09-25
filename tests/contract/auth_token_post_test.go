@@ -44,17 +44,15 @@ func TestPostUserResetKey(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	// Assert response according to contract
-	// Expected: 200 with token
+	// Expected: 200 with success message
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
-	var response map[string]string
+	var response map[string]interface{}
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
-	assert.Contains(t, response, "token")
-	assert.Contains(t, response, "expiresAt")
-	assert.NotEmpty(t, response["token"])
-	assert.NotEmpty(t, response["expiresAt"])
+	assert.Contains(t, response, "message")
+	assert.Equal(t, "API keys invalidated successfully", response["message"])
 }
 
 func TestPostUserGenerateToken(t *testing.T) {
