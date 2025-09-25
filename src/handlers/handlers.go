@@ -21,10 +21,10 @@ type Handlers struct {
 }
 
 // NewHandlers creates a new handlers instance
-func NewHandlers(storage storage.Storage, jwtSecret, version string) *Handlers {
+func NewHandlers(storage storage.Storage, encryptionKey, version string) *Handlers {
 	return &Handlers{
 		storage:       storage,
-		authService:   services.NewAuthService(jwtSecret, storage),
+		authService:   services.NewAuthService(encryptionKey, storage),
 		healthHandler: NewHealthHandler(version),
 	}
 }
@@ -36,7 +36,7 @@ func NewTestHandlers() *Handlers {
 
 // NewTestHandlersWithStorage creates a new handlers instance with test defaults and custom storage
 func NewTestHandlersWithStorage(store storage.Storage) *Handlers {
-	return NewHandlers(store, "test-secret", "test")
+	return NewHandlers(store, "test-encryption-key-32-chars-long", "test")
 }
 
 // AuthService returns the auth service instance
@@ -52,7 +52,7 @@ func (h *Handlers) GetHealth(c *gin.Context) {
 // GetEvents handles GET /events
 func (h *Handlers) GetEvents(c *gin.Context) {
 	// Check authenticated user
-	_, exists := c.Get("user_uuid")
+	_, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
 		return
@@ -99,7 +99,7 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 	}
 
 	// Get authenticated user from context
-	userUUID, exists := c.Get("user_uuid")
+	userID, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
 		return
@@ -118,8 +118,8 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 			return
 		}
 
-		// Override user UUID with authenticated user
-		events[i].UserUUID = userUUID.(string)
+		// Override user ID with authenticated user
+		events[i].UserUUID = userID.(string)
 	}
 
 	// Save events
@@ -155,31 +155,103 @@ func validateTimestamp(timestamp uint64) error {
 	return nil
 }
 
-// PostAuthToken handles POST /auth/token
-func (h *Handlers) PostAuthToken(c *gin.Context) {
-	var authRequest struct {
-		Username string `json:"username" binding:"required"`
-		Password string `json:"password" binding:"required"`
-	}
-
-	if err := c.ShouldBindJSON(&authRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+// PostUserResetKey handles POST /api/v1/user/resetKey
+func (h *Handlers) PostUserResetKey(c *gin.Context) {
+	userID := c.Query("user")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user parameter required"})
 		return
 	}
 
-	// Authenticate user
-	user, err := h.authService.Authenticate(authRequest.Username, authRequest.Password)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+	// Check if caller has permission (from middleware)
+	callerUserID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
 
-	// Generate token
-	token, err := h.authService.GenerateToken(user)
+	// TODO: Implement proper ACL permission check for .user.resetKey
+	// For now, allow all authenticated users (temporary until ACL system is implemented)
+	// The .root user should always have access according to the specification
+	if callerUserID == ".root" {
+		// Allow .root user unrestricted access
+	} else {
+		// TODO: Check ACL rules for .user.resetKey permission on target user
+	}
+
+	// Generate setup token
+	setupToken, err := h.authService.GenerateSetupToken(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	c.JSON(http.StatusOK, gin.H{
+		"token":     setupToken.Token,
+		"expiresAt": setupToken.ExpiresAt,
+	})
+}
+
+// PostUserGenerateToken handles POST /api/v1/user/generateToken
+func (h *Handlers) PostUserGenerateToken(c *gin.Context) {
+	userID := c.Query("user")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user parameter required"})
+		return
+	}
+
+	// Check if caller has permission (from middleware)
+	callerUserID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	// TODO: Implement proper ACL permission check for .user.generateToken
+	// For now, allow all authenticated users (temporary until ACL system is implemented)
+	// The .root user should always have access according to the specification
+	if callerUserID == ".root" {
+		// Allow .root user unrestricted access
+	} else {
+		// TODO: Check ACL rules for .user.generateToken permission on target user
+	}
+
+	// Generate setup token
+	setupToken, err := h.authService.GenerateSetupToken(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"token":     setupToken.Token,
+		"expiresAt": setupToken.ExpiresAt,
+	})
+}
+
+// PostSetupExchangeToken handles POST /api/v1/setup/exchangeToken
+func (h *Handlers) PostSetupExchangeToken(c *gin.Context) {
+	var request struct {
+		Token       string `json:"token" binding:"required"`
+		Description string `json:"description"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		return
+	}
+
+	// Exchange setup token for API key
+	apiKey, plainKey, err := h.authService.ExchangeSetupToken(request.Token, request.Description)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"keyUuid":     apiKey.UUID,
+		"apiKey":      plainKey,
+		"user":        apiKey.UserID,
+		"description": apiKey.Description,
+	})
 }

@@ -12,4 +12,15 @@ type Storage interface {
 	SaveUser(user *models.User) error
 	GetUserByUsername(username string) (*models.User, error)
 	GetUserByUUID(uuid string) (*models.User, error)
+
+	// API Key operations
+	CreateAPIKey(apiKey *models.APIKey) error
+	GetAPIKeyByHash(hash string) (*models.APIKey, error)
+	UpdateAPIKey(apiKey *models.APIKey) error
+
+	// Setup Token operations
+	CreateSetupToken(token *models.SetupToken) error
+	GetSetupToken(token string) (*models.SetupToken, error)
+	UpdateSetupToken(token *models.SetupToken) error
+	InvalidateUserSetupTokens(userID string) error
 }

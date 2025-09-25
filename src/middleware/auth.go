@@ -9,30 +9,28 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// AuthMiddleware creates JWT authentication middleware
+// AuthMiddleware creates API key authentication middleware
 func AuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Extract token from Authorization header using utility function
+		// Extract API key from Authorization header
 		authHeader := c.GetHeader("Authorization")
-		tokenString, err := utils.ExtractTokenFromHeader(authHeader)
+		apiKey, err := utils.ExtractTokenFromHeader(authHeader)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
 			c.Abort()
 			return
 		}
 
-		// Validate token
-		claims, err := authService.ValidateToken(tokenString)
+		// Validate API key
+		userID, err := authService.ValidateAPIKey(apiKey)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid API key"})
 			c.Abort()
 			return
 		}
 
 		// Set user information in context
-		c.Set("user_uuid", claims.UserUUID)
-		c.Set("username", claims.Username)
-		c.Set("is_admin", claims.IsAdmin)
+		c.Set("user_id", userID)
 
 		c.Next()
 	}

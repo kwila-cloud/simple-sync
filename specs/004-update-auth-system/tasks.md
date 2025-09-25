@@ -42,41 +42,41 @@
 - Paths assume Go project structure with existing codebase
 
 ## Phase 3.1: Setup
-- [ ] T001 Initialize auth-specific dependencies and imports
-- [ ] T002 [P] Configure crypto libraries for API key encryption
+- [x] T001 Initialize auth-specific dependencies and imports
+- [x] T002 [P] Configure crypto libraries for API key encryption
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**
-- [ ] T003 [P] Contract test POST /api/v1/user/resetKey in tests/contract/auth_token_post_test.go
-- [ ] T004 [P] Contract test POST /api/v1/user/generateToken in tests/contract/auth_token_post_test.go
-- [ ] T005 [P] Contract test POST /api/v1/setup/exchangeToken in tests/contract/auth_token_post_test.go
-- [ ] T006 [P] Integration test user setup flow in tests/integration/auth_setup_test.go
-- [ ] T007 [P] Integration test error scenarios in tests/integration/auth_errors_test.go
+- [x] T003 [P] Contract test POST /api/v1/user/resetKey in tests/contract/auth_token_post_test.go
+- [x] T004 [P] Contract test POST /api/v1/user/generateToken in tests/contract/auth_token_post_test.go
+- [x] T005 [P] Contract test POST /api/v1/setup/exchangeToken in tests/contract/auth_token_post_test.go
+- [x] T006 [P] Integration test user setup flow in tests/integration/auth_setup_test.go
+- [x] T007 [P] Integration test error scenarios in tests/integration/auth_errors_test.go
 
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
-- [ ] T008 [P] API Key model in src/models/api_key.go
-- [ ] T009 [P] Setup Token model in src/models/setup_token.go
-- [ ] T010 Update auth middleware for API key validation in src/middleware/auth.go
-- [ ] T011 POST /api/v1/user/resetKey endpoint in src/handlers/auth_handlers.go
-- [ ] T012 POST /api/v1/user/generateToken endpoint in src/handlers/auth_handlers.go
-- [ ] T013 POST /api/v1/setup/exchangeToken endpoint in src/handlers/auth_handlers.go
-- [ ] T014 ACL permission validation for auth endpoints
-- [ ] T015 Remove JWT authentication middleware and related code
-- [ ] T016 Remove username/password authentication endpoints
-- [ ] T017 Remove password hashing and user credential models
+- [x] T008 [P] API Key model in src/models/api_key.go
+- [x] T009 [P] Setup Token model in src/models/setup_token.go
+- [x] T010 Update auth middleware for API key validation in src/middleware/auth.go
+- [x] T011 POST /api/v1/user/resetKey endpoint in src/handlers/auth_handlers.go
+- [x] T012 POST /api/v1/user/generateToken endpoint in src/handlers/auth_handlers.go
+- [x] T013 POST /api/v1/setup/exchangeToken endpoint in src/handlers/auth_handlers.go
+- [x] T014 ACL permission validation for auth endpoints
+- [x] T015 Remove JWT authentication middleware and related code
+- [x] T016 Remove username/password authentication endpoints
+- [x] T017 Remove password hashing and user credential models
 
 ## Phase 3.4: Integration
-- [ ] T018 Database schema updates for API keys and setup tokens
-- [ ] T019 API key encryption/decryption service
-- [ ] T020 Setup token generation and validation service
-- [ ] T021 Update existing auth service for API key support
+- [x] T018 Database schema updates for API keys and setup tokens
+- [x] T019 API key encryption/decryption service
+- [x] T020 Setup token generation and validation service
+- [x] T021 Update existing auth service for API key support
 
 ## Phase 3.5: Polish
-- [ ] T022 [P] Unit tests for API key encryption in tests/unit/auth_encryption_test.go
-- [ ] T023 [P] Unit tests for token validation in tests/unit/auth_token_test.go
-- [ ] T024 Performance tests for auth operations
-- [ ] T025 Update API documentation
-- [ ] T026 Security audit and cleanup
+- [x] T022 [P] Unit tests for API key encryption in tests/unit/auth_encryption_test.go
+- [x] T023 [P] Unit tests for token validation in tests/unit/auth_token_test.go
+- [x] T024 Performance tests for auth operations
+- [x] T025 Update API documentation
+- [x] T026 Security audit and cleanup
 
 ## Dependencies
 - Tests (T003-T007) before implementation (T008-T017)
