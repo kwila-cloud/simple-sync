@@ -11,6 +11,7 @@ import (
 	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 // Handlers contains the HTTP handlers for the API
@@ -186,6 +187,17 @@ func (h *Handlers) PostUserResetKey(c *gin.Context) {
 		return
 	}
 
+	// Log the API call as an internal event
+	event := models.Event{
+		UUID:      uuid.New().String(),
+		Timestamp: uint64(time.Now().Unix()),
+		UserUUID:  callerUserID.(string),
+		ItemUUID:  ".user." + userID,
+		Action:    ".user.resetKey",
+		Payload:   "",
+	}
+	h.storage.SaveEvents([]models.Event{event})
+
 	c.JSON(http.StatusOK, gin.H{
 		"token":     setupToken.Token,
 		"expiresAt": setupToken.ExpiresAt,
@@ -223,6 +235,17 @@ func (h *Handlers) PostUserGenerateToken(c *gin.Context) {
 		return
 	}
 
+	// Log the API call as an internal event
+	event := models.Event{
+		UUID:      uuid.New().String(),
+		Timestamp: uint64(time.Now().Unix()),
+		UserUUID:  callerUserID.(string),
+		ItemUUID:  ".user." + userID,
+		Action:    ".user.generateToken",
+		Payload:   "",
+	}
+	h.storage.SaveEvents([]models.Event{event})
+
 	c.JSON(http.StatusOK, gin.H{
 		"token":     setupToken.Token,
 		"expiresAt": setupToken.ExpiresAt,
@@ -247,6 +270,17 @@ func (h *Handlers) PostSetupExchangeToken(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
+
+	// Log the API call as an internal event
+	event := models.Event{
+		UUID:      uuid.New().String(),
+		Timestamp: uint64(time.Now().Unix()),
+		UserUUID:  apiKey.UserID,
+		ItemUUID:  ".user." + apiKey.UserID,
+		Action:    ".user.exchangeToken",
+		Payload:   "",
+	}
+	h.storage.SaveEvents([]models.Event{event})
 
 	c.JSON(http.StatusOK, gin.H{
 		"keyUuid":     apiKey.UUID,
