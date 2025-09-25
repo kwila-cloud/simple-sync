@@ -33,13 +33,13 @@ func TestPostEvents(t *testing.T) {
 
 	// Sample event data
 	eventJSON := `[{
- 		"uuid": "123e4567-e89b-12d3-a456-426614174000",
- 		"timestamp": 1640995200,
- 		"user": "user123",
- 		"item": "item456",
- 		"action": "create",
- 		"payload": "{}"
- 	}]`
+  		"uuid": "123e4567-e89b-12d3-a456-426614174000",
+  		"timestamp": 1640995200,
+  		"user": "user-123",
+  		"item": "item456",
+  		"action": "create",
+  		"payload": "{}"
+  	}]`
 
 	// Generate setup token and exchange for API key
 	setupToken, err := h.AuthService().GenerateSetupToken("user-123")
@@ -105,7 +105,7 @@ func TestConcurrentPostEvents(t *testing.T) {
 			defer wg.Done()
 			for j := 0; j < eventsPerGoroutine; j++ {
 				uuid := fmt.Sprintf("%d-%d", id, j)
-				event := fmt.Sprintf(`[{"uuid":"%s","timestamp":%d,"user":"u","item":"i","action":"a","payload":"p"}]`, uuid, id*100+j+1)
+				event := fmt.Sprintf(`[{"uuid":"%s","timestamp":%d,"user":"user-123","item":"i","action":"a","payload":"p"}]`, uuid, id*100+j+1)
 				req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(event))
 				req.Header.Set("Content-Type", "application/json")
 				req.Header.Set("Authorization", "Bearer "+plainKey) // Add API key
