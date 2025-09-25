@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"time"
 
@@ -176,7 +177,11 @@ func (h *Handlers) PostUserResetKey(c *gin.Context) {
 		Action:    ".user.resetKey",
 		Payload:   "{}",
 	}
-	h.storage.SaveEvents([]models.Event{event})
+	if err := h.storage.SaveEvents([]models.Event{event}); err != nil {
+		log.Printf("Failed to save reset key event for user %s: %v", userID, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "API keys invalidated successfully",
@@ -223,7 +228,11 @@ func (h *Handlers) PostUserGenerateToken(c *gin.Context) {
 		Action:    ".user.generateToken",
 		Payload:   "{}",
 	}
-	h.storage.SaveEvents([]models.Event{event})
+	if err := h.storage.SaveEvents([]models.Event{event}); err != nil {
+		log.Printf("Failed to save generate token event for user %s: %v", userID, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"token":     setupToken.Token,
@@ -259,7 +268,11 @@ func (h *Handlers) PostSetupExchangeToken(c *gin.Context) {
 		Action:    ".user.exchangeToken",
 		Payload:   "{}",
 	}
-	h.storage.SaveEvents([]models.Event{event})
+	if err := h.storage.SaveEvents([]models.Event{event}); err != nil {
+		log.Printf("Failed to save exchange token event for user %s: %v", apiKey.UserID, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"keyUuid":     apiKey.UUID,
