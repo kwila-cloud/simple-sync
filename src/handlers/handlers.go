@@ -3,7 +3,6 @@ package handlers
 import (
 	"errors"
 	"net/http"
-	"strconv"
 	"time"
 
 	"simple-sync/src/models"
@@ -59,28 +58,8 @@ func (h *Handlers) GetEvents(c *gin.Context) {
 		return
 	}
 
-	// Determine fromTimestamp filter (nil means no filter)
-	var fromTimestamp *uint64
-
-	fromTimestampStr := c.Query("fromTimestamp")
-	if fromTimestampStr != "" {
-		parsedTimestamp, err := strconv.ParseUint(fromTimestampStr, 10, 64)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid timestamp parameter"})
-			return
-		}
-
-		// Validate timestamp bounds
-		if err := validateTimestamp(parsedTimestamp); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid timestamp parameter"})
-			return
-		}
-
-		fromTimestamp = &parsedTimestamp
-	}
-
-	// Load events (filtered or all)
-	events, err := h.storage.LoadEvents(fromTimestamp)
+	// Load all events
+	events, err := h.storage.LoadEvents()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return

@@ -6,7 +6,7 @@ import "simple-sync/src/models"
 type Storage interface {
 	// Event operations
 	SaveEvents(events []models.Event) error
-	LoadEvents(fromTimestamp *uint64) ([]models.Event, error)
+	LoadEvents() ([]models.Event, error)
 
 	// User operations
 	SaveUser(user *models.User) error
