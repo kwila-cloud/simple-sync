@@ -18,6 +18,7 @@ export default defineConfig({
 					autogenerate: { directory: 'api' },
 				},
 				{ label: 'ACL 🛡️', slug: 'acl' },
+				{ label: 'Internal Events 📊', slug: 'internal-events' },
 				{ label: 'Release History 📋', link: 'https://github.com/kwila-cloud/simple-sync/blob/main/CHANGELOG.md', attrs: { target: '_blank' } },
 				{ label: 'Download as PDF 📄', link: '/docs.pdf', attrs: { target: '_blank' } },
 			],

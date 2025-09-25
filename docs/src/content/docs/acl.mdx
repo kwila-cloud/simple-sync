@@ -15,7 +15,7 @@ The Access Control List (ACL) defines the relationships between users, items, an
 
 ## ACL Structure
 
-ACL rules are managed through events on a special `.acl` item. Each ACL event has an action of either `allow` or `deny` and a payload containing the rule details:
+ACL rules are managed through events on a special `.acl` item. Each ACL event has an action of either `.acl.allow` or `.acl.deny` and a payload containing the rule details:
 
 ```json
 {
@@ -101,12 +101,8 @@ To allow all users to mark "task.123" as complete:
   "timestamp": 1758704361233,
   "user": "admin.user1",
   "item": ".acl",
-  "action": "allow",
-  "payload": {
-    "user": "*",
-    "item": "task.123",
-    "action": "markComplete"
-  }
+  "action": ".acl.allow",
+  "payload": "{\"user\": \"*\", \"item\": \"task.123\", \"action\": \"markComplete\"}"
 }
 ```
 
@@ -118,12 +114,8 @@ To allow user "user.456" to edit any item:
   "timestamp": 1758704386713,
   "user": "admin.user1",
   "item": ".acl",
-  "action": "allow",
-  "payload": {
-    "user": "user.456",
-    "item": "*",
-    "action": "edit"
-  }
+  "action": ".acl.allow",
+  "payload": "{\"user\": \"user.456\", \"item\": \"*\", \"action\": \"edit\"}"
 }
 ```
 
@@ -135,18 +127,14 @@ To allow all admin users to perform any delete action on any task:
   "timestamp": 1758704400943,
   "user": "admin.user1",
   "item": ".acl",
-  "action": "allow",
-  "payload": {
-    "user": "admin.*",
-    "item": "task.*",
-    "action": "delete.*"
-  }
+  "action": ".acl.allow",
+  "payload": "{\"user\": \"admin.*\", \"item\": \"task.*\", \"action\": \"delete.*\"}"
 }
 ```
 
 ## ACL Management
 
-ACL rules are managed by submitting events to the [`POST /api/v1/events`](/simple-sync/api/v1#post-apiv1events) endpoint with `item` set to `.acl` and `action` set to `allow` or `deny`. The payload must contain `user`, `item`, and `action` fields defining the rule. ACL events are validated against the current ACL before being added to the authoritative history; invalid ACL events are ignored.
+ACL rules are managed by submitting events to the [`POST /api/v1/events`](/simple-sync/api/v1#post-apiv1events) endpoint with `item` set to `.acl` and `action` set to `.acl.allow` or `.acl.deny`. The payload must contain `user`, `item`, and `action` fields defining the rule. ACL events are validated against the current ACL before being added to the authoritative history; invalid ACL events are ignored.
 
 The current ACL state can be inferred from the authoritative event history by filtering for `.acl` events. See the [v1 API Specification](/simple-sync/api/v1) for details on event submission.
 
