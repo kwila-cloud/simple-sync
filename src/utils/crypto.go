@@ -11,6 +11,13 @@ import (
 
 // Encrypt encrypts data using AES-256-GCM
 func Encrypt(plaintext []byte, key []byte) (string, error) {
+	if len(plaintext) == 0 {
+		return "", errors.New("empty plaintext input")
+	}
+	if len(key) == 0 {
+		return "", errors.New("empty key input")
+	}
+
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return "", err
@@ -32,6 +39,13 @@ func Encrypt(plaintext []byte, key []byte) (string, error) {
 
 // Decrypt decrypts data using AES-256-GCM
 func Decrypt(ciphertext string, key []byte) ([]byte, error) {
+	if ciphertext == "" {
+		return nil, errors.New("empty ciphertext input")
+	}
+	if len(key) == 0 {
+		return nil, errors.New("empty key input")
+	}
+
 	data, err := base64.StdEncoding.DecodeString(ciphertext)
 	if err != nil {
 		return nil, err

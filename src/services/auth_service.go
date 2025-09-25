@@ -90,6 +90,21 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 	s.validationMutex.Lock()
 	defer s.validationMutex.Unlock()
 
+	// Validate API key format before expensive operations
+	if len(apiKey) < 3 || apiKey[:3] != "sk_" {
+		return "", errors.New("invalid API key format")
+	}
+
+	// Check if the remaining part is valid base64 (try with padding since keys are truncated)
+	base64Part := apiKey[3:]
+	// Try decoding as-is first
+	if _, err := base64.StdEncoding.DecodeString(base64Part); err != nil {
+		// Try with padding added (generated keys are truncated to 43 chars)
+		if _, err := base64.StdEncoding.DecodeString(base64Part + "="); err != nil {
+			return "", errors.New("invalid API key format")
+		}
+	}
+
 	// Get all API keys and find the one that matches
 	apiKeys, err := s.storage.GetAllAPIKeys()
 	if err != nil {
