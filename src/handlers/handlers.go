@@ -22,7 +22,7 @@ type Handlers struct {
 }
 
 // NewHandlers creates a new handlers instance
-func NewHandlers(storage storage.Storage, encryptionKey, version string) *Handlers {
+func NewHandlers(storage storage.Storage, version string) *Handlers {
 	return &Handlers{
 		storage:       storage,
 		authService:   services.NewAuthService(storage),
@@ -37,7 +37,7 @@ func NewTestHandlers() *Handlers {
 
 // NewTestHandlersWithStorage creates a new handlers instance with test defaults and custom storage
 func NewTestHandlersWithStorage(store storage.Storage) *Handlers {
-	return NewHandlers(store, "test-encryption-key-32-bytes-123", "test")
+	return NewHandlers(store, "test")
 }
 
 // AuthService returns the auth service instance

@@ -17,9 +17,8 @@ func isValidPort(port int) bool {
 
 // EnvironmentConfiguration manages environment-specific settings
 type EnvironmentConfiguration struct {
-	EncryptionKey string `json:"encryption_key"` // Required encryption key for API keys
-	Port          int    `json:"port"`           // Service port number (default 8080)
-	Environment   string `json:"environment"`    // Deployment environment (development/production)
+	Port        int    `json:"port"`        // Service port number (default 8080)
+	Environment string `json:"environment"` // Deployment environment (development/production)
 }
 
 // NewEnvironmentConfiguration creates a new environment configuration with defaults
@@ -32,13 +31,6 @@ func NewEnvironmentConfiguration() *EnvironmentConfiguration {
 
 // LoadFromEnv loads configuration from environment variables
 func (ec *EnvironmentConfiguration) LoadFromEnv(getenv func(string) string) error {
-	// ENCRYPTION_KEY is required
-	encryptionKey := getenv("ENCRYPTION_KEY")
-	if encryptionKey == "" {
-		return errors.New("ENCRYPTION_KEY environment variable is required")
-	}
-	ec.EncryptionKey = encryptionKey
-
 	// PORT is optional, defaults to 8080
 	portStr := getenv("PORT")
 	if portStr != "" {
@@ -63,14 +55,6 @@ func (ec *EnvironmentConfiguration) LoadFromEnv(getenv func(string) string) erro
 
 // Validate checks if the configuration is valid
 func (ec *EnvironmentConfiguration) Validate() error {
-	if ec.EncryptionKey == "" {
-		return errors.New("ENCRYPTION_KEY is required")
-	}
-
-	if len(ec.EncryptionKey) < 32 {
-		return errors.New("ENCRYPTION_KEY should be at least 32 characters long")
-	}
-
 	if !isValidPort(ec.Port) {
 		return errors.New("PORT must be between 80 and 65535")
 	}

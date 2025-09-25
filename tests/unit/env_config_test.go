@@ -36,13 +36,11 @@ func TestNewEnvironmentConfiguration(t *testing.T) {
 
 	assert.Equal(t, 8080, config.Port)
 	assert.Equal(t, "development", config.Environment)
-	assert.Empty(t, config.EncryptionKey)
 }
 
 func TestLoadFromEnv_Valid(t *testing.T) {
 	// Set up test environment
 	env := newTestEnv()
-	env.set("ENCRYPTION_KEY", "test-encryption-key-32-bytes-123")
 	env.set("PORT", "9090")
 	env.set("ENVIRONMENT", "production")
 
@@ -50,16 +48,14 @@ func TestLoadFromEnv_Valid(t *testing.T) {
 	err := config.LoadFromEnv(env.get)
 
 	assert.NoError(t, err)
-	assert.Equal(t, "test-encryption-key-32-bytes-123", config.EncryptionKey)
 	assert.Equal(t, 9090, config.Port)
 	assert.Equal(t, "production", config.Environment)
 }
 
 func TestValidate_Valid(t *testing.T) {
 	config := &models.EnvironmentConfiguration{
-		EncryptionKey: "test-encryption-key-32-bytes-123",
-		Port:          8080,
-		Environment:   "development",
+		Port:        8080,
+		Environment: "development",
 	}
 
 	err := config.Validate()
@@ -77,9 +73,8 @@ func TestIsProduction(t *testing.T) {
 
 func TestValidate_Port80Allowed(t *testing.T) {
 	config := &models.EnvironmentConfiguration{
-		EncryptionKey: "test-encryption-key-32-bytes-123",
-		Port:          80,
-		Environment:   "development",
+		Port:        80,
+		Environment: "development",
 	}
 
 	err := config.Validate()
@@ -90,7 +85,6 @@ func TestValidate_Port80Allowed(t *testing.T) {
 func TestLoadFromEnv_PortTooLow(t *testing.T) {
 	// Set up test environment with port below 80
 	env := newTestEnv()
-	env.set("ENCRYPTION_KEY", "test-encryption-key-32-bytes-123")
 	env.set("PORT", "79")
 
 	config := models.NewEnvironmentConfiguration()
@@ -107,9 +101,8 @@ func TestLoadFromEnv_PortTooLow(t *testing.T) {
 
 func TestValidate_PortTooLow(t *testing.T) {
 	config := &models.EnvironmentConfiguration{
-		EncryptionKey: "test-encryption-key-32-bytes-123",
-		Port:          79,
-		Environment:   "development",
+		Port:        79,
+		Environment: "development",
 	}
 
 	err := config.Validate()
