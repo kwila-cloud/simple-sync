@@ -112,11 +112,6 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 			c.JSON(http.StatusForbidden, gin.H{"error": "Cannot submit events for other users"})
 			return
 		}
-
-		// Set user ID if not provided (for backwards compatibility)
-		if events[i].User == "" {
-			events[i].User = userID.(string)
-		}
 	}
 
 	// Save events
