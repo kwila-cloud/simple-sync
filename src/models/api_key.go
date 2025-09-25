@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -17,7 +16,6 @@ type APIKey struct {
 	CreatedAt    time.Time  `json:"created_at" db:"created_at"`
 	LastUsedAt   *time.Time `json:"last_used_at,omitempty" db:"last_used_at"`
 	Description  string     `json:"description,omitempty" db:"description"`
-	mutex        sync.Mutex
 }
 
 // Validate performs validation on the APIKey struct
@@ -63,8 +61,6 @@ func NewAPIKey(userID, encryptedKey, keyHash, description string) *APIKey {
 
 // UpdateLastUsed updates the last used timestamp
 func (k *APIKey) UpdateLastUsed() {
-	k.mutex.Lock()
-	defer k.mutex.Unlock()
 	now := time.Now()
 	k.LastUsedAt = &now
 }
