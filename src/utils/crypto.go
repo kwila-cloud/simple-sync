@@ -79,7 +79,7 @@ func GenerateToken() (string, error) {
 	}
 
 	token := make([]byte, 9) // 4 + 1 + 4 = 9
-	for i := 0; i < 4; i++ {
+	for i := range 4 {
 		token[i] = charset[tokenBytes[i]%byte(len(charset))]
 	}
 	token[4] = '-'

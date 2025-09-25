@@ -12,6 +12,7 @@ import (
 
 	"simple-sync/src/models"
 	"simple-sync/src/storage"
+	"simple-sync/src/utils"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -82,35 +83,6 @@ func (s *AuthService) decrypt(ciphertext string) ([]byte, error) {
 	return plaintext, nil
 }
 
-// generateAPIKey generates a cryptographically secure random API key
-func (s *AuthService) generateAPIKey() (string, error) {
-	keyBytes := make([]byte, 32) // 256 bits
-	if _, err := rand.Read(keyBytes); err != nil {
-		return "", err
-	}
-	return "sk_" + base64.StdEncoding.EncodeToString(keyBytes)[:43], nil
-}
-
-// generateToken generates a random 8-character token with hyphen
-func (s *AuthService) generateToken() (string, error) {
-	const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	tokenBytes := make([]byte, 8)
-	if _, err := rand.Read(tokenBytes); err != nil {
-		return "", err
-	}
-
-	token := make([]byte, 9) // 4 + 1 + 4 = 9
-	for i := range 4 {
-		token[i] = charset[tokenBytes[i]%byte(len(charset))]
-	}
-	token[4] = '-'
-	for i := 4; i < 8; i++ {
-		token[i+1] = charset[tokenBytes[i]%byte(len(charset))]
-	}
-
-	return string(token), nil
-}
-
 // ValidateApiKey validates an API key and returns the associated user ID
 func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 	// Get all API keys and find the one that matches
@@ -138,7 +110,7 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 // GenerateAPIKey generates a new API key for a user
 func (s *AuthService) GenerateAPIKey(userID, description string) (*models.APIKey, string, error) {
 	// Generate a new API key
-	plainKey, err := s.generateAPIKey()
+	plainKey, err := utils.GenerateAPIKey()
 	if err != nil {
 		return nil, "", errors.New("failed to generate API key")
 	}
@@ -169,14 +141,20 @@ func (s *AuthService) GenerateAPIKey(userID, description string) (*models.APIKey
 
 // GenerateSetupToken generates a new setup token for a user
 func (s *AuthService) GenerateSetupToken(userID string) (*models.SetupToken, error) {
+	// Verify user exists
+	_, err := s.storage.GetUserById(userID)
+	if err != nil {
+		return nil, errors.New("user not found")
+	}
+
 	// Invalidate any existing setup tokens for this user
-	err := s.storage.InvalidateUserSetupTokens(userID)
+	err = s.storage.InvalidateUserSetupTokens(userID)
 	if err != nil {
 		return nil, errors.New("failed to invalidate existing tokens")
 	}
 
 	// Generate a new token
-	token, err := s.generateToken()
+	token, err := utils.GenerateToken()
 	if err != nil {
 		return nil, errors.New("failed to generate setup token")
 	}
