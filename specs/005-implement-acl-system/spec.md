@@ -52,6 +52,14 @@ When creating this spec from a user prompt:
 
 ---
 
+## Clarifications
+
+### Session 2025-09-26
+- Q: What happens when ACL rules contain wildcards (* or prefix.*) and exact matches? → A: Determined by specificity scoring where exact matches have higher specificity
+- Q: How are conflicting allow/deny rules resolved when they have the same specificity? → A: The rule with the latest timestamp wins
+- Q: What occurs when an ACL event itself violates current ACL permissions? → A: The event is rejected and not stored
+- Q: How are timestamp ties resolved in rule evaluation? → A: The last rule encountered wins
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### Primary User Story
@@ -64,10 +72,10 @@ As a system administrator, I want to define and enforce access control rules for
 4. **Given** the .root user, **When** they perform any action, **Then** ACL checks should be bypassed.
 
 ### Edge Cases
-- What happens when ACL rules contain wildcards (* or prefix.*) and exact matches?
-- How does the system handle conflicting rules (allow vs deny) with different specificity?
-- What occurs when an ACL event itself violates current ACL permissions?
-- How are timestamp ties resolved in rule evaluation?
+- Exact matches take precedence over wildcards based on specificity scoring.
+- For conflicting allow/deny rules at the same specificity, the rule with the latest timestamp wins.
+- ACL events that violate current permissions are rejected and not stored.
+- In case of timestamp ties, the last rule encountered wins.
 
 ## Requirements *(mandatory)*
 
@@ -76,7 +84,7 @@ As a system administrator, I want to define and enforce access control rules for
 - **FR-002**: System MUST deny all actions by default unless explicitly allowed by ACL rules.
 - **FR-003**: System MUST support ACL rules with user, item, and action fields supporting exact values, wildcards (*), and prefix wildcards (e.g., task.*).
 - **FR-004**: System MUST evaluate ACL rules based on specificity scoring (item > user > action > timestamp).
-- **FR-005**: System MUST store ACL rules as events on the .acl item with .acl.allow or .acl.deny actions.
+- **FR-005**: System MUST store ACL rules as events on the .acl item with .acl.allow or .acl.deny actions. ACL rules can be retrieved by querying events with itemUuid=.acl.
 - **FR-006**: System MUST validate ACL events against current ACL before adding to history.
 - **FR-007**: System MUST bypass ACL checks for the .root user.
 - **FR-008**: System MUST filter out events violating ACL during POST /api/v1/events.

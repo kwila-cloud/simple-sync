@@ -6,12 +6,11 @@ Simple-sync is a lightweight REST API built in Go that provides event storage an
 
 **Technology Stack:**
 - Go 1.25 with Gin web framework
-- JWT authentication
 - SQLite database storage
 - CORS support for web clients
 
 **Core Features:**
-- User authentication with JWT tokens
+- User authentication with API keys
 - Event storage with timestamps and metadata
 - ACL-based permission system (read/write permissions)
 - Persistent SQLite database storage for data survival across restarts
@@ -266,7 +265,7 @@ simple-sync/
 │   ├── events.go          # Event management endpoints
 │   └── acl.go             # ACL management endpoints
 ├── middleware/
-│   ├── auth.go            # JWT authentication middleware
+│   ├── auth.go            # API key authentication middleware
 │   └── cors.go            # CORS middleware
 ├── models/
 │   ├── user.go            # User data structures
@@ -320,9 +319,7 @@ type Storage interface {
 ## Common Troubleshooting
 
 **Authentication Issues:**
-- Verify JWT secret is set in environment
-- Check token format in Authorization header: "Bearer <token>"
-- Ensure token hasn't expired
+- Check API key format in Authorization header: "Bearer <api-key>"
 - Validate user exists in storage
 
 **Database Issues:**
