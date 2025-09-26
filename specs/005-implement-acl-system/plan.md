@@ -40,9 +40,9 @@ Implement a comprehensive ACL system for access control on event operations. The
 **Testing**: Go built-in testing framework  
 **Target Platform**: Linux server  
 **Project Type**: single (backend API)  
-**Performance Goals**: ACL evaluation <10ms per request (estimated)  
+**Performance Goals**: ACL evaluation p95 latency <10ms per request under 100 concurrent evaluations  
 **Constraints**: ACL logic centralized in acl_service.go with AclService; integrate into all handlers with TODO(#5) comments  
-**Scale/Scope**: Support up to 10,000 ACL rules, 1,000 concurrent users
+**Scale/Scope**: Support up to 10,000 ACL rules and 1,000 concurrent users, with expected 100 ACL evaluations per second and linear growth in rules over time
 
 ## Constitution Check
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
