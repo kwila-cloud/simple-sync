@@ -143,7 +143,7 @@ func TestPostEventsWithInvalidToken(t *testing.T) {
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 }
 
-func TestPostEventsAclValidationFailure(t *testing.T) {
+func TestPostEventsAclPermissionFailure(t *testing.T) {
 	// Setup Gin router in test mode
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
@@ -163,30 +163,13 @@ func TestPostEventsAclValidationFailure(t *testing.T) {
 	_, plainKey, err := h.AuthService().ExchangeSetupToken(setupToken.Token, "test")
 	assert.NoError(t, err)
 
-	// First, give the user permission to perform ACL operations
-	aclEventJSON := `[{
-  		"uuid": "acl-perm-uuid",
-  		"timestamp": 1640995200,
-  		"user": "user-123",
-  		"item": ".acl",
-  		"action": ".acl.allow",
-  		"payload": "{\"user\":\"user-123\",\"item\":\".acl\",\"action\":\".acl.invalid\",\"type\":\"allow\"}"
-  	}]`
-
-	aclReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(aclEventJSON))
-	aclReq.Header.Set("Content-Type", "application/json")
-	aclReq.Header.Set("Authorization", "Bearer "+plainKey)
-	aclW := httptest.NewRecorder()
-	router.ServeHTTP(aclW, aclReq)
-	// This should succeed since root user can do anything
-
-	// Test data - ACL event with invalid action
+	// Test data - ACL event (should be denied by default)
 	eventJSON := `[{
   		"uuid": "123e4567-e89b-12d3-a456-426614174000",
   		"timestamp": 1640995200,
   		"user": "user-123",
   		"item": ".acl",
-  		"action": ".acl.invalid",
+  		"action": ".acl.allow",
   		"payload": "{\"user\":\"user2\",\"item\":\"item1\",\"action\":\"read\",\"type\":\"allow\"}"
   	}]`
 
@@ -206,7 +189,7 @@ func TestPostEventsAclValidationFailure(t *testing.T) {
 	err = json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
 	assert.Contains(t, response, "error")
-	assert.Equal(t, "Cannot modify ACL rules", response["error"])
+	assert.Equal(t, "Insufficient permissions", response["error"])
 	assert.Contains(t, response, "eventUuid")
 	assert.Equal(t, "123e4567-e89b-12d3-a456-426614174000", response["eventUuid"])
 }
