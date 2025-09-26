@@ -13,7 +13,7 @@ import (
 // AclService handles access control logic
 type AclService struct {
 	storage storage.Storage
-	rules   []models.ACLRule
+	rules   []models.AclRule
 	mutex   sync.RWMutex
 }
 
@@ -37,10 +37,10 @@ func (s *AclService) loadRules() {
 		return
 	}
 
-	var rules []models.ACLRule
+	var rules []models.AclRule
 	for _, event := range events {
-		if event.IsACLEvent() {
-			rule, err := event.ToACLRule()
+		if event.IsAclEvent() {
+			rule, err := event.ToAclRule()
 			if err != nil {
 				log.Printf("Failed to parse ACL rule: %v", err)
 				continue
@@ -74,7 +74,7 @@ func (s *AclService) CheckPermission(user, item, action string) bool {
 	s.mutex.RUnlock()
 
 	// Find applicableRules rules
-	var applicableRules []models.ACLRule
+	var applicableRules []models.AclRule
 	for _, rule := range rules {
 		if s.matches(rule.User, user) && s.matches(rule.Item, item) && s.matches(rule.Action, action) {
 			applicableRules = append(applicableRules, rule)
@@ -125,9 +125,9 @@ func (s *AclService) matches(pattern, value string) bool {
 	return pattern == value
 }
 
-// ValidateACLEvent validates if an ACL event can be stored
-func (s *AclService) ValidateACLEvent(event *models.Event) bool {
-	if !event.IsACLEvent() {
+// ValidateAclEvent validates if an ACL event can be stored
+func (s *AclService) ValidateAclEvent(event *models.Event) bool {
+	if !event.IsAclEvent() {
 		return true // Not ACL, allow
 	}
 
@@ -136,7 +136,7 @@ func (s *AclService) ValidateACLEvent(event *models.Event) bool {
 }
 
 // AddRule adds a new ACL rule (called after event is stored)
-func (s *AclService) AddRule(rule models.ACLRule) {
+func (s *AclService) AddRule(rule models.AclRule) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	s.rules = append(s.rules, rule)
