@@ -88,7 +88,7 @@ func (s *AclService) CheckPermission(user, item, action string) bool {
 	rules := s.rules
 	s.mutex.RUnlock()
 
-	// Find applicableRules rules
+	// Find applicable rules
 	var applicableRules []models.AclRule
 	for _, rule := range rules {
 		if s.matches(rule.User, user) && s.matches(rule.Item, item) && s.matches(rule.Action, action) {
@@ -133,8 +133,8 @@ func (s *AclService) matches(pattern, value string) bool {
 	if pattern == "*" {
 		return true
 	}
-	if strings.HasSuffix(pattern, ".*") {
-		prefix := strings.TrimSuffix(pattern, ".*")
+	if strings.HasSuffix(pattern, "*") {
+		prefix := strings.TrimSuffix(pattern, "*")
 		return strings.HasPrefix(value, prefix)
 	}
 	return pattern == value

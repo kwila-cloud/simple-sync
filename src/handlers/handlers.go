@@ -98,40 +98,35 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 
 	// ACL permission checks for each event
 	for i := range events {
-		// Check permission for the action on the item
 		if !h.aclService.CheckPermission(userIDStr, events[i].Item, events[i].Action) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
+			c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions", "eventUuid": events[i].UUID})
 			return
 		}
-
-		// For ACL events, additional validation
+		// For ACL events, check permission and additional validation
 		if events[i].IsAclEvent() {
 			if !h.aclService.ValidateAclEvent(&events[i]) {
-				c.JSON(http.StatusForbidden, gin.H{"error": "Cannot modify ACL rules"})
+				c.JSON(http.StatusForbidden, gin.H{"error": "Cannot modify ACL rules", "eventUuid": events[i].UUID})
 				return
 			}
 		}
 	}
 
-	// Basic validation and set user UUID
+	// Validation for each event
 	for i := range events {
 		if events[i].UUID == "" || events[i].Item == "" || events[i].Action == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required fields"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required fields", "eventUuid": events[i].UUID})
 			return
 		}
 
-		// TODO(#5): For .acl events, check that the user has permission to manage ACL rules
-		// Only users with appropriate ACL permissions or .root should be able to submit .acl.allow/.acl.deny events
-
 		// Enhanced timestamp validation
 		if err := validateTimestamp(events[i].Timestamp); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid timestamp", "eventUuid": events[i].UUID})
 			return
 		}
 
 		// Validate that the event user matches the authenticated user
 		if events[i].User != "" && events[i].User != userID.(string) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Cannot submit events for other users"})
+			c.JSON(http.StatusForbidden, gin.H{"error": "Cannot submit events for other users", "eventUuid": events[i].UUID})
 			return
 		}
 	}

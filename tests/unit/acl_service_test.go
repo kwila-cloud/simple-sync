@@ -89,28 +89,28 @@ func TestAclService_TimestampResolution(t *testing.T) {
 	store := storage.NewMemoryStorage()
 	aclService := services.NewAclService(store)
 
-	// Add allow rule
+	// Add deny rule
 	allowRule := models.AclRule{
 		User:      "user1",
 		Item:      "item1",
 		Action:    "action1",
-		Type:      "allow",
+		Type:      "deny",
 		Timestamp: 1000,
 	}
 	aclService.AddRule(allowRule)
 
-	// Add deny rule with same specificity but later timestamp
+	// Add allow rule with same specificity but later timestamp
 	denyRule := models.AclRule{
 		User:      "user1",
 		Item:      "item1",
 		Action:    "action1",
-		Type:      "deny",
+		Type:      "allow",
 		Timestamp: 1001,
 	}
 	aclService.AddRule(denyRule)
 
-	// Should deny due to later timestamp
-	assert.False(t, aclService.CheckPermission("user1", "item1", "action1"))
+	// Should allow due to later timestamp
+	assert.True(t, aclService.CheckPermission("user1", "item1", "action1"))
 }
 
 func TestAclService_ValidateAclEvent(t *testing.T) {
