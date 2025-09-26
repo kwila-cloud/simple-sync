@@ -39,6 +39,18 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 	err = store.SaveUser(user)
 	assert.NoError(t, err)
 
+	// Set up ACL rule to allow user-123 to perform "create" actions on "item456"
+	aclEvent := &models.Event{
+		UUID:      "acl-rule-uuid",
+		Timestamp: 1640995200,
+		User:      ".root",
+		Item:      ".acl",
+		Action:    ".acl.allow",
+		Payload:   `{"user":"user-123","item":"item456","action":"create","type":"allow"}`,
+	}
+	err = store.SaveEvents([]models.Event{*aclEvent})
+	assert.NoError(t, err)
+
 	// Register routes
 	v1 := router.Group("/api/v1")
 
@@ -113,26 +125,14 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 
 	router.ServeHTTP(postW, postReq)
 
-	// Should succeed
-	assert.Equal(t, http.StatusOK, postW.Code)
+	// Should fail with 403 due to deny-by-default ACL
+	assert.Equal(t, http.StatusForbidden, postW.Code)
 
-	// Should return all events (including internal events from setup)
-	// We just verify that our event is included and has the correct user
-	var responseEvents []map[string]interface{}
-	err = json.Unmarshal(postW.Body.Bytes(), &responseEvents)
+	var response map[string]interface{}
+	err = json.Unmarshal(postW.Body.Bytes(), &response)
 	assert.NoError(t, err)
-	assert.Greater(t, len(responseEvents), 0)
-
-	// Find our event in the response
-	var ourEvent map[string]interface{}
-	for _, event := range responseEvents {
-		if event["uuid"] == "123e4567-e89b-12d3-a456-426614174000" {
-			ourEvent = event
-			break
-		}
-	}
-	assert.NotNil(t, ourEvent)
-	assert.Equal(t, "user-123", ourEvent["user"])
-	assert.Equal(t, "item456", ourEvent["item"])
-	assert.Equal(t, "create", ourEvent["action"])
+	assert.Contains(t, response, "error")
+	assert.Equal(t, "Insufficient permissions", response["error"])
+	assert.Contains(t, response, "eventUuid")
+	assert.Equal(t, "123e4567-e89b-12d3-a456-426614174000", response["eventUuid"])
 }
