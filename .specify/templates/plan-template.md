@@ -47,11 +47,7 @@
 ## Constitution Check
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- RESTful API Design: All planned endpoints MUST use appropriate HTTP methods and follow resource-oriented patterns.
-- Event-Driven Architecture: Data model MUST be based on timestamped events with user/item metadata.
-- Authentication and Authorization: JWT auth and ACL permissions MUST be integrated into the design.
-- Data Persistence: SQLite database MUST be used for data survival.
-- Security and Access Control: ACL rules MUST be evaluated with deny-by-default behavior.
+[Gates determined based on constitution file]
 
 ## Project Structure
 
@@ -149,7 +145,8 @@ ios/ or android/
    - Quickstart test = story validation steps
 
 5. **Update agent file incrementally** (O(1) operation):
-   - Run `.specify/scripts/bash/update-agent-context.sh opencode` for your AI assistant
+   - Run `.specify/scripts/bash/update-agent-context.sh opencode`
+     **IMPORTANT**: Execute it exactly as specified above. Do not add or remove any arguments.
    - If exists: Add only NEW tech from current plan
    - Preserve manual additions between markers
    - Update recent changes (keep last 3)
@@ -212,4 +209,4 @@ ios/ or android/
 - [ ] Complexity deviations documented
 
 ---
-*Based on Constitution v1.1.0 - See `/memory/constitution.md`*
+*Based on Constitution v2.1.1 - See `/memory/constitution.md`*
