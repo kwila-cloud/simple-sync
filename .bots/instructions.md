@@ -24,7 +24,6 @@ This is a Go REST API project using Gin framework for event storage and access c
 
 ## Technical Requirements
 - Use Gin web framework for HTTP handling
-- Implement JWT authentication
 - Use SQLite for data storage
 - Support CORS for web clients
 - Return appropriate HTTP status codes
@@ -40,7 +39,6 @@ This is a Go REST API project using Gin framework for event storage and access c
 ## Security
 - Never expose sensitive information
 - Validate all inputs
-- Use secure JWT handling
 - Implement proper access control via ACL
 
 ## Performance

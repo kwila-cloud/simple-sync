@@ -12,7 +12,6 @@ export default defineConfig({
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/kwila-cloud/simple-sync' }],
 			sidebar: [
 				{ label: 'Overview 🏠', slug: 'overview' },
-				{ label: 'Tech Stack ⚙️', slug: 'tech-stack' },
 				{
 					label: 'API 🚀',
 					autogenerate: { directory: 'api' },
