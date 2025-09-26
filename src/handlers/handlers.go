@@ -96,22 +96,7 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 
 	userIDStr := userID.(string)
 
-	// ACL permission checks for each event
-	for i := range events {
-		if !h.aclService.CheckPermission(userIDStr, events[i].Item, events[i].Action) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions", "eventUuid": events[i].UUID})
-			return
-		}
-		// For ACL events, check permission and additional validation
-		if events[i].IsAclEvent() {
-			if !h.aclService.ValidateAclEvent(&events[i]) {
-				c.JSON(http.StatusForbidden, gin.H{"error": "Cannot modify ACL rules", "eventUuid": events[i].UUID})
-				return
-			}
-		}
-	}
-
-	// Validation for each event
+	// Basic validation for each event first
 	for i := range events {
 		if events[i].UUID == "" || events[i].Item == "" || events[i].Action == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required fields", "eventUuid": events[i].UUID})
@@ -128,6 +113,21 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 		if events[i].User != "" && events[i].User != userID.(string) {
 			c.JSON(http.StatusForbidden, gin.H{"error": "Cannot submit events for other users", "eventUuid": events[i].UUID})
 			return
+		}
+	}
+
+	// ACL permission checks for each event
+	for i := range events {
+		if !h.aclService.CheckPermission(userIDStr, events[i].Item, events[i].Action) {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions", "eventUuid": events[i].UUID})
+			return
+		}
+		// For ACL events, additional validation
+		if events[i].IsAclEvent() {
+			if !h.aclService.ValidateAclEvent(&events[i]) {
+				c.JSON(http.StatusForbidden, gin.H{"error": "Cannot modify ACL rules", "eventUuid": events[i].UUID})
+				return
+			}
 		}
 	}
 
