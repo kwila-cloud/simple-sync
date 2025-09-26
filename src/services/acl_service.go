@@ -61,6 +61,21 @@ func calculateSpecificity(pattern string) float64 {
 	return score
 }
 
+// isValidPattern checks if a pattern has valid wildcard usage (at most one at the end)
+func isValidPattern(pattern string) bool {
+	if pattern == "" {
+		return false
+	}
+	if pattern == "*" {
+		return true
+	}
+	if strings.HasSuffix(pattern, "*") {
+		prefix := strings.TrimSuffix(pattern, "*")
+		return !strings.Contains(prefix, "*")
+	}
+	return !strings.Contains(pattern, "*")
+}
+
 // CheckPermission checks if a user has permission for an action on an item
 func (s *AclService) CheckPermission(user, item, action string) bool {
 	// Root user bypass
@@ -128,7 +143,23 @@ func (s *AclService) matches(pattern, value string) bool {
 // ValidateAclEvent validates if an ACL event can be stored
 func (s *AclService) ValidateAclEvent(event *models.Event) bool {
 	if !event.IsAclEvent() {
-		return true // Not ACL, allow
+		return false // Not ACL, reject
+	}
+
+	// Validate action must be .acl.allow or .acl.deny
+	if event.Action != ".acl.allow" && event.Action != ".acl.deny" {
+		return false
+	}
+
+	// Validate payload can be parsed and fields are not empty
+	rule, err := event.ToAclRule()
+	if err != nil {
+		return false
+	}
+
+	// Validate rule patterns
+	if !isValidPattern(rule.User) || !isValidPattern(rule.Item) || !isValidPattern(rule.Action) {
+		return false
 	}
 
 	// Check if the user can set this ACL rule

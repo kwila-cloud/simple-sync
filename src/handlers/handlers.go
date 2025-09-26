@@ -105,8 +105,8 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 		}
 
 		// For ACL events, additional validation
-		if events[i].IsACLEvent() {
-			if !h.aclService.ValidateACLEvent(&events[i]) {
+		if events[i].IsAclEvent() {
+			if !h.aclService.ValidateAclEvent(&events[i]) {
 				c.JSON(http.StatusForbidden, gin.H{"error": "Cannot modify ACL rules"})
 				return
 			}
@@ -145,8 +145,8 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 
 	// Refresh ACL rules if any ACL events were saved
 	for _, event := range events {
-		if event.IsACLEvent() {
-			rule, err := event.ToACLRule()
+		if event.IsAclEvent() {
+			rule, err := event.ToAclRule()
 			if err == nil {
 				h.aclService.AddRule(*rule)
 			}

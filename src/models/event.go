@@ -20,7 +20,7 @@ type AclRule struct {
 	User      string `json:"user"`
 	Item      string `json:"item"`
 	Action    string `json:"action"`
-	Type      string `json:"type"` // "allow" or "deny"
+	Type      string `json:"type"`
 	Timestamp uint64 `json:"timestamp"`
 }
 
