@@ -1,13 +1,9 @@
 # Release History
 
 ## [0.3.0] - unreleased
-- [#37](https://github.com/kwila-cloud/simple-sync/pull/37): Replace JWT authentication with API key system
-  - Added API key generation and storage
-  - Implemented setup token generation and exchange endpoints
-  - Updated authentication middleware for API key validation
-  - Removed JWT and password management code
+- [#40](https://github.com/kwila-cloud/simple-sync/pull/40): Implemented ACL system
+- [#37](https://github.com/kwila-cloud/simple-sync/pull/37): Replaced JWT authentication with API key system
 - [#36](https://github.com/kwila-cloud/simple-sync/pull/36): More documentation improvements
-  - Added new **Internal Events** page
 - [#34](https://github.com/kwila-cloud/simple-sync/pull/34): Updated ACL documentation to event-based system with specificity evaluation
 - [#32](https://github.com/kwila-cloud/simple-sync/pull/32): Fixed links on docs home page
 - [#31](https://github.com/kwila-cloud/simple-sync/pull/31): Fixed docs deployment
@@ -16,30 +12,12 @@
 - [#27](https://github.com/kwila-cloud/simple-sync/pull/27): Fixed image URL in docker compose file
 
 ## [0.2.0] - 2025-09-22
-- [#25](https://github.com/kwila-cloud/simple-sync/pull/25): Add v1 API prefix for future versioning
-  - Updated all API endpoints to start with /api/v1/
+- [#25](https://github.com/kwila-cloud/simple-sync/pull/25): Added v1 API prefix for future versioning
 - [#24](https://github.com/kwila-cloud/simple-sync/pull/24): Docker configuration for easy deployment
-  - Added multi-stage Dockerfile with Go 1.25 and Alpine runtime
-  - Created docker-compose.yml for local development with health checks
-  - Implemented /health endpoint with service status, version, and uptime
-  - Added environment configuration validation (JWT_SECRET, PORT, ENVIRONMENT)
-  - Updated CI/CD pipeline for automated Docker image builds on GitHub Container Registry
 - [#15](https://github.com/kwila-cloud/simple-sync/pull/15): Basic JWT authentication
-  - Added JWT token generation, validation, and user authentication
-  - Protected all /events endpoints with authentication
 
 ## [0.1.0] - 2025-09-20
 - [#14](https://github.com/kwila-cloud/simple-sync/pull/14): Fixed GitHub release workflow access issue
 - [#13](https://github.com/kwila-cloud/simple-sync/pull/13): Fixed GitHub workflow issues
-  - Added contents write permission to version-update workflow for committing and tagging
-  - Removed unnecessary Go cache step from CI workflow
 - [#11](https://github.com/kwila-cloud/simple-sync/pull/11): Enhanced test coverage for timestamp filtering and concurrency
-  - Added TestGetEventsWithTimestampFiltering to verify filtering with actual data
-  - Added TestConcurrentPostEvents to test thread safety with multiple goroutines
-  - Fixed data race in concurrent test by adding proper mutex synchronization
-  - Enabled race detection in CI pipeline
 - [#9](https://github.com/kwila-cloud/simple-sync/pull/9): Initial MVP implementation with basic event storage REST API
-  - Core Go application with Gin framework
-  - GET/POST /events endpoints with timestamp filtering
-  - Contract and unit test suites
- - CI/CD pipeline with GitHub Actions
