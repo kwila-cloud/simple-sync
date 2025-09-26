@@ -18,6 +18,7 @@ import (
 type Handlers struct {
 	storage       storage.Storage
 	authService   *services.AuthService
+	aclService    *services.AclService
 	healthHandler *HealthHandler
 }
 
@@ -26,6 +27,7 @@ func NewHandlers(storage storage.Storage, version string) *Handlers {
 	return &Handlers{
 		storage:       storage,
 		authService:   services.NewAuthService(storage),
+		aclService:    services.NewAclService(storage),
 		healthHandler: NewHealthHandler(version),
 	}
 }
@@ -43,6 +45,11 @@ func NewTestHandlersWithStorage(store storage.Storage) *Handlers {
 // AuthService returns the auth service instance
 func (h *Handlers) AuthService() *services.AuthService {
 	return h.authService
+}
+
+// AclService returns the ACL service instance
+func (h *Handlers) AclService() *services.AclService {
+	return h.aclService
 }
 
 // GetHealth handles GET /health
@@ -87,9 +94,24 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 		return
 	}
 
-	// TODO(#5): Implement ACL permission checks for each event action on target items
-	// Check that the authenticated user has permission to perform each action on each item
-	// according to ACL rules before allowing the events to be saved
+	userIDStr := userID.(string)
+
+	// ACL permission checks for each event
+	for i := range events {
+		// Check permission for the action on the item
+		if !h.aclService.CheckPermission(userIDStr, events[i].Item, events[i].Action) {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
+			return
+		}
+
+		// For ACL events, additional validation
+		if events[i].IsACLEvent() {
+			if !h.aclService.ValidateACLEvent(&events[i]) {
+				c.JSON(http.StatusForbidden, gin.H{"error": "Cannot modify ACL rules"})
+				return
+			}
+		}
+	}
 
 	// Basic validation and set user UUID
 	for i := range events {
@@ -119,6 +141,16 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 		log.Printf("PostEvents: failed to save events: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
+	}
+
+	// Refresh ACL rules if any ACL events were saved
+	for _, event := range events {
+		if event.IsACLEvent() {
+			rule, err := event.ToACLRule()
+			if err == nil {
+				h.aclService.AddRule(*rule)
+			}
+		}
 	}
 
 	// Return all events (including newly added)

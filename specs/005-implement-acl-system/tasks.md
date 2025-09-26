@@ -68,26 +68,26 @@
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**
-- [ ] T001 [P] Integration test for setting ACL rules via POST /events in tests/integration/test_acl_setup.go
-- [ ] T002 [P] Integration test for permission denied on unauthorized event in tests/integration/test_acl_denied.go
-- [ ] T003 [P] Integration test for permission granted on authorized event in tests/integration/test_acl_granted.go
-- [ ] T004 [P] Integration test for root user bypass in tests/integration/test_acl_root_bypass.go
-- [ ] T005 [P] Integration test for retrieving ACL events in tests/integration/test_acl_retrieve.go
+- [X] T001 [P] Integration test for setting ACL rules via POST /events in tests/integration/test_acl_setup.go
+- [X] T002 [P] Integration test for permission denied on unauthorized event in tests/integration/test_acl_denied.go
+- [X] T003 [P] Integration test for permission granted on authorized event in tests/integration/test_acl_granted.go
+- [X] T004 [P] Integration test for root user bypass in tests/integration/test_acl_root_bypass.go
+- [X] T005 [P] Integration test for retrieving ACL events in tests/integration/test_acl_retrieve.go
 
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
-- [ ] T006 [P] Extend Event model for ACL rules in src/models/event.go
-- [ ] T007 [P] Create AclService for permission evaluation in src/services/acl_service.go
-- [ ] T008 Integrate ACL checks into POST /events handler in src/handlers/handlers.go
-- [ ] T009 Integrate ACL filtering into GET /events handler in src/handlers/handlers.go
+- [X] T006 [P] Extend Event model for ACL rules in src/models/event.go
+- [X] T007 [P] Create AclService for permission evaluation in src/services/acl_service.go
+- [X] T008 Integrate ACL checks into POST /events handler in src/handlers/handlers.go
+- [X] T009 Integrate ACL filtering into GET /events handler in src/handlers/handlers.go
 
 ## Phase 3.4: Integration
-- [ ] T010 Ensure ACL service integrates with existing auth middleware
-- [ ] T011 Add logging for ACL decisions
+- [X] T010 Ensure ACL service integrates with existing auth middleware
+- [X] T011 Add logging for ACL decisions
 
 ## Phase 3.5: Polish
-- [ ] T012 [P] Unit tests for AclService in tests/unit/acl_service_test.go
-- [ ] T013 Performance validation for ACL evaluation
-- [ ] T014 [P] Update documentation for ACL system
+- [X] T012 [P] Unit tests for AclService in tests/unit/acl_service_test.go
+- [X] T013 Performance validation for ACL evaluation
+- [X] T014 [P] Update documentation for ACL system
 
 ## Dependencies
 - Tests (T001-T005) before implementation (T006-T009)
