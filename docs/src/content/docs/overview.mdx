@@ -5,6 +5,8 @@ description: High-level overview of simple-sync, events, and the syncing process
 
 ## Events
 
+Simple Sync is a data storage system which uses the [Event Sourcing pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/event-sourcing). It is meant to be optimized for usage as a backend for [local-first apps](https://www.inkandswitch.com/essay/local-first/).
+
 Data is represented as a sequence of events.
 
 Each event has the following schema of 6 fields, represented as a JSON object.
