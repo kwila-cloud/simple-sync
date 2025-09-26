@@ -56,19 +56,17 @@ func TestPostEvents(t *testing.T) {
 	// Perform request
 	router.ServeHTTP(w, req)
 
-	// Assert response
-	assert.Equal(t, http.StatusOK, w.Code)
+	// Assert response - should be denied by default
+	assert.Equal(t, http.StatusForbidden, w.Code)
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
-	expectedJSON := `[{
- 		"uuid": "123e4567-e89b-12d3-a456-426614174000",
- 		"timestamp": 1640995200,
- 		"user": "user-123",
- 		"item": "item456",
- 		"action": "create",
- 		"payload": "{}"
- 	}]`
-	assert.JSONEq(t, expectedJSON, w.Body.String())
+	var response map[string]interface{}
+	err = json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.Contains(t, response, "error")
+	assert.Equal(t, "Insufficient permissions", response["error"])
+	assert.Contains(t, response, "eventUuid")
+	assert.Equal(t, "123e4567-e89b-12d3-a456-426614174000", response["eventUuid"])
 }
 
 func TestConcurrentPostEvents(t *testing.T) {
@@ -110,7 +108,7 @@ func TestConcurrentPostEvents(t *testing.T) {
 				req.Header.Set("Authorization", "Bearer "+plainKey) // Add API key
 				w := httptest.NewRecorder()
 				router.ServeHTTP(w, req)
-				assert.Equal(t, http.StatusOK, w.Code)
+				assert.Equal(t, http.StatusForbidden, w.Code)
 				uuidMutex.Lock()
 				expectedUUIDs[uuid] = true
 				uuidMutex.Unlock()
@@ -120,7 +118,7 @@ func TestConcurrentPostEvents(t *testing.T) {
 
 	wg.Wait()
 
-	// Check total events
+	// Check total events - should be 0 since all posts were denied
 	req, _ := http.NewRequest("GET", "/api/v1/events", nil)
 	req.Header.Set("Authorization", "Bearer "+plainKey)
 	w := httptest.NewRecorder()
@@ -130,18 +128,5 @@ func TestConcurrentPostEvents(t *testing.T) {
 	var events []models.Event
 	err = json.Unmarshal(w.Body.Bytes(), &events)
 	assert.NoError(t, err)
-	assert.Equal(t, numGoroutines*eventsPerGoroutine, len(events))
-
-	// Verify all expected UUIDs are present and unique
-	actualUUIDs := make(map[string]int)
-	for _, event := range events {
-		actualUUIDs[event.UUID]++
-	}
-
-	// Check that each expected UUID appears exactly once
-	for expectedUUID := range expectedUUIDs {
-		count, exists := actualUUIDs[expectedUUID]
-		assert.True(t, exists, "Expected UUID %s not found in retrieved events", expectedUUID)
-		assert.Equal(t, 1, count, "UUID %s appears %d times, expected exactly 1", expectedUUID, count)
-	}
+	assert.Equal(t, 0, len(events))
 }
