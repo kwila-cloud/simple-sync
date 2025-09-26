@@ -9,6 +9,8 @@ import (
 
 	"simple-sync/src/handlers"
 	"simple-sync/src/middleware"
+	"simple-sync/src/models"
+	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -19,15 +21,30 @@ func TestProtectedEndpointAccess(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// Setup handlers
-	h := handlers.NewTestHandlers()
+	// Setup handlers with memory storage
+	store := storage.NewMemoryStorage()
+	h := handlers.NewTestHandlersWithStorage(store)
+
+	// Create root user and API key for authentication
+	rootUser := &models.User{Id: ".root"}
+	err := store.SaveUser(rootUser)
+	assert.NoError(t, err)
+
+	_, adminApiKey, err := h.AuthService().GenerateApiKey(".root", "Admin Key")
+	assert.NoError(t, err)
 
 	// Register routes
-	router.POST("/api/v1/auth/token", h.PostAuthToken)
+	v1 := router.Group("/api/v1")
+
+	// Auth routes with middleware
+	auth := v1.Group("/")
+	auth.Use(middleware.AuthMiddleware(h.AuthService()))
+	auth.POST("/user/generateToken", h.PostUserGenerateToken)
+
+	// Setup routes (no middleware)
+	v1.POST("/setup/exchangeToken", h.PostSetupExchangeToken)
 
 	// Protected routes with auth middleware
-	auth := router.Group("/api/v1")
-	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.GET("/events", h.GetEvents)
 	auth.POST("/events", h.PostEvents)
 
@@ -42,13 +59,13 @@ func TestProtectedEndpointAccess(t *testing.T) {
 
 	// Test 2: Access POST /events without token - should fail
 	eventJSON := `[{
-		"uuid": "123e4567-e89b-12d3-a456-426614174000",
-		"timestamp": 1640995200,
-		"userUuid": "user123",
-		"itemUuid": "item456",
-		"action": "create",
-		"payload": "{}"
-	}]`
+ 		"uuid": "123e4567-e89b-12d3-a456-426614174000",
+ 		"timestamp": 1640995200,
+ 		"user": "user123",
+ 		"item": "item456",
+ 		"action": "create",
+ 		"payload": "{}"
+ 	}]`
 
 	postReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	postReq.Header.Set("Content-Type", "application/json")
@@ -59,29 +76,43 @@ func TestProtectedEndpointAccess(t *testing.T) {
 	// Expected: 401
 	assert.Equal(t, http.StatusUnauthorized, postW.Code)
 
-	// Test 3: Get token, then access with token - should succeed
-	authRequest := map[string]string{
-		"username": "testuser",
-		"password": "testpass123",
-	}
-	authBody, _ := json.Marshal(authRequest)
+	// Test 3: Get API key, then access with API key - should succeed
+	// Generate setup token
+	setupReq, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=user-123", nil)
+	setupReq.Header.Set("Authorization", "Bearer "+adminApiKey)
+	setupW := httptest.NewRecorder()
 
-	authReq, _ := http.NewRequest("POST", "/api/v1/auth/token", bytes.NewBuffer(authBody))
-	authReq.Header.Set("Content-Type", "application/json")
-	authW := httptest.NewRecorder()
+	router.ServeHTTP(setupW, setupReq)
 
-	router.ServeHTTP(authW, authReq)
+	assert.Equal(t, http.StatusOK, setupW.Code)
 
-	assert.Equal(t, http.StatusOK, authW.Code)
-
-	var authResponse map[string]string
-	err := json.Unmarshal(authW.Body.Bytes(), &authResponse)
+	var setupResponse map[string]string
+	err = json.Unmarshal(setupW.Body.Bytes(), &setupResponse)
 	assert.NoError(t, err)
-	token := authResponse["token"]
+	setupToken := setupResponse["token"]
 
-	// Now access with token
+	// Exchange for API key
+	exchangeRequest := map[string]interface{}{
+		"token": setupToken,
+	}
+	exchangeBody, _ := json.Marshal(exchangeRequest)
+
+	exchangeReq, _ := http.NewRequest("POST", "/api/v1/setup/exchangeToken", bytes.NewBuffer(exchangeBody))
+	exchangeReq.Header.Set("Content-Type", "application/json")
+	exchangeW := httptest.NewRecorder()
+
+	router.ServeHTTP(exchangeW, exchangeReq)
+
+	assert.Equal(t, http.StatusOK, exchangeW.Code)
+
+	var exchangeResponse map[string]interface{}
+	err = json.Unmarshal(exchangeW.Body.Bytes(), &exchangeResponse)
+	assert.NoError(t, err)
+	apiKey := exchangeResponse["apiKey"].(string)
+
+	// Now access with API key
 	authGetReq, _ := http.NewRequest("GET", "/api/v1/events", nil)
-	authGetReq.Header.Set("Authorization", "Bearer "+token)
+	authGetReq.Header.Set("Authorization", "Bearer "+apiKey)
 	authGetW := httptest.NewRecorder()
 
 	router.ServeHTTP(authGetW, authGetReq)

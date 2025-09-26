@@ -13,8 +13,8 @@ func TestEventJSONMarshaling(t *testing.T) {
 	event := models.Event{
 		UUID:      "123e4567-e89b-12d3-a456-426614174000",
 		Timestamp: 1640995200,
-		UserUUID:  "user123",
-		ItemUUID:  "item456",
+		User:      "user123",
+		Item:      "item456",
 		Action:    "create",
 		Payload:   "{}",
 	}
@@ -35,16 +35,16 @@ func TestEventFields(t *testing.T) {
 	event := models.Event{
 		UUID:      "test-uuid",
 		Timestamp: 1234567890,
-		UserUUID:  "user-uuid",
-		ItemUUID:  "item-uuid",
+		User:      "user-uuid",
+		Item:      "item-uuid",
 		Action:    "update",
 		Payload:   `{"key": "value"}`,
 	}
 
 	assert.Equal(t, event.UUID, "test-uuid")
 	assert.Equal(t, event.Timestamp, uint64(1234567890))
-	assert.Equal(t, event.UserUUID, "user-uuid")
-	assert.Equal(t, event.ItemUUID, "item-uuid")
+	assert.Equal(t, event.User, "user-uuid")
+	assert.Equal(t, event.Item, "item-uuid")
 	assert.Equal(t, event.Action, "update")
 	assert.Equal(t, event.Payload, `{"key": "value"}`)
 }
