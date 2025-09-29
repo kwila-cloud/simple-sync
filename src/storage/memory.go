@@ -1,7 +1,9 @@
 package storage
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -20,7 +22,7 @@ type MemoryStorage struct {
 }
 
 // NewMemoryStorage creates a new instance of MemoryStorage
-func NewMemoryStorage() *MemoryStorage {
+func NewMemoryStorage(aclRules []models.AclRule) *MemoryStorage {
 	storage := &MemoryStorage{
 		events:      make([]models.Event, 0),
 		users:       make(map[string]*models.User),
@@ -45,6 +47,24 @@ func NewMemoryStorage() *MemoryStorage {
 		LastUsedAt:  &now,
 	}
 	storage.CreateAPIKey(apiKey)
+
+	// Add initial ACL rules as events
+	for i, rule := range aclRules {
+		payload, _ := json.Marshal(map[string]string{
+			"user":   rule.User,
+			"item":   rule.Item,
+			"action": rule.Action,
+		})
+		event := models.Event{
+			UUID:      fmt.Sprintf("acl-%d", i),
+			Timestamp: rule.Timestamp,
+			User:      ".root",
+			Item:      ".acl",
+			Action:    ".acl." + rule.Type,
+			Payload:   string(payload),
+		}
+		storage.events = append(storage.events, event)
+	}
 
 	return storage
 }

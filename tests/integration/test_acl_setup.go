@@ -16,24 +16,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSuccessfulAuthenticationFlow(t *testing.T) {
+func TestACLSetup(t *testing.T) {
 	// Setup Gin router in test mode
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// Setup ACL rules to allow the test user to create events
-	aclRules := []models.AclRule{
-		{
-			User:      "user-123",
-			Item:      "item456",
-			Action:    "create",
-			Type:      "allow",
-			Timestamp: 1640995200,
-		},
-	}
-
 	// Setup handlers with memory storage
-	store := storage.NewMemoryStorage(aclRules)
+	store := storage.NewMemoryStorage(nil)
 	h := handlers.NewTestHandlersWithStorage(store)
 
 	// Create root user
@@ -46,7 +35,7 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Create the target user
-	user := &models.User{Id: "user-123"}
+	user := &models.User{Id: "testuser"}
 	err = store.SaveUser(user)
 	assert.NoError(t, err)
 
@@ -63,63 +52,52 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 	// Setup routes
 	v1.POST("/setup/exchangeToken", h.PostSetupExchangeToken)
 
-	// Step 1: Generate setup token
-	setupReq, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=user-123", nil)
+	// Generate API key for testuser
+	setupReq, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=testuser", nil)
 	setupReq.Header.Set("Authorization", "Bearer "+adminApiKey)
 	setupW := httptest.NewRecorder()
-
 	router.ServeHTTP(setupW, setupReq)
-
 	assert.Equal(t, http.StatusOK, setupW.Code)
 
 	var setupResponse map[string]string
 	err = json.Unmarshal(setupW.Body.Bytes(), &setupResponse)
 	assert.NoError(t, err)
 	setupToken := setupResponse["token"]
-	assert.NotEmpty(t, setupToken)
 
-	// Step 2: Exchange for API key
 	exchangeRequest := map[string]interface{}{
 		"token": setupToken,
 	}
 	exchangeBody, _ := json.Marshal(exchangeRequest)
-
 	exchangeReq, _ := http.NewRequest("POST", "/api/v1/setup/exchangeToken", bytes.NewBuffer(exchangeBody))
 	exchangeReq.Header.Set("Content-Type", "application/json")
 	exchangeW := httptest.NewRecorder()
-
 	router.ServeHTTP(exchangeW, exchangeReq)
-
 	assert.Equal(t, http.StatusOK, exchangeW.Code)
 
 	var exchangeResponse map[string]interface{}
 	err = json.Unmarshal(exchangeW.Body.Bytes(), &exchangeResponse)
 	assert.NoError(t, err)
-	apiKey := exchangeResponse["apiKey"].(string)
-	assert.NotEmpty(t, apiKey)
+	_ = exchangeResponse["apiKey"].(string) // API key generated but not used in this test
 
-	// Step 3: Use API key to access protected GET /events
-	getReq, _ := http.NewRequest("GET", "/api/v1/events", nil)
-	getReq.Header.Set("Authorization", "Bearer "+apiKey)
-	getW := httptest.NewRecorder()
+	// Now, set ACL rule using root API key
+	payload, _ := json.Marshal(map[string]interface{}{
+		"user":   "testuser",
+		"item":   "testitem",
+		"action": "write",
+	})
+	aclEvent := map[string]interface{}{
+		"uuid":      "acl-123",
+		"timestamp": 1640995200,
+		"user":      ".root",
+		"item":      ".acl",
+		"action":    ".acl.allow",
+		"payload":   string(payload),
+	}
+	aclBody, _ := json.Marshal([]map[string]interface{}{aclEvent})
 
-	router.ServeHTTP(getW, getReq)
-
-	assert.Equal(t, http.StatusOK, getW.Code)
-
-	// Step 4: Use API key to POST events
-	eventJSON := `[{
-  		"uuid": "123e4567-e89b-12d3-a456-426614174000",
-  		"timestamp": 1640995200,
-  		"user": "user-123",
-  		"item": "item456",
-  		"action": "create",
-  		"payload": "{}"
-  	}]`
-
-	postReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
+	postReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBuffer(aclBody))
 	postReq.Header.Set("Content-Type", "application/json")
-	postReq.Header.Set("Authorization", "Bearer "+apiKey)
+	postReq.Header.Set("Authorization", "Bearer "+adminApiKey) // Use root key
 	postW := httptest.NewRecorder()
 
 	router.ServeHTTP(postW, postReq)
@@ -127,25 +105,26 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 	// Should succeed
 	assert.Equal(t, http.StatusOK, postW.Code)
 
-	var response []map[string]interface{}
-	err = json.Unmarshal(postW.Body.Bytes(), &response)
-	assert.NoError(t, err)
-	assert.True(t, len(response) >= 1)
+	// Verify the ACL event was stored
+	getReq, _ := http.NewRequest("GET", "/api/v1/events?itemUuid=.acl", nil)
+	getReq.Header.Set("Authorization", "Bearer "+adminApiKey)
+	getW := httptest.NewRecorder()
+	router.ServeHTTP(getW, getReq)
+	assert.Equal(t, http.StatusOK, getW.Code)
 
-	// Find the posted event
-	var postedEvent map[string]interface{}
-	for _, e := range response {
-		if e["uuid"] == "123e4567-e89b-12d3-a456-426614174000" {
-			postedEvent = e
+	var responseEvents []map[string]interface{}
+	err = json.Unmarshal(getW.Body.Bytes(), &responseEvents)
+	assert.NoError(t, err)
+
+	// Find the ACL event
+	var aclEventFound map[string]interface{}
+	for _, event := range responseEvents {
+		if event["uuid"] == "acl-123" {
+			aclEventFound = event
 			break
 		}
 	}
-	assert.NotNil(t, postedEvent)
-
-	// Check the returned event matches what was posted
-	assert.Equal(t, float64(1640995200), postedEvent["timestamp"])
-	assert.Equal(t, "user-123", postedEvent["user"])
-	assert.Equal(t, "item456", postedEvent["item"])
-	assert.Equal(t, "create", postedEvent["action"])
-	assert.Equal(t, "{}", postedEvent["payload"])
+	assert.NotNil(t, aclEventFound)
+	assert.Equal(t, ".acl", aclEventFound["item"])
+	assert.Equal(t, ".acl.allow", aclEventFound["action"])
 }

@@ -18,6 +18,7 @@ import (
 type Handlers struct {
 	storage       storage.Storage
 	authService   *services.AuthService
+	aclService    *services.AclService
 	healthHandler *HealthHandler
 }
 
@@ -26,13 +27,14 @@ func NewHandlers(storage storage.Storage, version string) *Handlers {
 	return &Handlers{
 		storage:       storage,
 		authService:   services.NewAuthService(storage),
+		aclService:    services.NewAclService(storage),
 		healthHandler: NewHealthHandler(version),
 	}
 }
 
 // NewTestHandlers creates a new handlers instance with test defaults
-func NewTestHandlers() *Handlers {
-	return NewTestHandlersWithStorage(storage.NewMemoryStorage())
+func NewTestHandlers(aclRules []models.AclRule) *Handlers {
+	return NewTestHandlersWithStorage(storage.NewMemoryStorage(aclRules))
 }
 
 // NewTestHandlersWithStorage creates a new handlers instance with test defaults and custom storage
@@ -43,6 +45,11 @@ func NewTestHandlersWithStorage(store storage.Storage) *Handlers {
 // AuthService returns the auth service instance
 func (h *Handlers) AuthService() *services.AuthService {
 	return h.authService
+}
+
+// AclService returns the ACL service instance
+func (h *Handlers) AclService() *services.AclService {
+	return h.aclService
 }
 
 // GetHealth handles GET /health
@@ -87,30 +94,40 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 		return
 	}
 
-	// TODO(#5): Implement ACL permission checks for each event action on target items
-	// Check that the authenticated user has permission to perform each action on each item
-	// according to ACL rules before allowing the events to be saved
+	userIDStr := userID.(string)
 
-	// Basic validation and set user UUID
+	// Basic validation for each event first
 	for i := range events {
 		if events[i].UUID == "" || events[i].Item == "" || events[i].Action == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required fields"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required fields", "eventUuid": events[i].UUID})
 			return
 		}
 
-		// TODO(#5): For .acl events, check that the user has permission to manage ACL rules
-		// Only users with appropriate ACL permissions or .root should be able to submit .acl.allow/.acl.deny events
-
 		// Enhanced timestamp validation
 		if err := validateTimestamp(events[i].Timestamp); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid timestamp", "eventUuid": events[i].UUID})
 			return
 		}
 
 		// Validate that the event user matches the authenticated user
 		if events[i].User != "" && events[i].User != userID.(string) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Cannot submit events for other users"})
+			c.JSON(http.StatusForbidden, gin.H{"error": "Cannot submit events for other users", "eventUuid": events[i].UUID})
 			return
+		}
+	}
+
+	// ACL permission checks for each event
+	for i := range events {
+		if !h.aclService.CheckPermission(userIDStr, events[i].Item, events[i].Action) {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions", "eventUuid": events[i].UUID})
+			return
+		}
+		// For ACL events, additional validation
+		if events[i].IsAclEvent() {
+			if !h.aclService.ValidateAclEvent(&events[i]) {
+				c.JSON(http.StatusForbidden, gin.H{"error": "Cannot modify ACL rules", "eventUuid": events[i].UUID})
+				return
+			}
 		}
 	}
 
@@ -119,6 +136,16 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 		log.Printf("PostEvents: failed to save events: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
+	}
+
+	// Refresh ACL rules if any ACL events were saved
+	for _, event := range events {
+		if event.IsAclEvent() {
+			rule, err := event.ToAclRule()
+			if err == nil {
+				h.aclService.AddRule(*rule)
+			}
+		}
 	}
 
 	// Return all events (including newly added)
