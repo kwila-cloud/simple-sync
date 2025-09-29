@@ -39,6 +39,13 @@ func (e *Event) ToAclRule() (*AclRule, error) {
 	if err != nil {
 		return nil, err
 	}
+	if e.Action == ".acl.allow" {
+		rule.Type = "allow"
+	} else if e.Action == ".acl.deny" {
+		rule.Type = "deny"
+	} else {
+		return nil, fmt.Errorf("invalid ACL action: %s", e.Action)
+	}
 	rule.Timestamp = e.Timestamp
 	return &rule, nil
 }
