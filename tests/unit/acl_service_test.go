@@ -130,7 +130,7 @@ func TestAclService_ValidateAclEvent(t *testing.T) {
 		Item:    ".acl",
 		Action:  ".acl.invalid",
 		User:    "user1",
-		Payload: `{"user":"user2","item":"item1","action":"read","type":"allow"}`,
+		Payload: `{"user":"user2","item":"item1","action":"delete","type":"allow"}`,
 	}
 	assert.False(t, aclService.ValidateAclEvent(invalidActionEvent))
 
@@ -139,7 +139,7 @@ func TestAclService_ValidateAclEvent(t *testing.T) {
 		Item:    ".acl",
 		Action:  ".acl.allow",
 		User:    "user1",
-		Payload: `{"user":"user2","item":"item1","action":"read","type":"allow"`, // missing closing brace
+		Payload: `{"user":"user2","item":"item1","action":"delete","type":"allow"`, // missing closing brace
 	}
 	assert.False(t, aclService.ValidateAclEvent(malformedEvent))
 
@@ -148,7 +148,7 @@ func TestAclService_ValidateAclEvent(t *testing.T) {
 		Item:    ".acl",
 		Action:  ".acl.allow",
 		User:    "user1",
-		Payload: `{"user":"","item":"item1","action":"read","type":"allow"}`,
+		Payload: `{"user":"","item":"item1","action":"delete","type":"allow"}`,
 	}
 	assert.False(t, aclService.ValidateAclEvent(emptyFieldsEvent))
 
@@ -157,7 +157,7 @@ func TestAclService_ValidateAclEvent(t *testing.T) {
 		Item:    ".acl",
 		Action:  ".acl.allow",
 		User:    "user1",
-		Payload: `{"user":"user*test*","item":"item1","action":"read","type":"allow"}`,
+		Payload: `{"user":"user*test*","item":"item1","action":"delete","type":"allow"}`,
 	}
 	assert.False(t, aclService.ValidateAclEvent(invalidWildcardEvent))
 
@@ -166,7 +166,7 @@ func TestAclService_ValidateAclEvent(t *testing.T) {
 		Item:    ".acl",
 		Action:  ".acl.allow",
 		User:    "user1",
-		Payload: `{"user":"user*test","item":"item1","action":"read","type":"allow"}`,
+		Payload: `{"user":"user*test","item":"item1","action":"delete","type":"allow"}`,
 	}
 	assert.False(t, aclService.ValidateAclEvent(invalidWildcardEvent2))
 
@@ -175,7 +175,7 @@ func TestAclService_ValidateAclEvent(t *testing.T) {
 		Item:    ".acl",
 		Action:  ".acl.allow",
 		User:    "user1",
-		Payload: `{"user":"user2","item":"item1","action":"read","type":"allow"}`,
+		Payload: `{"user":"user2","item":"item1","action":"delete","type":"allow"}`,
 	}
 	assert.False(t, aclService.ValidateAclEvent(noPermissionEvent))
 
@@ -184,7 +184,7 @@ func TestAclService_ValidateAclEvent(t *testing.T) {
 		Item:    ".acl",
 		Action:  ".acl.allow",
 		User:    ".root",
-		Payload: `{"user":"user2","item":"item1","action":"read","type":"allow"}`,
+		Payload: `{"user":"user2","item":"item1","action":"delete","type":"allow"}`,
 	}
 	assert.True(t, aclService.ValidateAclEvent(rootEvent))
 
@@ -203,7 +203,7 @@ func TestAclService_ValidateAclEvent(t *testing.T) {
 		Item:    ".acl",
 		Action:  ".acl.allow",
 		User:    "user1",
-		Payload: `{"user":"user2","item":"item1","action":"read","type":"allow"}`,
+		Payload: `{"user":"user2","item":"item1","action":"delete","type":"allow"}`,
 	}
 	assert.True(t, aclService.ValidateAclEvent(validEvent))
 }

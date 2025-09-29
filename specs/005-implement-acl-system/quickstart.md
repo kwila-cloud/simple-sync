@@ -8,11 +8,11 @@
 
 ### 1. Set ACL Rules
 ```bash
-# Allow user to read/write on specific item via event
+# Allow user to write/delete on specific item via event
 curl -X POST http://localhost:8080/events \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"itemUuid":".acl","data":{"action":".acl.allow","user":"testuser","item":"item123","action":"read"}}'
+  -d '{"itemUuid":".acl","data":{"action":".acl.allow","user":"testuser","item":"item123","action":"delete"}}'
 ```
 
 ### 2. Test Permission Denied

@@ -25,7 +25,7 @@ func TestACLRetrieve(t *testing.T) {
 		{
 			User:      "someuser",
 			Item:      "someitem",
-			Action:    "read",
+			Action:    "delete",
 			Type:      "allow",
 			Timestamp: 1640995200,
 		},

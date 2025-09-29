@@ -190,7 +190,7 @@ func TestPostEventsAclPermissionFailure(t *testing.T) {
   		"user": "user-123",
   		"item": ".acl",
   		"action": ".acl.allow",
-  		"payload": "{\"user\":\"user2\",\"item\":\"item1\",\"action\":\"read\",\"type\":\"allow\"}"
+   		"payload": "{\"user\":\"user2\",\"item\":\"item1\",\"action\":\"delete\",\"type\":\"allow\"}"
   	}]`
 
 	// Test with valid Authorization header
