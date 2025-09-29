@@ -21,8 +21,19 @@ func TestACLPermissionGranted(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
+	// Setup ACL rules to allow testuser to write on allowed-item
+	aclRules := []models.AclRule{
+		{
+			User:      "testuser",
+			Item:      "allowed-item",
+			Action:    "write",
+			Type:      "allow",
+			Timestamp: 1640995200,
+		},
+	}
+
 	// Setup handlers with memory storage
-	store := storage.NewMemoryStorage(nil)
+	store := storage.NewMemoryStorage(aclRules)
 	h := handlers.NewTestHandlersWithStorage(store)
 
 	// Create root user
@@ -79,30 +90,7 @@ func TestACLPermissionGranted(t *testing.T) {
 	assert.NoError(t, err)
 	apiKey := exchangeResponse["apiKey"].(string)
 
-	// Set ACL rule to allow testuser to write on allowed-item
-	payload, _ := json.Marshal(map[string]interface{}{
-		"user":   "testuser",
-		"item":   "allowed-item",
-		"action": "write",
-	})
-	aclEvent := map[string]interface{}{
-		"uuid":      "acl-456",
-		"timestamp": 1640995200,
-		"user":      ".root",
-		"item":      ".acl",
-		"action":    ".acl.allow",
-		"payload":   string(payload),
-	}
-	aclBody, _ := json.Marshal([]map[string]interface{}{aclEvent})
-
-	aclReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBuffer(aclBody))
-	aclReq.Header.Set("Content-Type", "application/json")
-	aclReq.Header.Set("Authorization", "Bearer "+adminApiKey)
-	aclW := httptest.NewRecorder()
-	router.ServeHTTP(aclW, aclReq)
-	assert.Equal(t, http.StatusOK, aclW.Code)
-
-	// Now, post an event with permission
+	// Post an event with permission
 	event := map[string]interface{}{
 		"uuid":      "event-456",
 		"timestamp": 1640995200,

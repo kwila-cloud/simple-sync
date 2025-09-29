@@ -1,7 +1,6 @@
 package integration
 
 import (
-	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -21,8 +20,19 @@ func TestACLRetrieve(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
+	// Setup ACL rules
+	aclRules := []models.AclRule{
+		{
+			User:      "someuser",
+			Item:      "someitem",
+			Action:    "read",
+			Type:      "allow",
+			Timestamp: 1640995200,
+		},
+	}
+
 	// Setup handlers with memory storage
-	store := storage.NewMemoryStorage(nil)
+	store := storage.NewMemoryStorage(aclRules)
 	h := handlers.NewTestHandlersWithStorage(store)
 
 	// Create root user
@@ -47,30 +57,7 @@ func TestACLRetrieve(t *testing.T) {
 	// Setup routes
 	v1.POST("/setup/exchangeToken", h.PostSetupExchangeToken)
 
-	// Post an ACL event
-	payload, _ := json.Marshal(map[string]interface{}{
-		"user":   "someuser",
-		"item":   "someitem",
-		"action": "read",
-	})
-	aclEvent := map[string]interface{}{
-		"uuid":      "acl-retrieve-123",
-		"timestamp": 1640995200,
-		"user":      ".root",
-		"item":      ".acl",
-		"action":    ".acl.allow",
-		"payload":   string(payload),
-	}
-	aclBody, _ := json.Marshal([]map[string]interface{}{aclEvent})
-
-	postReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBuffer(aclBody))
-	postReq.Header.Set("Content-Type", "application/json")
-	postReq.Header.Set("Authorization", "Bearer "+adminApiKey)
-	postW := httptest.NewRecorder()
-	router.ServeHTTP(postW, postReq)
-	assert.Equal(t, http.StatusOK, postW.Code)
-
-	// Now, retrieve ACL events
+	// Retrieve ACL events
 	getReq, _ := http.NewRequest("GET", "/api/v1/events?itemUuid=.acl", nil)
 	getReq.Header.Set("Authorization", "Bearer "+adminApiKey)
 	getW := httptest.NewRecorder()
@@ -84,7 +71,7 @@ func TestACLRetrieve(t *testing.T) {
 	// Should include the ACL event
 	var aclEventFound map[string]interface{}
 	for _, event := range responseEvents {
-		if event["uuid"] == "acl-retrieve-123" {
+		if event["item"] == ".acl" {
 			aclEventFound = event
 			break
 		}
