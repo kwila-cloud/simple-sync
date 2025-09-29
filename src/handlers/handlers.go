@@ -33,8 +33,8 @@ func NewHandlers(storage storage.Storage, version string) *Handlers {
 }
 
 // NewTestHandlers creates a new handlers instance with test defaults
-func NewTestHandlers() *Handlers {
-	return NewTestHandlersWithStorage(storage.NewMemoryStorage())
+func NewTestHandlers(aclRules []models.AclRule) *Handlers {
+	return NewTestHandlersWithStorage(storage.NewMemoryStorage(aclRules))
 }
 
 // NewTestHandlersWithStorage creates a new handlers instance with test defaults and custom storage

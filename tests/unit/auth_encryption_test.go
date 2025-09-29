@@ -13,7 +13,7 @@ import (
 
 func TestAPIKeyGeneration(t *testing.T) {
 	// Create auth service with memory storage
-	store := storage.NewMemoryStorage()
+	store := storage.NewMemoryStorage(nil)
 	authService := services.NewAuthService(store)
 
 	// Generate API key
@@ -28,7 +28,7 @@ func TestAPIKeyGeneration(t *testing.T) {
 
 func TestSetupTokenGeneration(t *testing.T) {
 	// Create auth service with memory storage
-	store := storage.NewMemoryStorage()
+	store := storage.NewMemoryStorage(nil)
 	authService := services.NewAuthService(store)
 
 	// Create and save a test user
@@ -48,7 +48,7 @@ func TestSetupTokenGeneration(t *testing.T) {
 
 func TestSetupTokenValidation(t *testing.T) {
 	// Create auth service with memory storage
-	store := storage.NewMemoryStorage()
+	store := storage.NewMemoryStorage(nil)
 	authService := services.NewAuthService(store)
 
 	// Create and save a test user

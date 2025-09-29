@@ -22,7 +22,7 @@ func TestProtectedEndpointAccess(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers with memory storage
-	store := storage.NewMemoryStorage()
+	store := storage.NewMemoryStorage(nil)
 	h := handlers.NewTestHandlersWithStorage(store)
 
 	// Create root user and API key for authentication

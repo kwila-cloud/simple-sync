@@ -10,7 +10,7 @@ import (
 )
 
 func TestGenerateSetupToken(t *testing.T) {
-	store := storage.NewMemoryStorage()
+	store := storage.NewMemoryStorage(nil)
 	authService := services.NewAuthService(store)
 
 	// Test generating setup token for existing user
@@ -26,7 +26,7 @@ func TestGenerateSetupToken(t *testing.T) {
 }
 
 func TestExchangeSetupToken(t *testing.T) {
-	store := storage.NewMemoryStorage()
+	store := storage.NewMemoryStorage(nil)
 	authService := services.NewAuthService(store)
 
 	// Generate setup token
@@ -51,7 +51,7 @@ func TestExchangeSetupToken(t *testing.T) {
 }
 
 func TestValidateApiKey(t *testing.T) {
-	store := storage.NewMemoryStorage()
+	store := storage.NewMemoryStorage(nil)
 	authService := services.NewAuthService(store)
 
 	// Generate and exchange setup token to get API key

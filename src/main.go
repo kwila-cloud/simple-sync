@@ -31,7 +31,7 @@ func main() {
 	log.Printf("Environment loaded: PORT=%d, ENV=%s", envConfig.Port, envConfig.Environment)
 
 	// Initialize storage
-	store := storage.NewMemoryStorage()
+	store := storage.NewMemoryStorage(nil)
 
 	// Initialize handlers
 	h := handlers.NewHandlers(store, Version)

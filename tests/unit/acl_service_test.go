@@ -11,7 +11,7 @@ import (
 )
 
 func TestAclService_CheckPermission(t *testing.T) {
-	store := storage.NewMemoryStorage()
+	store := storage.NewMemoryStorage(nil)
 	aclService := services.NewAclService(store)
 
 	// Test root bypass
@@ -38,7 +38,7 @@ func TestAclService_CheckPermission(t *testing.T) {
 }
 
 func TestAclService_Matches(t *testing.T) {
-	store := storage.NewMemoryStorage()
+	store := storage.NewMemoryStorage(nil)
 	aclService := services.NewAclService(store)
 
 	// Test deny by default when no rules
@@ -58,7 +58,7 @@ func TestAclService_Matches(t *testing.T) {
 }
 
 func TestAclService_Specificity(t *testing.T) {
-	store := storage.NewMemoryStorage()
+	store := storage.NewMemoryStorage(nil)
 	aclService := services.NewAclService(store)
 
 	// Add deny rule with lower specificity
@@ -86,7 +86,7 @@ func TestAclService_Specificity(t *testing.T) {
 }
 
 func TestAclService_TimestampResolution(t *testing.T) {
-	store := storage.NewMemoryStorage()
+	store := storage.NewMemoryStorage(nil)
 	aclService := services.NewAclService(store)
 
 	// Add deny rule
@@ -114,7 +114,7 @@ func TestAclService_TimestampResolution(t *testing.T) {
 }
 
 func TestAclService_ValidateAclEvent(t *testing.T) {
-	store := storage.NewMemoryStorage()
+	store := storage.NewMemoryStorage(nil)
 	aclService := services.NewAclService(store)
 
 	// Test non-ACL event (should return false)
