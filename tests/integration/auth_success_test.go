@@ -21,8 +21,19 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
+	// Setup ACL rules to allow the test user to create events
+	aclRules := []models.AclRule{
+		{
+			User:      "user-123",
+			Item:      "item456",
+			Action:    "create",
+			Type:      "allow",
+			Timestamp: 1640995200,
+		},
+	}
+
 	// Setup handlers with memory storage
-	store := storage.NewMemoryStorage(nil)
+	store := storage.NewMemoryStorage(aclRules)
 	h := handlers.NewTestHandlersWithStorage(store)
 
 	// Create root user
@@ -37,18 +48,6 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 	// Create the target user
 	user := &models.User{Id: "user-123"}
 	err = store.SaveUser(user)
-	assert.NoError(t, err)
-
-	// Set up ACL rule to allow user-123 to perform "create" actions on "item456"
-	aclEvent := &models.Event{
-		UUID:      "acl-rule-uuid",
-		Timestamp: 1640995200,
-		User:      ".root",
-		Item:      ".acl",
-		Action:    ".acl.allow",
-		Payload:   `{"user":"user-123","item":"item456","action":"create","type":"allow"}`,
-	}
-	err = store.SaveEvents([]models.Event{*aclEvent})
 	assert.NoError(t, err)
 
 	// Register routes
@@ -125,14 +124,28 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 
 	router.ServeHTTP(postW, postReq)
 
-	// Should fail with 403 due to deny-by-default ACL
-	assert.Equal(t, http.StatusForbidden, postW.Code)
+	// Should succeed
+	assert.Equal(t, http.StatusOK, postW.Code)
 
-	var response map[string]interface{}
+	var response []map[string]interface{}
 	err = json.Unmarshal(postW.Body.Bytes(), &response)
 	assert.NoError(t, err)
-	assert.Contains(t, response, "error")
-	assert.Equal(t, "Insufficient permissions", response["error"])
-	assert.Contains(t, response, "eventUuid")
-	assert.Equal(t, "123e4567-e89b-12d3-a456-426614174000", response["eventUuid"])
+	assert.True(t, len(response) >= 1)
+
+	// Find the posted event
+	var postedEvent map[string]interface{}
+	for _, e := range response {
+		if e["uuid"] == "123e4567-e89b-12d3-a456-426614174000" {
+			postedEvent = e
+			break
+		}
+	}
+	assert.NotNil(t, postedEvent)
+
+	// Check the returned event matches what was posted
+	assert.Equal(t, float64(1640995200), postedEvent["timestamp"])
+	assert.Equal(t, "user-123", postedEvent["user"])
+	assert.Equal(t, "item456", postedEvent["item"])
+	assert.Equal(t, "create", postedEvent["action"])
+	assert.Equal(t, "{}", postedEvent["payload"])
 }
