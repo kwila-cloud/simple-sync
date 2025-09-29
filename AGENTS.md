@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Simple-sync is a lightweight REST API built in Go that provides event storage and access control functionality. The system allows users to authenticate, store timestamped events for specific items, and manage permissions through Access Control Lists (ACLs).
+Simple-sync is a lightweight REST API built in Go that provides event storage and access control functionality. The system allows users to authenticate via setup tokens exchanged for API keys, store timestamped events for specific items, and manage permissions through Access Control Lists (ACLs).
 
 **Technology Stack:**
 - Go 1.25 with Gin web framework
@@ -105,48 +105,47 @@ gh pr view
 
 **Authentication Testing:**
 ```bash
-# Register new user
-curl -X POST http://localhost:8080/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"username":"testuser","password":"testpass123"}'
+# Generate setup token for user (requires admin API key)
+curl -X POST http://localhost:8080/api/v1/user/generateToken?user=testuser \
+  -H "Authorization: Bearer sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
 
-# Login and get token
-curl -X POST http://localhost:8080/auth/login \
+# Exchange setup token for API key
+curl -X POST http://localhost:8080/api/v1/setup/exchangeToken \
   -H "Content-Type: application/json" \
-  -d '{"username":"testuser","password":"testpass123"}'
+  -d '{"token":"setup-token-here"}'
 
-# Save token for subsequent requests
-export TOKEN="your-jwt-token-here"
+# Save API key for subsequent requests
+export API_KEY="your-api-key-here"
 ```
 
 **Event Management Testing:**
 ```bash
 # Create event
-curl -X POST http://localhost:8080/events \
-  -H "Authorization: Bearer $TOKEN" \
+curl -X POST http://localhost:8080/api/v1/events \
+  -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"itemUuid":"item-123","data":{"key":"value"}}'
+  -d '[{"uuid":"event-123","timestamp":1640995200,"user":"testuser","item":"item-123","action":"create","payload":"{}"}]'
 
 # Get events
-curl -X GET http://localhost:8080/events \
-  -H "Authorization: Bearer $TOKEN"
+curl -X GET http://localhost:8080/api/v1/events \
+  -H "Authorization: Bearer $API_KEY"
 
 # Get events for specific item
-curl -X GET "http://localhost:8080/events?itemUuid=item-123" \
-  -H "Authorization: Bearer $TOKEN"
+curl -X GET "http://localhost:8080/api/v1/events?itemUuid=item-123" \
+  -H "Authorization: Bearer $API_KEY"
 ```
 
 **ACL Testing:**
 ```bash
-# Set permissions
-curl -X PUT http://localhost:8080/acl \
-  -H "Authorization: Bearer $TOKEN" \
+# Set permissions (post ACL event)
+curl -X POST http://localhost:8080/api/v1/events \
+  -H "Authorization: Bearer sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E" \
   -H "Content-Type: application/json" \
-  -d '[{"userUuid":"user-123","itemUuid":"item-123","permissions":["read","write"]}]'
+  -d '[{"uuid":"acl-123","timestamp":1640995200,"user":".root","item":".acl","action":".acl.allow","payload":"{\"user\":\"testuser\",\"item\":\"item-123\",\"action\":\"create\"}"}]'
 
 # Get ACL entries
-curl -X GET http://localhost:8080/acl \
-  -H "Authorization: Bearer $TOKEN"
+curl -X GET "http://localhost:8080/api/v1/events?itemUuid=.acl" \
+  -H "Authorization: Bearer sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
 ```
 
 **Database Persistence Verification:**
@@ -163,7 +162,7 @@ sqlite3 data/simple-sync.db "SELECT COUNT(*) FROM acl;"
 **CORS Testing:**
 ```bash
 # Test preflight request
-curl -X OPTIONS http://localhost:8080/events \
+curl -X OPTIONS http://localhost:8080/api/v1/events \
   -H "Origin: http://localhost:3000" \
   -H "Access-Control-Request-Method: GET" \
   -H "Access-Control-Request-Headers: Authorization" \
@@ -174,39 +173,35 @@ curl -X OPTIONS http://localhost:8080/events \
 
 **Complete Authentication Flow:**
 ```bash
-# 1. Register
-curl -X POST http://localhost:8080/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"username":"testuser","password":"testpass123"}'
+# 1. Generate setup token (requires admin API key)
+RESPONSE=$(curl -s -X POST "http://localhost:8080/api/v1/user/generateToken?user=testuser" \
+  -H "Authorization: Bearer sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E")
 
-# 2. Login
-RESPONSE=$(curl -s -X POST http://localhost:8080/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"testuser","password":"testpass123"}')
+# 2. Extract setup token (requires jq)
+SETUP_TOKEN=$(echo $RESPONSE | jq -r '.token')
+echo "Setup Token: $SETUP_TOKEN"
 
-# 3. Extract token (requires jq)
-TOKEN=$(echo $RESPONSE | jq -r '.token')
-echo "Token: $TOKEN"
+# 3. Exchange for API key
+RESPONSE=$(curl -s -X POST http://localhost:8080/api/v1/setup/exchangeToken \
+  -H "Content-Type: application/json" \
+  -d "{\"token\":\"$SETUP_TOKEN\"}")
+
+# 4. Extract API key (requires jq)
+API_KEY=$(echo $RESPONSE | jq -r '.apiKey')
+echo "API Key: $API_KEY"
 ```
 
 **End-to-End Event Flow:**
 ```bash
 # Create event
-curl -X POST http://localhost:8080/events \
-  -H "Authorization: Bearer $TOKEN" \
+curl -X POST http://localhost:8080/api/v1/events \
+  -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{
-    "itemUuid": "product-456",
-    "data": {
-      "action": "view",
-      "userId": "user-789",
-      "timestamp": "2025-01-15T10:30:00Z"
-    }
-  }'
+  -d '[{"uuid":"event-123","timestamp":1640995200,"user":"testuser","item":"product-456","action":"view","payload":"{}"}]'
 
 # Verify event was stored
-curl -X GET "http://localhost:8080/events?itemUuid=product-456" \
-  -H "Authorization: Bearer $TOKEN" | jq .
+curl -X GET "http://localhost:8080/api/v1/events?itemUuid=product-456" \
+  -H "Authorization: Bearer $API_KEY" | jq .
 ```
 
 ## Docker Setup Instructions
