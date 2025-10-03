@@ -11,13 +11,6 @@ import (
 // AuthMiddleware creates API key authentication middleware
 func AuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Reject requests using Authorization: Bearer header
-		if authHeader := c.GetHeader("Authorization"); authHeader != "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization: Bearer not supported, use X-API-Key header"})
-			c.Abort()
-			return
-		}
-
 		// Extract API key from X-API-Key header
 		apiKey := c.GetHeader("X-API-Key")
 		if apiKey == "" {

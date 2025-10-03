@@ -107,7 +107,7 @@ gh pr view
 ```bash
 # Generate setup token for user (requires admin API key)
 curl -X POST http://localhost:8080/api/v1/user/generateToken?user=testuser \
-  -H "Authorization: Bearer sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
+  -H "X-API-Key: sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
 
 # Exchange setup token for API key
 curl -X POST http://localhost:8080/api/v1/setup/exchangeToken \
@@ -122,30 +122,30 @@ export API_KEY="your-api-key-here"
 ```bash
 # Create event
 curl -X POST http://localhost:8080/api/v1/events \
-  -H "Authorization: Bearer $API_KEY" \
+  -H "X-API-Key: $API_KEY" \
   -H "Content-Type: application/json" \
   -d '[{"uuid":"event-123","timestamp":1640995200,"user":"testuser","item":"item-123","action":"create","payload":"{}"}]'
 
 # Get events
 curl -X GET http://localhost:8080/api/v1/events \
-  -H "Authorization: Bearer $API_KEY"
+  -H "X-API-Key: $API_KEY"
 
 # Get events for specific item
 curl -X GET "http://localhost:8080/api/v1/events?itemUuid=item-123" \
-  -H "Authorization: Bearer $API_KEY"
+  -H "X-API-Key: $API_KEY"
 ```
 
 **ACL Testing:**
 ```bash
 # Set permissions (post ACL event)
 curl -X POST http://localhost:8080/api/v1/events \
-  -H "Authorization: Bearer sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E" \
+  -H "X-API-Key: sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E" \
   -H "Content-Type: application/json" \
   -d '[{"uuid":"acl-123","timestamp":1640995200,"user":".root","item":".acl","action":".acl.allow","payload":"{\"user\":\"testuser\",\"item\":\"item-123\",\"action\":\"create\"}"}]'
 
 # Get ACL entries
 curl -X GET "http://localhost:8080/api/v1/events?itemUuid=.acl" \
-  -H "Authorization: Bearer sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
+  -H "X-API-Key: sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
 ```
 
 **Database Persistence Verification:**
@@ -165,7 +165,7 @@ sqlite3 data/simple-sync.db "SELECT COUNT(*) FROM acl;"
 curl -X OPTIONS http://localhost:8080/api/v1/events \
   -H "Origin: http://localhost:3000" \
   -H "Access-Control-Request-Method: GET" \
-  -H "Access-Control-Request-Headers: Authorization" \
+  -H "Access-Control-Request-Headers: X-API-Key" \
   -v
 ```
 
@@ -175,7 +175,7 @@ curl -X OPTIONS http://localhost:8080/api/v1/events \
 ```bash
 # 1. Generate setup token (requires admin API key)
 RESPONSE=$(curl -s -X POST "http://localhost:8080/api/v1/user/generateToken?user=testuser" \
-  -H "Authorization: Bearer sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E")
+  -H "X-API-Key: sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E")
 
 # 2. Extract setup token (requires jq)
 SETUP_TOKEN=$(echo $RESPONSE | jq -r '.token')
@@ -195,13 +195,13 @@ echo "API Key: $API_KEY"
 ```bash
 # Create event
 curl -X POST http://localhost:8080/api/v1/events \
-  -H "Authorization: Bearer $API_KEY" \
+  -H "X-API-Key: $API_KEY" \
   -H "Content-Type: application/json" \
   -d '[{"uuid":"event-123","timestamp":1640995200,"user":"testuser","item":"product-456","action":"view","payload":"{}"}]'
 
 # Verify event was stored
 curl -X GET "http://localhost:8080/api/v1/events?itemUuid=product-456" \
-  -H "Authorization: Bearer $API_KEY" | jq .
+  -H "X-API-Key: $API_KEY" | jq .
 ```
 
 ## Docker Setup Instructions
@@ -314,7 +314,7 @@ type Storage interface {
 ## Common Troubleshooting
 
 **Authentication Issues:**
-- Check API key format in Authorization header: "Bearer <api-key>"
+- Check API key format in X-API-Key header
 - Validate user exists in storage
 
 **Database Issues:**
