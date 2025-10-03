@@ -65,7 +65,7 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 
 	// Step 1: Generate setup token
 	setupReq, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=user-123", nil)
-	setupReq.Header.Set("Authorization", "Bearer "+adminApiKey)
+	setupReq.Header.Set("X-API-Key", adminApiKey)
 	setupW := httptest.NewRecorder()
 
 	router.ServeHTTP(setupW, setupReq)
@@ -100,7 +100,7 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 
 	// Step 3: Use API key to access protected GET /events
 	getReq, _ := http.NewRequest("GET", "/api/v1/events", nil)
-	getReq.Header.Set("Authorization", "Bearer "+apiKey)
+	getReq.Header.Set("X-API-Key", apiKey)
 	getW := httptest.NewRecorder()
 
 	router.ServeHTTP(getW, getReq)
@@ -119,7 +119,7 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 
 	postReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	postReq.Header.Set("Content-Type", "application/json")
-	postReq.Header.Set("Authorization", "Bearer "+apiKey)
+	postReq.Header.Set("X-API-Key", apiKey)
 	postW := httptest.NewRecorder()
 
 	router.ServeHTTP(postW, postReq)

@@ -33,7 +33,7 @@ func TestAuthEndpointPerformance(t *testing.T) {
 	// Test auth endpoint performance
 	start := time.Now()
 	req, _ := http.NewRequest("GET", "/api/v1/events", nil)
-	req.Header.Set("Authorization", "Bearer "+plainKey)
+	req.Header.Set("X-API-Key", plainKey)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -66,7 +66,7 @@ func TestProtectedEndpointPerformance(t *testing.T) {
 	// Test protected endpoint performance
 	start := time.Now()
 	req, _ := http.NewRequest("GET", "/api/v1/events", nil)
-	req.Header.Set("Authorization", "Bearer "+plainKey)
+	req.Header.Set("X-API-Key", plainKey)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)

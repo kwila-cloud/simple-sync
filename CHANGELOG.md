@@ -1,6 +1,7 @@
 # Release History
 
 ## [0.3.0] - unreleased
+- [#43](https://github.com/kwila-cloud/simple-sync/pull/43): Changed API authentication from Authorization: Bearer to X-API-Key header
 - [#40](https://github.com/kwila-cloud/simple-sync/pull/40): Implemented ACL system
 - [#37](https://github.com/kwila-cloud/simple-sync/pull/37): Replaced JWT authentication with API key system
 - [#36](https://github.com/kwila-cloud/simple-sync/pull/36): More documentation improvements

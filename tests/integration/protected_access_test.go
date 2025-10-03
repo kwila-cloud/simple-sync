@@ -79,7 +79,7 @@ func TestProtectedEndpointAccess(t *testing.T) {
 	// Test 3: Get API key, then access with API key - should succeed
 	// Generate setup token
 	setupReq, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=user-123", nil)
-	setupReq.Header.Set("Authorization", "Bearer "+adminApiKey)
+	setupReq.Header.Set("X-API-Key", adminApiKey)
 	setupW := httptest.NewRecorder()
 
 	router.ServeHTTP(setupW, setupReq)
@@ -112,7 +112,7 @@ func TestProtectedEndpointAccess(t *testing.T) {
 
 	// Now access with API key
 	authGetReq, _ := http.NewRequest("GET", "/api/v1/events", nil)
-	authGetReq.Header.Set("Authorization", "Bearer "+apiKey)
+	authGetReq.Header.Set("X-API-Key", apiKey)
 	authGetW := httptest.NewRecorder()
 
 	router.ServeHTTP(authGetW, authGetReq)

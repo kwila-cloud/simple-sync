@@ -28,7 +28,7 @@ func TestInvalidCredentialsHandling(t *testing.T) {
 
 	// Test: Access with invalid API key
 	getReq, _ := http.NewRequest("GET", "/api/v1/events", nil)
-	getReq.Header.Set("Authorization", "Bearer invalid-api-key")
+	getReq.Header.Set("X-API-Key", "invalid-api-key")
 	getW := httptest.NewRecorder()
 
 	router.ServeHTTP(getW, getReq)

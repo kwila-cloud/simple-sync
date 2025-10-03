@@ -16,24 +16,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestACLPermissionGranted(t *testing.T) {
+func TestACLPermissionDenied(t *testing.T) {
 	// Setup Gin router in test mode
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// Setup ACL rules to allow testuser to write on allowed-item
-	aclRules := []models.AclRule{
-		{
-			User:      "testuser",
-			Item:      "allowed-item",
-			Action:    "write",
-			Type:      "allow",
-			Timestamp: 1640995200,
-		},
-	}
-
 	// Setup handlers with memory storage
-	store := storage.NewMemoryStorage(aclRules)
+	store := storage.NewMemoryStorage(nil)
 	h := handlers.NewTestHandlersWithStorage(store)
 
 	// Create root user
@@ -65,7 +54,7 @@ func TestACLPermissionGranted(t *testing.T) {
 
 	// Generate API key for testuser
 	setupReq, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=testuser", nil)
-	setupReq.Header.Set("Authorization", "Bearer "+adminApiKey)
+	setupReq.Header.Set("X-API-Key", adminApiKey)
 	setupW := httptest.NewRecorder()
 	router.ServeHTTP(setupW, setupReq)
 	assert.Equal(t, http.StatusOK, setupW.Code)
@@ -90,12 +79,12 @@ func TestACLPermissionGranted(t *testing.T) {
 	assert.NoError(t, err)
 	apiKey := exchangeResponse["apiKey"].(string)
 
-	// Post an event with permission
+	// Now, try to post an event without permission (deny by default)
 	event := map[string]interface{}{
-		"uuid":      "event-456",
+		"uuid":      "event-123",
 		"timestamp": 1640995200,
 		"user":      "testuser",
-		"item":      "allowed-item",
+		"item":      "restricted-item",
 		"action":    "write",
 		"payload":   "{}",
 	}
@@ -103,11 +92,11 @@ func TestACLPermissionGranted(t *testing.T) {
 
 	postReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBuffer(eventBody))
 	postReq.Header.Set("Content-Type", "application/json")
-	postReq.Header.Set("Authorization", "Bearer "+apiKey)
+	postReq.Header.Set("X-API-Key", apiKey)
 	postW := httptest.NewRecorder()
 
 	router.ServeHTTP(postW, postReq)
 
-	// Should succeed due to ACL allow rule
-	assert.Equal(t, http.StatusOK, postW.Code)
+	// Should be forbidden due to ACL (deny by default)
+	assert.Equal(t, http.StatusForbidden, postW.Code)
 }

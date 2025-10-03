@@ -60,7 +60,7 @@ func TestACLRootUserBypass(t *testing.T) {
 
 	postReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBuffer(eventBody))
 	postReq.Header.Set("Content-Type", "application/json")
-	postReq.Header.Set("Authorization", "Bearer "+adminApiKey)
+	postReq.Header.Set("X-API-Key", adminApiKey)
 	postW := httptest.NewRecorder()
 
 	router.ServeHTTP(postW, postReq)

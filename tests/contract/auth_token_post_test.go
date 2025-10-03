@@ -44,7 +44,7 @@ func TestPostUserResetKey(t *testing.T) {
 	// Create test request with valid API key auth
 	req, _ := http.NewRequest("POST", "/api/v1/user/resetKey?user=user-123", bytes.NewBuffer(requestBody))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+apiKey)
+	req.Header.Set("X-API-Key", apiKey)
 	w := httptest.NewRecorder()
 
 	// Perform request
@@ -92,7 +92,7 @@ func TestPostUserGenerateToken(t *testing.T) {
 	// Create test request with valid API key auth
 	req, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=user-123", bytes.NewBuffer(requestBody))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+apiKey)
+	req.Header.Set("X-API-Key", apiKey)
 	w := httptest.NewRecorder()
 
 	// Perform request

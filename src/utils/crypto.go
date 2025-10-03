@@ -3,7 +3,6 @@ package utils
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"errors"
 )
 
 // GenerateApiKey generates a cryptographically secure random API key
@@ -33,12 +32,4 @@ func GenerateToken() (string, error) {
 	}
 
 	return string(token), nil
-}
-
-// ExtractTokenFromHeader extracts the token from "Bearer <token>" Authorization header
-func ExtractTokenFromHeader(authHeader string) (string, error) {
-	if len(authHeader) < 7 || authHeader[:7] != "Bearer " {
-		return "", errors.New("invalid authorization header format")
-	}
-	return authHeader[7:], nil
 }

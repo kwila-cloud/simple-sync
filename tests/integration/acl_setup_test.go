@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestACLPermissionDenied(t *testing.T) {
+func TestACLSetup(t *testing.T) {
 	// Setup Gin router in test mode
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
@@ -54,7 +54,7 @@ func TestACLPermissionDenied(t *testing.T) {
 
 	// Generate API key for testuser
 	setupReq, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=testuser", nil)
-	setupReq.Header.Set("Authorization", "Bearer "+adminApiKey)
+	setupReq.Header.Set("X-API-Key", adminApiKey)
 	setupW := httptest.NewRecorder()
 	router.ServeHTTP(setupW, setupReq)
 	assert.Equal(t, http.StatusOK, setupW.Code)
@@ -77,26 +77,54 @@ func TestACLPermissionDenied(t *testing.T) {
 	var exchangeResponse map[string]interface{}
 	err = json.Unmarshal(exchangeW.Body.Bytes(), &exchangeResponse)
 	assert.NoError(t, err)
-	apiKey := exchangeResponse["apiKey"].(string)
+	_ = exchangeResponse["apiKey"].(string) // API key generated but not used in this test
 
-	// Now, try to post an event without permission (deny by default)
-	event := map[string]interface{}{
-		"uuid":      "event-123",
+	// Now, set ACL rule using root API key
+	payload, _ := json.Marshal(map[string]interface{}{
+		"user":   "testuser",
+		"item":   "testitem",
+		"action": "write",
+	})
+	aclEvent := map[string]interface{}{
+		"uuid":      "acl-123",
 		"timestamp": 1640995200,
-		"user":      "testuser",
-		"item":      "restricted-item",
-		"action":    "write",
-		"payload":   "{}",
+		"user":      ".root",
+		"item":      ".acl",
+		"action":    ".acl.allow",
+		"payload":   string(payload),
 	}
-	eventBody, _ := json.Marshal([]map[string]interface{}{event})
+	aclBody, _ := json.Marshal([]map[string]interface{}{aclEvent})
 
-	postReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBuffer(eventBody))
+	postReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBuffer(aclBody))
 	postReq.Header.Set("Content-Type", "application/json")
-	postReq.Header.Set("Authorization", "Bearer "+apiKey)
+	postReq.Header.Set("X-API-Key", adminApiKey) // Use root key
 	postW := httptest.NewRecorder()
 
 	router.ServeHTTP(postW, postReq)
 
-	// Should be forbidden due to ACL (deny by default)
-	assert.Equal(t, http.StatusForbidden, postW.Code)
+	// Should succeed
+	assert.Equal(t, http.StatusOK, postW.Code)
+
+	// Verify the ACL event was stored
+	getReq, _ := http.NewRequest("GET", "/api/v1/events?itemUuid=.acl", nil)
+	getReq.Header.Set("X-API-Key", adminApiKey)
+	getW := httptest.NewRecorder()
+	router.ServeHTTP(getW, getReq)
+	assert.Equal(t, http.StatusOK, getW.Code)
+
+	var responseEvents []map[string]interface{}
+	err = json.Unmarshal(getW.Body.Bytes(), &responseEvents)
+	assert.NoError(t, err)
+
+	// Find the ACL event
+	var aclEventFound map[string]interface{}
+	for _, event := range responseEvents {
+		if event["uuid"] == "acl-123" {
+			aclEventFound = event
+			break
+		}
+	}
+	assert.NotNil(t, aclEventFound)
+	assert.Equal(t, ".acl", aclEventFound["item"])
+	assert.Equal(t, ".acl.allow", aclEventFound["action"])
 }
