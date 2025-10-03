@@ -30,7 +30,7 @@ func TestXAPIKeyHeaderAccepted(t *testing.T) {
 	})
 
 	// Generate setup token and exchange for API key
-	setupToken, err := h.AuthService().GenerateSetupToken("testuser")
+	setupToken, err := h.AuthService().GenerateSetupToken("user-123")
 	assert.NoError(t, err)
 	var apiKey string
 	_, apiKey, err = h.AuthService().ExchangeSetupToken(setupToken.Token, "test")
