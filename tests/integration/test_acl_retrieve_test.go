@@ -59,7 +59,7 @@ func TestACLRetrieve(t *testing.T) {
 
 	// Retrieve ACL events
 	getReq, _ := http.NewRequest("GET", "/api/v1/events?itemUuid=.acl", nil)
-	getReq.Header.Set("Authorization", "Bearer "+adminApiKey)
+	getReq.Header.Set("X-API-Key", adminApiKey)
 	getW := httptest.NewRecorder()
 	router.ServeHTTP(getW, getReq)
 	assert.Equal(t, http.StatusOK, getW.Code)

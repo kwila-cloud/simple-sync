@@ -58,7 +58,7 @@ func TestPostEvents(t *testing.T) {
 	// Create test request
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+plainKey)
+	req.Header.Set("X-API-Key", plainKey)
 	w := httptest.NewRecorder()
 
 	// Perform request
@@ -124,7 +124,7 @@ func TestConcurrentPostEvents(t *testing.T) {
 				event := fmt.Sprintf(`[{"uuid":"%s","timestamp":%d,"user":"user-123","item":"i","action":"a","payload":"p"}]`, uuid, id*100+j+1)
 				req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(event))
 				req.Header.Set("Content-Type", "application/json")
-				req.Header.Set("Authorization", "Bearer "+plainKey) // Add API key
+				req.Header.Set("X-API-Key", plainKey) // Add API key
 				w := httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				assert.Equal(t, http.StatusForbidden, w.Code)
@@ -139,7 +139,7 @@ func TestConcurrentPostEvents(t *testing.T) {
 
 	// Check total events - should be 0 since all posts were denied
 	req, _ := http.NewRequest("GET", "/api/v1/events", nil)
-	req.Header.Set("Authorization", "Bearer "+plainKey)
+	req.Header.Set("X-API-Key", plainKey)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)

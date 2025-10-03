@@ -36,7 +36,7 @@ func TestAuthErrorScenariosIntegration(t *testing.T) {
 
 		req, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=testuser", bytes.NewBuffer(requestBody))
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", "Bearer sk_insufficient123456789012345678901234567890")
+		req.Header.Set("X-API-Key", "sk_insufficient123456789012345678901234567890")
 		w := httptest.NewRecorder()
 
 		router.ServeHTTP(w, req)
@@ -60,7 +60,7 @@ func TestAuthErrorScenariosIntegration(t *testing.T) {
 
 		req, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=nonexistent", bytes.NewBuffer(requestBody))
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", "Bearer sk_admin123456789012345678901234567890")
+		req.Header.Set("X-API-Key", "sk_admin123456789012345678901234567890")
 		w := httptest.NewRecorder()
 
 		router.ServeHTTP(w, req)

@@ -54,7 +54,7 @@ func TestACLSetup(t *testing.T) {
 
 	// Generate API key for testuser
 	setupReq, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=testuser", nil)
-	setupReq.Header.Set("Authorization", "Bearer "+adminApiKey)
+	setupReq.Header.Set("X-API-Key", adminApiKey)
 	setupW := httptest.NewRecorder()
 	router.ServeHTTP(setupW, setupReq)
 	assert.Equal(t, http.StatusOK, setupW.Code)
@@ -97,7 +97,7 @@ func TestACLSetup(t *testing.T) {
 
 	postReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBuffer(aclBody))
 	postReq.Header.Set("Content-Type", "application/json")
-	postReq.Header.Set("Authorization", "Bearer "+adminApiKey) // Use root key
+	postReq.Header.Set("X-API-Key", adminApiKey) // Use root key
 	postW := httptest.NewRecorder()
 
 	router.ServeHTTP(postW, postReq)
@@ -107,7 +107,7 @@ func TestACLSetup(t *testing.T) {
 
 	// Verify the ACL event was stored
 	getReq, _ := http.NewRequest("GET", "/api/v1/events?itemUuid=.acl", nil)
-	getReq.Header.Set("Authorization", "Bearer "+adminApiKey)
+	getReq.Header.Set("X-API-Key", adminApiKey)
 	getW := httptest.NewRecorder()
 	router.ServeHTTP(getW, getReq)
 	assert.Equal(t, http.StatusOK, getW.Code)

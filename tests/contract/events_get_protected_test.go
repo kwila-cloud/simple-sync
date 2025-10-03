@@ -27,7 +27,7 @@ func TestGetEventsProtected(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.GET("/events", h.GetEvents)
 
-	// Test without Authorization header - should fail with 401
+	// Test without X-API-Key header - should fail with 401
 	req, _ := http.NewRequest("GET", "/api/v1/events", nil)
 	w := httptest.NewRecorder()
 
@@ -41,7 +41,7 @@ func TestGetEventsProtected(t *testing.T) {
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
 	assert.Contains(t, response, "error")
-	assert.Equal(t, "Authorization header required", response["error"])
+	assert.Equal(t, "X-API-Key header required", response["error"])
 }
 
 func TestGetEventsWithValidToken(t *testing.T) {
@@ -64,9 +64,9 @@ func TestGetEventsWithValidToken(t *testing.T) {
 	_, plainKey, err := h.AuthService().ExchangeSetupToken(setupToken.Token, "test")
 	assert.NoError(t, err)
 
-	// Test with valid Authorization header
+	// Test with valid X-API-Key header
 	req, _ := http.NewRequest("GET", "/api/v1/events", nil)
-	req.Header.Set("Authorization", "Bearer "+plainKey)
+	req.Header.Set("X-API-Key", plainKey)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -93,9 +93,9 @@ func TestGetEventsWithInvalidToken(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.GET("/events", h.GetEvents)
 
-	// Test with invalid Authorization header
+	// Test with invalid X-API-Key header
 	req, _ := http.NewRequest("GET", "/api/v1/events", nil)
-	req.Header.Set("Authorization", "Bearer invalid-token")
+	req.Header.Set("X-API-Key", "invalid-token")
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)

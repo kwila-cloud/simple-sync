@@ -34,7 +34,7 @@ func TestGetEvents(t *testing.T) {
 
 	// Create test request
 	req, _ := http.NewRequest("GET", "/api/v1/events", nil)
-	req.Header.Set("Authorization", "Bearer "+plainKey)
+	req.Header.Set("X-API-Key", plainKey)
 	w := httptest.NewRecorder()
 
 	// Perform request

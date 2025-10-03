@@ -65,7 +65,7 @@ func TestACLPermissionGranted(t *testing.T) {
 
 	// Generate API key for testuser
 	setupReq, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=testuser", nil)
-	setupReq.Header.Set("Authorization", "Bearer "+adminApiKey)
+	setupReq.Header.Set("X-API-Key", adminApiKey)
 	setupW := httptest.NewRecorder()
 	router.ServeHTTP(setupW, setupReq)
 	assert.Equal(t, http.StatusOK, setupW.Code)
@@ -103,7 +103,7 @@ func TestACLPermissionGranted(t *testing.T) {
 
 	postReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBuffer(eventBody))
 	postReq.Header.Set("Content-Type", "application/json")
-	postReq.Header.Set("Authorization", "Bearer "+apiKey)
+	postReq.Header.Set("X-API-Key", apiKey)
 	postW := httptest.NewRecorder()
 
 	router.ServeHTTP(postW, postReq)

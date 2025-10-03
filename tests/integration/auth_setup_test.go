@@ -57,7 +57,7 @@ func TestUserSetupFlowIntegration(t *testing.T) {
 
 	req1, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=testuser", bytes.NewBuffer(requestBody))
 	req1.Header.Set("Content-Type", "application/json")
-	req1.Header.Set("Authorization", "Bearer "+adminApiKey)
+	req1.Header.Set("X-API-Key", adminApiKey)
 	w1 := httptest.NewRecorder()
 
 	router.ServeHTTP(w1, req1)
