@@ -95,7 +95,7 @@ func TestPostEventsWithValidToken(t *testing.T) {
  		"payload": "{}"
  	}]`
 
-	// Test with valid Authorization header
+	// Test with valid X-API-Key header
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-API-Key", plainKey)
@@ -154,10 +154,10 @@ func TestPostEventsWithInvalidToken(t *testing.T) {
   		"payload": "{}"
   	}]`
 
-	// Test with invalid Authorization header
+	// Test with invalid X-API-Key header
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer invalid-token")
+	req.Header.Set("X-API-Key", "invalid-token")
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -193,7 +193,7 @@ func TestPostEventsAclPermissionFailure(t *testing.T) {
    		"payload": "{\"user\":\"user2\",\"item\":\"item1\",\"action\":\"delete\",\"type\":\"allow\"}"
   	}]`
 
-	// Test with valid Authorization header
+	// Test with valid X-API-Key header
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-API-Key", plainKey)
@@ -240,7 +240,7 @@ func TestPostEventsMissingRequiredFields(t *testing.T) {
   		"payload": "{}"
   	}]`
 
-	// Test with valid Authorization header
+	// Test with valid X-API-Key header
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-API-Key", plainKey)
@@ -288,7 +288,7 @@ func TestPostEventsInvalidTimestamp(t *testing.T) {
   		"payload": "{}"
   	}]`
 
-	// Test with valid Authorization header
+	// Test with valid X-API-Key header
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-API-Key", plainKey)
@@ -336,7 +336,7 @@ func TestPostEventsWrongUser(t *testing.T) {
   		"payload": "{}"
   	}]`
 
-	// Test with valid Authorization header
+	// Test with valid X-API-Key header
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-API-Key", plainKey)

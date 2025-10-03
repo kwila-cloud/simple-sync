@@ -35,7 +35,7 @@ func GenerateToken() (string, error) {
 	return string(token), nil
 }
 
-// ExtractTokenFromHeader extracts the token from "Bearer <token>" Authorization header
+// ExtractTokenFromHeader extracts the token from "Bearer <token>" Authorization header (deprecated - use X-API-Key header directly)
 func ExtractTokenFromHeader(authHeader string) (string, error) {
 	if len(authHeader) < 7 || authHeader[:7] != "Bearer " {
 		return "", errors.New("invalid authorization header format")
