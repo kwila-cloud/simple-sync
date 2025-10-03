@@ -34,7 +34,7 @@ Each field supports:
 - Wildcard (`*`) for all matches
 - Prefix wildcards (e.g., `admin.*`, `task.*`, `edit.*`) for prefix-based matching
 
-ACL events are submitted via [`POST /api/v1/events`](/simple-sync/api/v1#post-apiv1events) and are validated against the current ACL before being added to the authoritative event history. Invalid ACL events are ignored. 
+ACL events are submitted via the dedicated [`POST /api/v1/acl`](/simple-sync/api/v1#post-apiv1acl) endpoint, which automatically sets the current timestamp and ensures proper validation. ACL events submitted via [`POST /api/v1/events`](/simple-sync/api/v1#post-apiv1events) are rejected to prevent timestamp manipulation. 
 
 ## Wildcard Support
 
@@ -134,8 +134,17 @@ To allow all admin users to perform any delete action on any task:
 
 ## ACL Management
 
-ACL rules are managed by submitting events to the [`POST /api/v1/events`](/simple-sync/api/v1#post-apiv1events) endpoint with `item` set to `.acl` and `action` set to `.acl.allow` or `.acl.deny`. The payload must contain `user`, `item`, and `action` fields defining the rule. ACL events are validated against the current ACL before being added to the authoritative history; invalid ACL events are ignored.
+ACL rules are managed by submitting ACL events to the dedicated [`POST /api/v1/acl`](/simple-sync/api/v1#post-apiv1acl) endpoint. This endpoint requires API key authentication and automatically timestamps the events to prevent historical rule injection.
 
-The current ACL state can be inferred from the authoritative event history by filtering for `.acl` events. See the [v1 API Specification](/simple-sync/api/v1) for details on event submission.
+The ACL event format is:
+```json
+[{
+  "user": "string",
+  "item": "string",
+  "action": "string"
+}]
+```
 
-**Note:** ACL events require appropriate permissions based on existing rules. The `.root` user has implicit access to submit any ACL events.
+ACL events submitted via [`POST /api/v1/events`](/simple-sync/api/v1#post-apiv1events) are rejected. The current ACL state can be inferred from the authoritative event history by filtering for `.acl` events. See the [v1 API Specification](/simple-sync/api/v1) for details on the dedicated ACL endpoint.
+
+**Note:** ACL submission requires appropriate permissions based on existing rules. The `.root` user has implicit access to submit any ACL events.
