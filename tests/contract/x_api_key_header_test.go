@@ -29,16 +29,12 @@ func TestXAPIKeyHeaderAccepted(t *testing.T) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	// Generate setup token and exchange for API key
-	setupToken, err := h.AuthService().GenerateSetupToken("user-123")
-	assert.NoError(t, err)
-	var apiKey string
-	_, apiKey, err = h.AuthService().ExchangeSetupToken(setupToken.Token, "test")
-	assert.NoError(t, err)
+	// Use default test API key
+	plainKey := "sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
 
 	// Create test request with X-API-Key header
 	req, _ := http.NewRequest("GET", "/api/v1/test", nil)
-	req.Header.Set("X-API-Key", apiKey)
+	req.Header.Set("X-API-Key", plainKey)
 	w := httptest.NewRecorder()
 
 	// Perform request
