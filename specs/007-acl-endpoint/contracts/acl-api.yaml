@@ -1,0 +1,86 @@
+openapi: 3.0.3
+info:
+  title: ACL Endpoint API
+  version: 1.0.0
+  description: Dedicated endpoint for submitting ACL events
+
+paths:
+  /api/v1/acl:
+    post:
+      summary: Submit ACL events
+      description: Submit one or more ACL events with automatic timestamping
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ACLEvent'
+              minItems: 1
+      responses:
+        '200':
+          description: ACL events submitted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "ACL events submitted"
+        '400':
+          description: Invalid ACL event data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    ACLEvent:
+      type: object
+      required:
+        - user
+        - item
+        - action
+      properties:
+        user:
+          type: string
+          description: User identifier
+          example: "user123"
+        item:
+          type: string
+          description: Item or resource identifier
+          example: "item456"
+        action:
+          type: string
+          description: Action being permitted
+          example: "read"
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Invalid request format"
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
