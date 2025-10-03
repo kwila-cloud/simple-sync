@@ -13,9 +13,9 @@ Second, to allow the server to create an audit history for all actions triggered
 
 ## ACL
 
-**Trigger: User**
+**Trigger: API**
 
-The `.acl` item is used for updating the [ACL](/simple-sync/acl). The payload must contain a valid ACL rule. The event's `action` field must be either `.acl.allow` or `.acl.deny`.
+The `.acl` item is used for updating the [ACL](/simple-sync/acl). ACL events are created automatically by the server when users submit ACL rules via the dedicated `POST /api/v1/acl` endpoint. The payload contains a valid ACL rule with `user`, `item`, and `action` fields. The event's `action` is always `.acl.allow` (deny rules are not currently supported). These events are timestamped with the current server time to prevent historical rule injection.
 
 ## Users
 
