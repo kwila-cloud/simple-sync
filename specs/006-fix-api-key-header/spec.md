@@ -52,6 +52,11 @@ When creating this spec from a user prompt:
 
 ---
 
+## Clarifications
+
+### Session 2025-10-03
+- Q: Should the system continue to support the Authorization: Bearer header, or completely replace it with X-API-Key? → A: Completely replace - reject Authorization: Bearer and only accept X-API-Key
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### Primary User Story
@@ -60,12 +65,12 @@ As a developer integrating with the simple-sync API, I want to use the standard 
 ### Acceptance Scenarios
 1. **Given** a valid API key, **When** a client sends an API request with the X-API-Key header containing the valid key, **Then** the request should be authenticated successfully and processed.
 2. **Given** an invalid API key, **When** a client sends an API request with the X-API-Key header containing an invalid key, **Then** the request should be rejected with an authentication error.
-3. **Given** a valid API key, **When** a client sends an API request with the Authorization: Bearer header containing the valid key, **Then** [NEEDS CLARIFICATION: should the system still accept Bearer header or reject it?]
+3. **Given** a valid API key, **When** a client sends an API request with the Authorization: Bearer header containing the valid key, **Then** the request should be rejected with an authentication error.
 
 ### Edge Cases
-- What happens when both X-API-Key and Authorization: Bearer headers are provided in the same request?
-- How does the system handle requests with neither header?
-- What if the X-API-Key header is provided but empty?
+- What happens when both X-API-Key and Authorization: Bearer headers are provided in the same request? → Reject the request with an authentication error
+- How does the system handle requests with neither header? → Reject with an authentication error
+- What if the X-API-Key header is provided but empty? → Reject with an authentication error
 
 ## Requirements *(mandatory)*
 
@@ -73,7 +78,7 @@ As a developer integrating with the simple-sync API, I want to use the standard 
 - **FR-001**: System MUST accept and authenticate requests using the X-API-Key header containing a valid API key
 - **FR-002**: System MUST reject requests with invalid API keys in the X-API-Key header
 - **FR-003**: System MUST provide clear error responses for authentication failures
-- **FR-004**: [NEEDS CLARIFICATION: Should the system continue to support Authorization: Bearer header, or completely replace it with X-API-Key?]
+- **FR-004**: System MUST reject requests using the Authorization: Bearer header
 
 ### Key Entities *(include if feature involves data)*
 - **API Key**: Represents user authentication credentials, used to authorize API requests
@@ -90,7 +95,7 @@ As a developer integrating with the simple-sync API, I want to use the standard 
 - [x] All mandatory sections completed
 
 ### Requirement Completeness
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous  
 - [x] Success criteria are measurable
 - [x] Scope is clearly bounded
@@ -107,6 +112,6 @@ As a developer integrating with the simple-sync API, I want to use the standard 
 - [x] User scenarios defined
 - [x] Requirements generated
 - [x] Entities identified
-- [ ] Review checklist passed
+- [x] Review checklist passed
 
 ---
