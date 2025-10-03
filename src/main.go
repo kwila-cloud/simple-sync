@@ -49,6 +49,7 @@ func main() {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.GET("/events", h.GetEvents)
 	auth.POST("/events", h.PostEvents)
+	auth.POST("/acl", h.PostACL)
 
 	// Auth routes (with middleware for permission checks)
 	auth.POST("/user/resetKey", h.PostUserResetKey)
