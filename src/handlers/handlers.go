@@ -87,6 +87,14 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 		return
 	}
 
+	// Reject ACL events submitted via /events
+	for _, event := range events {
+		if event.Item == ".acl" && len(event.Action) > 4 && event.Action[:5] == ".acl." {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "ACL events must be submitted via dedicated /api/v1/acl endpoint"})
+			return
+		}
+	}
+
 	// Get authenticated user from context
 	userID, exists := c.Get("user_id")
 	if !exists {
