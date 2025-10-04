@@ -62,5 +62,5 @@ func TestAclRetrieve(t *testing.T) {
 	}
 	assert.NotNil(t, aclEventFound)
 	assert.Equal(t, ".acl", aclEventFound["item"])
-	assert.Equal(t, ".acl.allow", aclEventFound["action"])
+	assert.Equal(t, ".acl.addRule", aclEventFound["action"])
 }

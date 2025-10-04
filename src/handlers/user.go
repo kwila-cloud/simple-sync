@@ -4,10 +4,8 @@ import (
 	"log"
 	"net/http"
 	"simple-sync/src/models"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 // PostUserResetKey handles POST /api/v1/user/resetKey
@@ -45,15 +43,13 @@ func (h *Handlers) PostUserResetKey(c *gin.Context) {
 	}
 
 	// Log the API call as an internal event
-	event := models.Event{
-		UUID:      uuid.New().String(),
-		Timestamp: uint64(time.Now().Unix()),
-		User:      callerUserID.(string),
-		Item:      ".user." + userID,
-		Action:    ".user.resetKey",
-		Payload:   "{}",
-	}
-	if err := h.storage.SaveEvents([]models.Event{event}); err != nil {
+	event := models.NewEvent(
+		callerUserID.(string),
+		".user."+userID,
+		".user.resetKey",
+		"{}",
+	)
+	if err := h.storage.SaveEvents([]models.Event{*event}); err != nil {
 		log.Printf("Failed to save reset key event for user %s: %v", userID, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
@@ -96,12 +92,10 @@ func (h *Handlers) PostUserGenerateToken(c *gin.Context) {
 
 	// Log the API call as an internal event
 	event := models.Event{
-		UUID:      uuid.New().String(),
-		Timestamp: uint64(time.Now().Unix()),
-		User:      callerUserId.(string),
-		Item:      ".user." + userId,
-		Action:    ".user.generateToken",
-		Payload:   "{}",
+		User:    callerUserId.(string),
+		Item:    ".user." + userId,
+		Action:  ".user.generateToken",
+		Payload: "{}",
 	}
 	if err := h.storage.SaveEvents([]models.Event{event}); err != nil {
 		log.Printf("Failed to save generate token event for user %s: %v", userId, err)
@@ -136,12 +130,10 @@ func (h *Handlers) PostSetupExchangeToken(c *gin.Context) {
 
 	// Log the API call as an internal event
 	event := models.Event{
-		UUID:      uuid.New().String(),
-		Timestamp: uint64(time.Now().Unix()),
-		User:      apiKey.UserID,
-		Item:      ".user." + apiKey.UserID,
-		Action:    ".user.exchangeToken",
-		Payload:   "{}",
+		User:    apiKey.UserID,
+		Item:    ".user." + apiKey.UserID,
+		Action:  ".user.exchangeToken",
+		Payload: "{}",
 	}
 	if err := h.storage.SaveEvents([]models.Event{event}); err != nil {
 		log.Printf("Failed to save exchange token event for user %s: %v", apiKey.UserID, err)

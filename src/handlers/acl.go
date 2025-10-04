@@ -5,20 +5,25 @@ import (
 	"errors"
 	"net/http"
 	"strings"
-	"time"
 
 	"simple-sync/src/models"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
-// PostAcl handles POST /api/v1/acl for submitting ACL events
+// PostAcl handles POST /api/v1/acl for submitting ACL rules
 func (h *Handlers) PostAcl(c *gin.Context) {
 	// Get authenticated user from context
 	userId, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		return
+	}
+
+	if !h.aclService.CheckPermission(userId.(string), ".acl", ".acl.addRule") {
+		c.JSON(http.StatusForbidden, gin.H{
+			"error": "Insufficient permissions to update ACL",
+		})
 		return
 	}
 
@@ -40,37 +45,16 @@ func (h *Handlers) PostAcl(c *gin.Context) {
 
 	// Convert ACL rules to regular events with current timestamp
 	var events []models.Event
-	currentTime := uint64(time.Now().Unix())
 
 	for _, rule := range aclRules {
-		payload := map[string]interface{}{
-			"user":   rule.User,
-			"item":   rule.Item,
-			"action": rule.Action,
-		}
-		payloadJSON, _ := json.Marshal(payload)
+		ruleJson, _ := json.Marshal(rule)
 
-		eventAction := ".acl." + rule.Type
-
-		event := models.Event{
-			UUID:      uuid.New().String(),
-			Timestamp: currentTime,
-			User:      userId.(string),
-			Item:      ".acl",
-			Action:    eventAction,
-			Payload:   string(payloadJSON),
-		}
-
-		// Validate that the user has permission to set this ACL rule
-		if !h.aclService.ValidateAclEvent(&event) {
-			c.JSON(http.StatusForbidden, gin.H{
-				"error": "Insufficient permissions to set ACL rule",
-				"rule":  rule,
-			})
-			return
-		}
-
-		events = append(events, event)
+		events = append(events, *models.NewEvent(
+			userId.(string),
+			".acl",
+			".acl.addRule",
+			string(ruleJson),
+		))
 	}
 
 	// Store the events
@@ -84,23 +68,37 @@ func (h *Handlers) PostAcl(c *gin.Context) {
 
 // checks if an ACL rule has valid data
 func validateAclRule(rule *models.AclRule) error {
-	if strings.TrimSpace(rule.User) == "" {
-		return errors.New("user is required and cannot be empty")
+	if !isValidPattern(rule.User) {
+		return errors.New("invalid user pattern")
 	}
-	if strings.TrimSpace(rule.Item) == "" {
-		return errors.New("item is required and cannot be empty")
+	if !isValidPattern(rule.Item) {
+		return errors.New("invalid item pattern")
 	}
-	if strings.TrimSpace(rule.Action) == "" {
-		return errors.New("action is required and cannot be empty")
+	if !isValidPattern(rule.Action) {
+		return errors.New("invalid action pattern")
 	}
 	if rule.Type != "allow" && rule.Type != "deny" {
 		return errors.New("type must be either 'allow' or 'deny'")
 	}
-	// Check for control characters
-	if containsControlChars(rule.User) || containsControlChars(rule.Item) || containsControlChars(rule.Action) {
-		return errors.New("user, item, and action cannot contain control characters")
-	}
 	return nil
+}
+
+// Checks if a pattern has valid wildcard usage (at most one at the end)
+func isValidPattern(pattern string) bool {
+	if pattern == "" {
+		return false
+	}
+	if pattern == "*" {
+		return true
+	}
+	if containsControlChars(pattern) {
+		return false
+	}
+	if strings.HasSuffix(pattern, "*") {
+		prefix := strings.TrimSuffix(pattern, "*")
+		return !strings.Contains(prefix, "*")
+	}
+	return !strings.Contains(pattern, "*")
 }
 
 // checks if string contains control characters

@@ -3,6 +3,9 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+
+	"github.com/google/uuid"
 )
 
 // Event represents a timestamped event in the system
@@ -15,20 +18,31 @@ type Event struct {
 	Payload   string `json:"payload"`
 }
 
-// AclRule represents an access control rule
-type AclRule struct {
-	User   string `json:"user"`
-	Item   string `json:"item"`
-	Action string `json:"action"`
-	Type   string `json:"type"`
+func NewEvent(User, Item, Action, Payload string) *Event {
+	eventUuid, _ := uuid.NewV7()
+	unixTimeSeconds, _ := eventUuid.Time().UnixTime()
+
+	return &Event{
+		UUID:      eventUuid.String(),
+		Timestamp: uint64(unixTimeSeconds),
+		User:      User,
+		Item:      Item,
+		Action:    Action,
+		Payload:   Payload,
+	}
 }
 
-// IsAclEvent checks if the event is an ACL rule event
+func (e *Event) IsApiOnlyEvent() bool {
+	// .user.create is the ONLY internal event action that can be triggered
+	// by a user
+	return e.Action != ".user.create" && strings.HasPrefix(e.Action, ".")
+}
+
 func (e *Event) IsAclEvent() bool {
 	return e.Item == ".acl"
 }
 
-// ToAclRule converts an ACL event to ACLRule
+// ToAclRule converts an ACL event to AclRule
 func (e *Event) ToAclRule() (*AclRule, error) {
 	if !e.IsAclEvent() {
 		return nil, fmt.Errorf("not an ACL event")
@@ -37,14 +51,6 @@ func (e *Event) ToAclRule() (*AclRule, error) {
 	err := json.Unmarshal([]byte(e.Payload), &rule)
 	if err != nil {
 		return nil, err
-	}
-	switch e.Action {
-	case ".acl.allow":
-		rule.Type = "allow"
-	case ".acl.deny":
-		rule.Type = "deny"
-	default:
-		return nil, fmt.Errorf("invalid ACL action: %s", e.Action)
 	}
 	return &rule, nil
 }

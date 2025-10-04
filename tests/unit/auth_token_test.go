@@ -7,16 +7,20 @@ import (
 	"simple-sync/src/models"
 	"simple-sync/src/storage"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAPIKeyModelValidation(t *testing.T) {
+func TestApiKeyModelValidation(t *testing.T) {
+	keyUuid, _ := uuid.NewV7()
+	unixTimeSeconds, _ := keyUuid.Time().UnixTime()
+
 	// Test valid API key
 	validKey := &models.APIKey{
-		UUID:        "550e8400-e29b-41d4-a716-446655440000",
+		UUID:        keyUuid.String(),
 		UserID:      storage.TestingUserId,
 		KeyHash:     "hash-data",
-		CreatedAt:   time.Now(),
+		CreatedAt:   time.Unix(unixTimeSeconds, 0),
 		Description: "Test Key",
 	}
 	err := validKey.Validate()

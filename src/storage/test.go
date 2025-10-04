@@ -3,7 +3,6 @@ package storage
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"sync"
 	"time"
 
@@ -68,21 +67,15 @@ func NewTestStorage(aclRules []models.AclRule) *TestStorage {
 	storage.CreateAPIKey(apiKey)
 
 	// Add initial ACL rules as events
-	for i, rule := range aclRules {
-		payload, _ := json.Marshal(map[string]string{
-			"user":   rule.User,
-			"item":   rule.Item,
-			"action": rule.Action,
-		})
-		event := models.Event{
-			UUID:      fmt.Sprintf("acl-%d", i),
-			Timestamp: uint64(time.Now().Unix()),
-			User:      ".root",
-			Item:      ".acl",
-			Action:    ".acl." + rule.Type,
-			Payload:   string(payload),
-		}
-		storage.events = append(storage.events, event)
+	for _, rule := range aclRules {
+		ruleJson, _ := json.Marshal(rule)
+
+		storage.events = append(storage.events, *models.NewEvent(
+			".root",
+			".acl",
+			".acl.addRule",
+			string(ruleJson),
+		))
 	}
 
 	return storage

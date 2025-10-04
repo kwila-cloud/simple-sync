@@ -31,9 +31,7 @@ func TestAclPermissionGranted(t *testing.T) {
 		},
 	}
 
-	// Setup handlers with memory storage
-	store := storage.NewTestStorage(aclRules)
-	h := handlers.NewTestHandlersWithStorage(store)
+	h := handlers.NewTestHandlers(aclRules)
 
 	// Register routes
 	v1 := router.Group("/api/v1")

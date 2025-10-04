@@ -183,7 +183,7 @@ func TestPostEventsAclEventNotAllowed(t *testing.T) {
   		"timestamp": 1640995200,
   		"user": "%s",
   		"item": ".acl",
-  		"action": ".acl.allow",
+  		"action": ".acl.addRule",
    		"payload": "{\"user\":\"user2\",\"item\":\"item1\",\"action\":\"delete\",\"type\":\"allow\"}"
   	}]`, storage.TestingUserId)
 

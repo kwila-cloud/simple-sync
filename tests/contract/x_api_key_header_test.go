@@ -13,8 +13,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestXAPIKeyHeaderAccepted tests that requests with X-API-Key header are accepted
-func TestXAPIKeyHeaderAccepted(t *testing.T) {
+// Tests that requests with X-API-Key header are accepted
+func TestXApiKeyHeaderAccepted(t *testing.T) {
 	// Setup Gin router in test mode
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()

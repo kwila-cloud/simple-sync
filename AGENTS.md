@@ -135,19 +135,6 @@ curl -X GET "http://localhost:8080/api/v1/events?itemUuid=item-123" \
   -H "X-API-Key: $API_KEY"
 ```
 
-**ACL Testing:**
-```bash
-# Set permissions (post ACL event)
-curl -X POST http://localhost:8080/api/v1/events \
-  -H "X-API-Key: sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E" \
-  -H "Content-Type: application/json" \
-  -d '[{"uuid":"acl-123","timestamp":1640995200,"user":".root","item":".acl","action":".acl.allow","payload":"{\"user\":\"testuser\",\"item\":\"item-123\",\"action\":\"create\"}"}]'
-
-# Get ACL entries
-curl -X GET "http://localhost:8080/api/v1/events?itemUuid=.acl" \
-  -H "X-API-Key: sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
-```
-
 **Database Persistence Verification:**
 ```bash
 # Check SQLite database exists and has data

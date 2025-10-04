@@ -26,7 +26,7 @@ func TestPostAcl(t *testing.T) {
 		{
 			User:   storage.TestingUserId,
 			Item:   ".acl",
-			Action: ".acl.allow",
+			Action: ".acl.addRule",
 			Type:   "allow",
 		},
 	}
@@ -103,18 +103,7 @@ func TestPostAclInsufficientPermissions(t *testing.T) {
 	var response map[string]interface{}
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
-	assert.Equal(t, "Insufficient permissions to set ACL rule", response["error"])
-
-	// Verify the invalid rule is included in the response
-	rule, exists := response["rule"]
-	assert.True(t, exists, "Response should include the invalid rule")
-
-	ruleMap, ok := rule.(map[string]interface{})
-	assert.True(t, ok, "Rule should be a map")
-	assert.Equal(t, "user-456", ruleMap["user"])
-	assert.Equal(t, "item789", ruleMap["item"])
-	assert.Equal(t, "read", ruleMap["action"])
-	assert.Equal(t, "allow", ruleMap["type"])
+	assert.Equal(t, "Insufficient permissions to update ACL", response["error"])
 }
 
 func TestPostAclInvalidApiKey(t *testing.T) {

@@ -80,9 +80,8 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 			c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions", "eventUuid": event.UUID})
 			return
 		}
-		// For ACL events, additional validation
-		if event.IsAclEvent() {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Cannot modify ACL rules through this endpoint", "eventUuid": event.UUID})
+		if event.IsApiOnlyEvent() {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Cannot add internal events through this endpoint", "eventUuid": event.UUID})
 			return
 		}
 	}

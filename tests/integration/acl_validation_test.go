@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestACLInvalidDataHandling(t *testing.T) {
+func TestAclInvalidDataHandling(t *testing.T) {
 	// Setup Gin router in test mode
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
@@ -25,14 +25,13 @@ func TestACLInvalidDataHandling(t *testing.T) {
 		{
 			User:   storage.TestingUserId,
 			Item:   ".acl",
-			Action: ".acl.allow",
+			Action: ".acl.addRule",
 			Type:   "allow",
 		},
 	}
 
 	// Setup handlers with memory storage
-	store := storage.NewTestStorage(aclRules)
-	h := handlers.NewTestHandlersWithStorage(store)
+	h := handlers.NewTestHandlers(aclRules)
 
 	// Register routes with auth middleware
 	v1 := router.Group("/api/v1")

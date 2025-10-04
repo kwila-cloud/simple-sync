@@ -21,9 +21,7 @@ func TestProtectedEndpointAccess(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// Setup handlers with memory storage
-	store := storage.NewTestStorage(nil)
-	h := handlers.NewTestHandlersWithStorage(store)
+	h := handlers.NewTestHandlers(nil)
 
 	// Register routes
 	v1 := router.Group("/api/v1")

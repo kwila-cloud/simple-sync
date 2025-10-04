@@ -32,8 +32,7 @@ func TestAclRejectionViaEvents(t *testing.T) {
 	}
 
 	// Setup handlers with memory storage
-	store := storage.NewTestStorage(aclRules)
-	h := handlers.NewTestHandlersWithStorage(store)
+	h := handlers.NewTestHandlers(aclRules)
 
 	// Register routes with auth middleware
 	v1 := router.Group("/api/v1")
@@ -47,8 +46,8 @@ func TestAclRejectionViaEvents(t *testing.T) {
 		"timestamp": 1640995200,
 		"user": "%s",
 		"item": ".acl",
-		"action": ".acl.allow",
-		"payload": "{\"user\":\"user-456\",\"item\":\"item789\",\"action\":\"read\"}"
+		"action": ".acl.addRule",
+		"payload": "{\"user\":\"user-456\",\"item\":\"item789\",\"action\":\"read\",\"type\":\"allow\"}"
 	}]`, storage.TestingUserId)
 
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(aclEventJSON))
