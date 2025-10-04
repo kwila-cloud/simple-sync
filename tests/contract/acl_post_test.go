@@ -40,7 +40,7 @@ func TestPostACL(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/acl", h.PostACL) // This will fail until implemented
 
-	// Sample ACL event data
+	// Sample ACL rule data
 	aclJSON := `[{
 		"user": "user-456",
 		"item": "item789",

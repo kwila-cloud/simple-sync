@@ -52,7 +52,7 @@ paths:
 
 components:
   schemas:
-    ACLEvent:
+    AclRule:
       type: object
       required:
         - user

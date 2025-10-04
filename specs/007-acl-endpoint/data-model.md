@@ -2,21 +2,23 @@
 
 ## Entities
 
-### ACL Event
+### ACL Rule (models.AclRule)
 Represents an access control rule with the following attributes:
 
 - **user** (string): The user identifier for whom the permission applies
 - **item** (string): The item or resource identifier being controlled
 - **action** (string): The action being permitted or denied (e.g., "read", "write")
-- **timestamp** (int64): Unix timestamp set automatically by the server
+- **type** (string): Either "allow" or "deny"
+- **timestamp** (uint64): Unix timestamp set automatically by the server
 
 **Validation Rules**:
-- All attributes are required and non-empty
+- All attributes except timestamp are required and non-empty
 - User, item, and action must be valid strings (no control characters)
+- Type must be either "allow" or "deny"
 - Timestamp is set server-side and cannot be overridden
 
 **Relationships**:
-- ACL Events are stored as regular events in the event stream
+- ACL Rules are converted to events and stored in the event stream
 - No direct relationships to other entities
 
 **State Transitions**:

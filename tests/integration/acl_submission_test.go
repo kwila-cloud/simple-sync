@@ -61,7 +61,7 @@ func TestACLSubmission(t *testing.T) {
 	auth.POST("/acl", h.PostACL) // Will fail until implemented
 	auth.GET("/events", h.GetEvents)
 
-	// Submit ACL event
+	// Submit ACL rule
 	aclJSON := `[{
 		"user": "user-456",
 		"item": "item789",

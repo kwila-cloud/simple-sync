@@ -52,7 +52,7 @@
 - [x] T006 [P] Integration test for invalid ACL data handling in tests/integration/acl_validation_test.go
 
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
-- [x] T007 [P] ACL Event model validation in models/acl.go
+- [x] T007 [P] ACL Rule validation using existing models.AclRule
 - [x] T008 ACL handler for POST /api/v1/acl in handlers/acl.go
 - [x] T009 Modify POST /api/v1/events handler to reject ACL events in handlers/handlers.go
 
