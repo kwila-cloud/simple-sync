@@ -23,7 +23,7 @@ func TestAclRejectionViaEvents(t *testing.T) {
 	// Setup ACL rules to allow the default user to create events
 	aclRules := []models.AclRule{
 		{
-			User:   ".root",
+			User:   "user-123",
 			Item:   "item456",
 			Action: "create",
 			Type:   "allow",
@@ -34,12 +34,12 @@ func TestAclRejectionViaEvents(t *testing.T) {
 	store := storage.NewMemoryStorage(aclRules)
 	h := handlers.NewTestHandlersWithStorage(store)
 
-	// Create root user
-	rootUser := &models.User{Id: ".root"}
-	err := store.SaveUser(rootUser)
+	// Create the default user
+	user := &models.User{Id: "user-123"}
+	err := store.SaveUser(user)
 	assert.NoError(t, err)
 
-	// Use default admin API key
+	// Use default API key for user-123
 	userApiKey := "sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
 
 	// Register routes with auth middleware
@@ -52,7 +52,7 @@ func TestAclRejectionViaEvents(t *testing.T) {
 	aclEventJSON := `[{
 		"uuid": "acl-test-123",
 		"timestamp": 1640995200,
-		"user": ".root",
+		"user": "user-123",
 		"item": ".acl",
 		"action": ".acl.allow",
 		"payload": "{\"user\":\"user-456\",\"item\":\"item789\",\"action\":\"read\"}"
