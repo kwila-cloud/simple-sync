@@ -132,10 +132,7 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 		}
 		// For ACL events, additional validation
 		if events[i].IsAclEvent() {
-			if !h.aclService.ValidateAclEvent(&events[i]) {
-				c.JSON(http.StatusForbidden, gin.H{"error": "Cannot modify ACL rules", "eventUuid": events[i].UUID})
-				return
-			}
+			c.JSON(http.StatusForbidden, gin.H{"error": "Cannot modify ACL rules through this endpoint", "eventUuid": events[i].UUID})
 		}
 	}
 
@@ -144,16 +141,6 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 		log.Printf("PostEvents: failed to save events: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
-	}
-
-	// Refresh ACL rules if any ACL events were saved
-	for _, event := range events {
-		if event.IsAclEvent() {
-			rule, err := event.ToAclRule()
-			if err == nil {
-				h.aclService.AddRule(*rule)
-			}
-		}
 	}
 
 	// Return all events (including newly added)

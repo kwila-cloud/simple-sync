@@ -17,11 +17,10 @@ type Event struct {
 
 // AclRule represents an access control rule
 type AclRule struct {
-	User      string `json:"user"`
-	Item      string `json:"item"`
-	Action    string `json:"action"`
-	Type      string `json:"type"`
-	Timestamp uint64 `json:"timestamp"`
+	User   string `json:"user"`
+	Item   string `json:"item"`
+	Action string `json:"action"`
+	Type   string `json:"type"`
 }
 
 // IsAclEvent checks if the event is an ACL rule event
@@ -39,13 +38,13 @@ func (e *Event) ToAclRule() (*AclRule, error) {
 	if err != nil {
 		return nil, err
 	}
-	if e.Action == ".acl.allow" {
+	switch e.Action {
+	case ".acl.allow":
 		rule.Type = "allow"
-	} else if e.Action == ".acl.deny" {
+	case ".acl.deny":
 		rule.Type = "deny"
-	} else {
+	default:
 		return nil, fmt.Errorf("invalid ACL action: %s", e.Action)
 	}
-	rule.Timestamp = e.Timestamp
 	return &rule, nil
 }

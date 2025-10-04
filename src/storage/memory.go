@@ -57,7 +57,7 @@ func NewMemoryStorage(aclRules []models.AclRule) *MemoryStorage {
 		})
 		event := models.Event{
 			UUID:      fmt.Sprintf("acl-%d", i),
-			Timestamp: rule.Timestamp,
+			Timestamp: uint64(time.Now().Unix()),
 			User:      ".root",
 			Item:      ".acl",
 			Action:    ".acl." + rule.Type,

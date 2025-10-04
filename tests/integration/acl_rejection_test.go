@@ -15,19 +15,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestACLRejectionViaEvents(t *testing.T) {
+func TestAclRejectionViaEvents(t *testing.T) {
 	// Setup Gin router in test mode
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// Setup ACL rules to allow the test user to create events
+	// Setup ACL rules to allow the default user to create events
 	aclRules := []models.AclRule{
 		{
-			User:      "user-123",
-			Item:      "item456",
-			Action:    "create",
-			Type:      "allow",
-			Timestamp: 1640995200,
+			User:   ".root",
+			Item:   "item456",
+			Action: "create",
+			Type:   "allow",
 		},
 	}
 
@@ -40,18 +39,8 @@ func TestACLRejectionViaEvents(t *testing.T) {
 	err := store.SaveUser(rootUser)
 	assert.NoError(t, err)
 
-	// Create API key for root (not used in this test)
-	_, _, err = h.AuthService().GenerateApiKey(".root", "Test Key")
-	assert.NoError(t, err)
-
-	// Create the target user
-	user := &models.User{Id: "user-123"}
-	err = store.SaveUser(user)
-	assert.NoError(t, err)
-
-	// Generate API key for user
-	_, userApiKey, err := h.AuthService().GenerateApiKey("user-123", "User Key")
-	assert.NoError(t, err)
+	// Use default admin API key
+	userApiKey := "sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
 
 	// Register routes with auth middleware
 	v1 := router.Group("/api/v1")
@@ -63,7 +52,7 @@ func TestACLRejectionViaEvents(t *testing.T) {
 	aclEventJSON := `[{
 		"uuid": "acl-test-123",
 		"timestamp": 1640995200,
-		"user": "user-123",
+		"user": ".root",
 		"item": ".acl",
 		"action": ".acl.allow",
 		"payload": "{\"user\":\"user-456\",\"item\":\"item789\",\"action\":\"read\"}"
