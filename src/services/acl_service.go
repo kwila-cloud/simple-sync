@@ -123,11 +123,6 @@ func (s *AclService) AddRule(rule models.AclRule) {
 	s.rules = append(s.rules, rule)
 }
 
-// RefreshRules reloads rules from storage
-func (s *AclService) RefreshRules() {
-	s.loadRules()
-}
-
 // Calculates the specificity score for a pattern (wildcards worth 0.5)
 func calculateSpecificity(pattern string) float64 {
 	score := float64(len(pattern))

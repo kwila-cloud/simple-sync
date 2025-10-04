@@ -3,7 +3,6 @@ package integration
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -67,7 +66,12 @@ func TestProtectedEndpointAccess(t *testing.T) {
 
 	// Test 3: Get API key, then access with API key - should succeed
 	// Generate setup token
-	setupReq, _ := http.NewRequest("POST", fmt.Sprintf("/api/v1/user/generateToken?user=%s", storage.TestingUserId), nil)
+	generateRequest := map[string]interface{}{
+		"user": storage.TestingUserId,
+	}
+	requestBody, _ := json.Marshal(generateRequest)
+	setupReq, _ := http.NewRequest("POST", "/api/v1/user/generateToken", bytes.NewBuffer(requestBody))
+	setupReq.Header.Set("Content-Type", "application/json")
 	setupReq.Header.Set("X-API-Key", storage.TestingRootApiKey)
 	setupW := httptest.NewRecorder()
 

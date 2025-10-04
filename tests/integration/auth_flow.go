@@ -3,7 +3,6 @@ package integration
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -49,7 +48,12 @@ func TestAuthenticationFlow(t *testing.T) {
 	v1.POST("/setup/exchangeToken", h.PostSetupExchangeToken)
 
 	// Step 1: Generate setup token
-	setupReq, _ := http.NewRequest("POST", fmt.Sprintf("/api/v1/user/generateToken?user=%s", storage.TestingRootApiKey), nil)
+	generateRequest := map[string]interface{}{
+		"user": storage.TestingRootApiKey,
+	}
+	requestBody, _ := json.Marshal(generateRequest)
+	setupReq, _ := http.NewRequest("POST", "/api/v1/user/generateToken", bytes.NewBuffer(requestBody))
+	setupReq.Header.Set("Content-Type", "application/json")
 	setupReq.Header.Set("X-API-Key", storage.TestingRootApiKey)
 	setupW := httptest.NewRecorder()
 
@@ -93,14 +97,14 @@ func TestAuthenticationFlow(t *testing.T) {
 	assert.Equal(t, http.StatusOK, getW.Code)
 
 	// Step 4: Use API key to POST events
-	eventJSON := fmt.Sprintf(`[{
+	eventJSON := `[{
   		"uuid": "123e4567-e89b-12d3-a456-426614174000",
   		"timestamp": 1640995200,
-  		"user": "%s",
+  		"user": "` + storage.TestingRootApiKey + `",
   		"item": "item456",
   		"action": "create",
   		"payload": "{}"
-  	}]`, storage.TestingUserId)
+  	}]`
 
 	postReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	postReq.Header.Set("Content-Type", "application/json")

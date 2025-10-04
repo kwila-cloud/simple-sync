@@ -68,7 +68,17 @@ func (h *Handlers) PostUserResetKey(c *gin.Context) {
 
 // PostUserGenerateToken handles POST /api/v1/user/generateToken
 func (h *Handlers) PostUserGenerateToken(c *gin.Context) {
-	userId := c.Query("user")
+	var request struct {
+		User string `json:"user" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		log.Printf("PostUserGenerateToken: invalid request format: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		return
+	}
+
+	userId := request.User
 	if userId == "" {
 		log.Printf("PostUserGenerateToken: missing user parameter")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "user parameter required"})

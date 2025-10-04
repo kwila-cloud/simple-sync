@@ -3,7 +3,6 @@ package integration
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -30,7 +29,13 @@ func TestAuthErrorScenariosIntegration(t *testing.T) {
 	v1.POST("/user/exchangeToken", h.PostSetupExchangeToken)
 
 	t.Run("InsufficientPermissions", func(t *testing.T) {
-		req, _ := http.NewRequest("POST", fmt.Sprintf("/api/v1/user/generateToken?user=%s", storage.TestingUserId), nil)
+		// Test data - generate token request
+		generateRequest := map[string]interface{}{
+			"user": storage.TestingUserId,
+		}
+		requestBody, _ := json.Marshal(generateRequest)
+
+		req, _ := http.NewRequest("POST", "/api/v1/user/generateToken", bytes.NewBuffer(requestBody))
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("X-API-Key", "sk_insufficient123456789012345678901234567890")
 		w := httptest.NewRecorder()
@@ -48,7 +53,13 @@ func TestAuthErrorScenariosIntegration(t *testing.T) {
 	})
 
 	t.Run("NonExistentUser", func(t *testing.T) {
-		req, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=nonexistent", nil)
+		// Test data - generate token request for nonexistent user
+		generateRequest := map[string]interface{}{
+			"user": "nonexistent",
+		}
+		requestBody, _ := json.Marshal(generateRequest)
+
+		req, _ := http.NewRequest("POST", "/api/v1/user/generateToken", bytes.NewBuffer(requestBody))
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("X-API-Key", "sk_admin123456789012345678901234567890")
 		w := httptest.NewRecorder()

@@ -3,7 +3,6 @@ package contract
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -71,7 +70,14 @@ func TestPostUserGenerateToken(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/user/generateToken", h.PostUserGenerateToken)
 
-	req, _ := http.NewRequest("POST", fmt.Sprintf("/api/v1/user/generateToken?user=%s", storage.TestingUserId), nil)
+	// Test data - generate token request
+	generateRequest := map[string]interface{}{
+		"user": storage.TestingUserId,
+	}
+	requestBody, _ := json.Marshal(generateRequest)
+
+	// Create test request with valid API key auth
+	req, _ := http.NewRequest("POST", "/api/v1/user/generateToken", bytes.NewBuffer(requestBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-API-Key", storage.TestingRootApiKey)
 	w := httptest.NewRecorder()
