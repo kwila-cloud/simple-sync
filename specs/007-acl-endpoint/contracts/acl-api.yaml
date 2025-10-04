@@ -58,6 +58,7 @@ components:
         - user
         - item
         - action
+        - type
       properties:
         user:
           type: string
@@ -71,6 +72,11 @@ components:
           type: string
           description: Action being permitted
           example: "read"
+        type:
+          type: string
+          enum: [allow, deny]
+          description: Type of rule (allow or deny)
+          example: "allow"
     Error:
       type: object
       properties:

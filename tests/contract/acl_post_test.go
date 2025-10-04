@@ -44,7 +44,8 @@ func TestPostACL(t *testing.T) {
 	aclJSON := `[{
 		"user": "user-456",
 		"item": "item789",
-		"action": "read"
+		"action": "read",
+		"type": "allow"
 	}]`
 
 	// Create request

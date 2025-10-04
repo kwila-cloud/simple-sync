@@ -15,11 +15,22 @@ func TestACLEventValidate(t *testing.T) {
 		expected error
 	}{
 		{
-			name: "valid ACL event",
+			name: "valid ACL event allow",
 			event: models.ACLEvent{
 				User:   "user123",
 				Item:   "item456",
 				Action: "read",
+				Type:   "allow",
+			},
+			expected: nil,
+		},
+		{
+			name: "valid ACL event deny",
+			event: models.ACLEvent{
+				User:   "user123",
+				Item:   "item456",
+				Action: "read",
+				Type:   "deny",
 			},
 			expected: nil,
 		},
@@ -29,6 +40,7 @@ func TestACLEventValidate(t *testing.T) {
 				User:   "",
 				Item:   "item456",
 				Action: "read",
+				Type:   "allow",
 			},
 			expected: assert.AnError, // Will check error message
 		},
@@ -38,6 +50,7 @@ func TestACLEventValidate(t *testing.T) {
 				User:   "user123",
 				Item:   "",
 				Action: "read",
+				Type:   "allow",
 			},
 			expected: assert.AnError,
 		},
@@ -47,6 +60,17 @@ func TestACLEventValidate(t *testing.T) {
 				User:   "user123",
 				Item:   "item456",
 				Action: "",
+				Type:   "allow",
+			},
+			expected: assert.AnError,
+		},
+		{
+			name: "invalid type",
+			event: models.ACLEvent{
+				User:   "user123",
+				Item:   "item456",
+				Action: "read",
+				Type:   "invalid",
 			},
 			expected: assert.AnError,
 		},
@@ -56,6 +80,7 @@ func TestACLEventValidate(t *testing.T) {
 				User:   "user\x00",
 				Item:   "item456",
 				Action: "read",
+				Type:   "allow",
 			},
 			expected: assert.AnError,
 		},
@@ -65,6 +90,7 @@ func TestACLEventValidate(t *testing.T) {
 				User:   "user123",
 				Item:   "item\x01",
 				Action: "read",
+				Type:   "allow",
 			},
 			expected: assert.AnError,
 		},
@@ -74,6 +100,7 @@ func TestACLEventValidate(t *testing.T) {
 				User:   "user123",
 				Item:   "item456",
 				Action: "read\x02",
+				Type:   "allow",
 			},
 			expected: assert.AnError,
 		},

@@ -10,6 +10,7 @@ type ACLEvent struct {
 	User   string `json:"user" binding:"required"`
 	Item   string `json:"item" binding:"required"`
 	Action string `json:"action" binding:"required"`
+	Type   string `json:"type" binding:"required,oneof=allow deny"`
 }
 
 // Validate checks if the ACL event has valid data
@@ -22,6 +23,9 @@ func (a *ACLEvent) Validate() error {
 	}
 	if strings.TrimSpace(a.Action) == "" {
 		return errors.New("action is required and cannot be empty")
+	}
+	if a.Type != "allow" && a.Type != "deny" {
+		return errors.New("type must be either 'allow' or 'deny'")
 	}
 	// Check for control characters
 	if containsControlChars(a.User) || containsControlChars(a.Item) || containsControlChars(a.Action) {

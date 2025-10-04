@@ -65,7 +65,8 @@ func TestACLSubmission(t *testing.T) {
 	aclJSON := `[{
 		"user": "user-456",
 		"item": "item789",
-		"action": "read"
+		"action": "read",
+		"type": "allow"
 	}]`
 
 	req, _ := http.NewRequest("POST", "/api/v1/acl", bytes.NewBufferString(aclJSON))

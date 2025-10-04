@@ -63,7 +63,8 @@ func TestACLInvalidDataHandling(t *testing.T) {
 	invalidACLJSON := `[{
 		"user": "",
 		"item": "item789",
-		"action": "read"
+		"action": "read",
+		"type": "allow"
 	}]`
 
 	req, _ := http.NewRequest("POST", "/api/v1/acl", bytes.NewBufferString(invalidACLJSON))

@@ -12,7 +12,7 @@
    curl -X POST http://localhost:8080/api/v1/acl \
      -H "X-API-Key: YOUR_API_KEY" \
      -H "Content-Type: application/json" \
-     -d '[{"user":"testuser","item":"testitem","action":"read"}]'
+     -d '[{"user":"testuser","item":"testitem","action":"read","type":"allow"}]'
    ```
    Expected: 200 OK with success message
 

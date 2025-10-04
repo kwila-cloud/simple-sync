@@ -41,12 +41,14 @@ func (h *Handlers) PostACL(c *gin.Context) {
 		}
 		payloadJSON, _ := json.Marshal(payload)
 
+		eventAction := ".acl." + aclEvent.Type
+
 		event := models.Event{
 			UUID:      uuid.New().String(),
 			Timestamp: currentTime,
 			User:      aclEvent.User,
 			Item:      ".acl",
-			Action:    ".acl.allow",
+			Action:    eventAction,
 			Payload:   string(payloadJSON),
 		}
 		events = append(events, event)
