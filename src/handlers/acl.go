@@ -13,8 +13,8 @@ import (
 	"github.com/google/uuid"
 )
 
-// PostACL handles POST /api/v1/acl for submitting ACL events
-func (h *Handlers) PostACL(c *gin.Context) {
+// PostAcl handles POST /api/v1/acl for submitting ACL events
+func (h *Handlers) PostAcl(c *gin.Context) {
 	var aclRules []models.AclRule
 
 	// Bind JSON request to ACL rules

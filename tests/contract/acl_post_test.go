@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPostACL(t *testing.T) {
+func TestPostAcl(t *testing.T) {
 	// Setup Gin router in test mode
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
@@ -38,7 +38,7 @@ func TestPostACL(t *testing.T) {
 	v1 := router.Group("/api/v1")
 	auth := v1.Group("/")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
-	auth.POST("/acl", h.PostACL)
+	auth.POST("/acl", h.PostAcl)
 
 	// Sample ACL rule data
 	aclJSON := `[{

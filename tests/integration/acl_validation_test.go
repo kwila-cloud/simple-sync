@@ -38,7 +38,7 @@ func TestACLInvalidDataHandling(t *testing.T) {
 	v1 := router.Group("/api/v1")
 	auth := v1.Group("/")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
-	auth.POST("/acl", h.PostACL)
+	auth.POST("/acl", h.PostAcl)
 
 	// Test invalid ACL data: missing required field
 	invalidACLJSON := `[{
