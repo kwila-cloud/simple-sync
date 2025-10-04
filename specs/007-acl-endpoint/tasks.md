@@ -42,30 +42,30 @@
 
 ## Phase 3.1: Setup
 - [x] T001 Verify Go project structure and dependencies
-- [ ] T002 [P] Configure Go linting and formatting tools
+- [x] T002 [P] Configure Go linting and formatting tools
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**
-- [ ] T003 [P] Contract test for POST /api/v1/acl in tests/contract/acl_post_test.go
-- [ ] T004 [P] Integration test for ACL event submission in tests/integration/acl_submission_test.go
-- [ ] T005 [P] Integration test for ACL rejection via /events in tests/integration/acl_rejection_test.go
-- [ ] T006 [P] Integration test for invalid ACL data handling in tests/integration/acl_validation_test.go
+- [x] T003 [P] Contract test for POST /api/v1/acl in tests/contract/acl_post_test.go
+- [x] T004 [P] Integration test for ACL event submission in tests/integration/acl_submission_test.go
+- [x] T005 [P] Integration test for ACL rejection via /events in tests/integration/acl_rejection_test.go
+- [x] T006 [P] Integration test for invalid ACL data handling in tests/integration/acl_validation_test.go
 
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
-- [ ] T007 [P] ACL Event model validation in models/acl.go
-- [ ] T008 ACL handler for POST /api/v1/acl in handlers/acl.go
-- [ ] T009 Modify POST /api/v1/events handler to reject ACL events in handlers/handlers.go
+- [x] T007 [P] ACL Event model validation in models/acl.go
+- [x] T008 ACL handler for POST /api/v1/acl in handlers/acl.go
+- [x] T009 Modify POST /api/v1/events handler to reject ACL events in handlers/handlers.go
 
 ## Phase 3.4: Integration
-- [ ] T010 Integrate ACL storage with existing event storage in storage/interface.go and storage/memory.go
-- [ ] T011 Apply authentication middleware to ACL endpoint in main.go
+- [x] T010 Integrate ACL storage with existing event storage in storage/interface.go and storage/memory.go
+- [x] T011 Apply authentication middleware to ACL endpoint in main.go
 
 ## Phase 3.5: Polish
-- [ ] T012 [P] Unit tests for ACL validation in tests/unit/acl_validation_test.go
-- [ ] T013 [P] Update ACL documentation in docs/src/content/docs/acl.mdx
-- [ ] T014 [P] Update internal events documentation in docs/src/content/docs/internal-events.mdx
-- [ ] T015 [P] Update API documentation in docs/src/content/docs/api/v1.md
-- [ ] T016 Run quickstart validation tests
+- [x] T012 [P] Unit tests for ACL validation in tests/unit/acl_validation_test.go
+- [x] T013 [P] Update ACL documentation in docs/src/content/docs/acl.mdx
+- [x] T014 [P] Update internal events documentation in docs/src/content/docs/internal-events.mdx
+- [x] T015 [P] Update API documentation in docs/src/content/docs/api/v1.md
+- [x] T016 Run quickstart validation tests
 
 ## Dependencies
 - Tests (T003-T006) before implementation (T007-T011)
