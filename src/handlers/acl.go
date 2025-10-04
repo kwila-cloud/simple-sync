@@ -13,37 +13,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// validateAclRule checks if an ACL rule has valid data
-func validateAclRule(rule *models.AclRule) error {
-	if strings.TrimSpace(rule.User) == "" {
-		return errors.New("user is required and cannot be empty")
-	}
-	if strings.TrimSpace(rule.Item) == "" {
-		return errors.New("item is required and cannot be empty")
-	}
-	if strings.TrimSpace(rule.Action) == "" {
-		return errors.New("action is required and cannot be empty")
-	}
-	if rule.Type != "allow" && rule.Type != "deny" {
-		return errors.New("type must be either 'allow' or 'deny'")
-	}
-	// Check for control characters
-	if containsControlChars(rule.User) || containsControlChars(rule.Item) || containsControlChars(rule.Action) {
-		return errors.New("user, item, and action cannot contain control characters")
-	}
-	return nil
-}
-
-// containsControlChars checks if string contains control characters
-func containsControlChars(s string) bool {
-	for _, r := range s {
-		if r < 32 || r == 127 {
-			return true
-		}
-	}
-	return false
-}
-
 // PostACL handles POST /api/v1/acl for submitting ACL events
 func (h *Handlers) PostACL(c *gin.Context) {
 	var aclRules []models.AclRule
@@ -94,4 +63,35 @@ func (h *Handlers) PostACL(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "ACL events submitted"})
+}
+
+// checks if an ACL rule has valid data
+func validateAclRule(rule *models.AclRule) error {
+	if strings.TrimSpace(rule.User) == "" {
+		return errors.New("user is required and cannot be empty")
+	}
+	if strings.TrimSpace(rule.Item) == "" {
+		return errors.New("item is required and cannot be empty")
+	}
+	if strings.TrimSpace(rule.Action) == "" {
+		return errors.New("action is required and cannot be empty")
+	}
+	if rule.Type != "allow" && rule.Type != "deny" {
+		return errors.New("type must be either 'allow' or 'deny'")
+	}
+	// Check for control characters
+	if containsControlChars(rule.User) || containsControlChars(rule.Item) || containsControlChars(rule.Action) {
+		return errors.New("user, item, and action cannot contain control characters")
+	}
+	return nil
+}
+
+// checks if string contains control characters
+func containsControlChars(s string) bool {
+	for _, r := range s {
+		if r < 32 || r == 127 {
+			return true
+		}
+	}
+	return false
 }
