@@ -30,10 +30,16 @@ func TestPostUserResetKey(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/user/resetKey", h.PostUserResetKey)
 
+	// Test data - reset key request
+	resetRequest := map[string]interface{}{
+		"user": storage.TestingUserId,
+	}
+	requestBody, _ := json.Marshal(resetRequest)
+
 	// Create test request with valid API key auth
-	req, _ := http.NewRequest("POST", fmt.Sprintf("/api/v1/user/resetKey?user=%s", storage.TestingUserId), nil)
+	req, _ := http.NewRequest("POST", "/api/v1/user/resetKey", bytes.NewBuffer(requestBody))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-API-Key", storage.TestingApiKey)
+	req.Header.Set("X-API-Key", storage.TestingRootApiKey)
 	w := httptest.NewRecorder()
 
 	// Perform request

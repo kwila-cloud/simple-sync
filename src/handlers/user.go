@@ -10,7 +10,17 @@ import (
 
 // PostUserResetKey handles POST /api/v1/user/resetKey
 func (h *Handlers) PostUserResetKey(c *gin.Context) {
-	userId := c.Query("user")
+	var request struct {
+		User string `json:"user" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		log.Printf("PostUserResetKey: invalid request format: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		return
+	}
+
+	userId := request.User
 	if userId == "" {
 		log.Printf("PostUserResetKey: missing user parameter")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "user parameter required"})
