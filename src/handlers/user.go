@@ -83,6 +83,7 @@ func (h *Handlers) PostUserGenerateToken(c *gin.Context) {
 
 	if !h.aclService.CheckPermission(callerUserId.(string), userId, ".user.generateToken") {
 		c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
+		return
 	}
 
 	// Generate setup token

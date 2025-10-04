@@ -65,3 +65,94 @@ func TestPostAcl(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "ACL events submitted", response["message"])
 }
+
+func TestPostAclInsufficientPermissions(t *testing.T) {
+	// Setup Gin router in test mode
+	gin.SetMode(gin.TestMode)
+	router := gin.Default()
+
+	// Setup handlers WITHOUT ACL rules (user has no permission to set ACL rules)
+	h := handlers.NewTestHandlers(nil)
+
+	// Register routes with auth middleware
+	v1 := router.Group("/api/v1")
+	auth := v1.Group("/")
+	auth.Use(middleware.AuthMiddleware(h.AuthService()))
+	auth.POST("/acl", h.PostAcl)
+
+	// Sample ACL rule data
+	aclJSON := `[{
+		"user": "user-456",
+		"item": "item789",
+		"action": "read",
+		"type": "allow"
+	}]`
+
+	// Create request
+	req, _ := http.NewRequest("POST", "/api/v1/acl", bytes.NewBufferString(aclJSON))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-API-Key", storage.TestingApiKey)
+
+	// Perform request
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	// Assert response
+	assert.Equal(t, http.StatusForbidden, w.Code)
+
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.Equal(t, "Insufficient permissions to set ACL rule", response["error"])
+
+	// Verify the invalid rule is included in the response
+	rule, exists := response["rule"]
+	assert.True(t, exists, "Response should include the invalid rule")
+
+	ruleMap, ok := rule.(map[string]interface{})
+	assert.True(t, ok, "Rule should be a map")
+	assert.Equal(t, "user-456", ruleMap["user"])
+	assert.Equal(t, "item789", ruleMap["item"])
+	assert.Equal(t, "read", ruleMap["action"])
+	assert.Equal(t, "allow", ruleMap["type"])
+}
+
+func TestPostAclInvalidApiKey(t *testing.T) {
+	// Setup Gin router in test mode
+	gin.SetMode(gin.TestMode)
+	router := gin.Default()
+
+	// Setup handlers
+	h := handlers.NewTestHandlers(nil)
+
+	// Register routes with auth middleware
+	v1 := router.Group("/api/v1")
+	auth := v1.Group("/")
+	auth.Use(middleware.AuthMiddleware(h.AuthService()))
+	auth.POST("/acl", h.PostAcl)
+
+	// Sample ACL rule data
+	aclJSON := `[{
+		"user": "user-456",
+		"item": "item789",
+		"action": "read",
+		"type": "allow"
+	}]`
+
+	// Create request with invalid API key
+	req, _ := http.NewRequest("POST", "/api/v1/acl", bytes.NewBufferString(aclJSON))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-API-Key", "invalid-api-key")
+
+	// Perform request
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	// Assert response - should be unauthorized due to invalid API key
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+
+	var response map[string]string
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.Equal(t, "Invalid API key", response["error"])
+}
