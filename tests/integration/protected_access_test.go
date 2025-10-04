@@ -32,7 +32,7 @@ func TestProtectedEndpointAccess(t *testing.T) {
 	auth.POST("/user/generateToken", h.PostUserGenerateToken)
 
 	// Setup routes (no middleware)
-	v1.POST("/setup/exchangeToken", h.PostSetupExchangeToken)
+	v1.POST("/user/exchangeToken", h.PostSetupExchangeToken)
 
 	// Protected routes with auth middleware
 	auth.GET("/events", h.GetEvents)
@@ -86,7 +86,7 @@ func TestProtectedEndpointAccess(t *testing.T) {
 	}
 	exchangeBody, _ := json.Marshal(exchangeRequest)
 
-	exchangeReq, _ := http.NewRequest("POST", "/api/v1/setup/exchangeToken", bytes.NewBuffer(exchangeBody))
+	exchangeReq, _ := http.NewRequest("POST", "/api/v1/user/exchangeToken", bytes.NewBuffer(exchangeBody))
 	exchangeReq.Header.Set("Content-Type", "application/json")
 	exchangeW := httptest.NewRecorder()
 

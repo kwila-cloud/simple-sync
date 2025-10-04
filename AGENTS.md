@@ -110,7 +110,7 @@ curl -X POST http://localhost:8080/api/v1/user/generateToken?user=testuser \
   -H "X-API-Key: sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
 
 # Exchange setup token for API key
-curl -X POST http://localhost:8080/api/v1/setup/exchangeToken \
+curl -X POST http://localhost:8080/api/v1/user/exchangeToken \
   -H "Content-Type: application/json" \
   -d '{"token":"setup-token-here"}'
 
@@ -169,7 +169,7 @@ SETUP_TOKEN=$(echo $RESPONSE | jq -r '.token')
 echo "Setup Token: $SETUP_TOKEN"
 
 # 3. Exchange for API key
-RESPONSE=$(curl -s -X POST http://localhost:8080/api/v1/setup/exchangeToken \
+RESPONSE=$(curl -s -X POST http://localhost:8080/api/v1/user/exchangeToken \
   -H "Content-Type: application/json" \
   -d "{\"token\":\"$SETUP_TOKEN\"}")
 

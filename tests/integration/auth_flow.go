@@ -69,7 +69,7 @@ func TestAuthenticationFlow(t *testing.T) {
 	}
 	exchangeBody, _ := json.Marshal(exchangeRequest)
 
-	exchangeReq, _ := http.NewRequest("POST", "/api/v1/setup/exchangeToken", bytes.NewBuffer(exchangeBody))
+	exchangeReq, _ := http.NewRequest("POST", "/api/v1/user/exchangeToken", bytes.NewBuffer(exchangeBody))
 	exchangeReq.Header.Set("Content-Type", "application/json")
 	exchangeW := httptest.NewRecorder()
 

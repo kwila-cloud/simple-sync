@@ -101,7 +101,7 @@ func TestPostSetupExchangeToken(t *testing.T) {
 
 	// Register routes
 	v1 := router.Group("/api/v1")
-	v1.POST("/setup/exchangeToken", h.PostSetupExchangeToken)
+	v1.POST("/user/exchangeToken", h.PostSetupExchangeToken)
 
 	// Test data - exchange setup token
 	exchangeRequest := map[string]interface{}{
@@ -111,7 +111,7 @@ func TestPostSetupExchangeToken(t *testing.T) {
 	requestBody, _ := json.Marshal(exchangeRequest)
 
 	// Create test request (no auth header needed for exchange)
-	req, _ := http.NewRequest("POST", "/api/v1/setup/exchangeToken", bytes.NewBuffer(requestBody))
+	req, _ := http.NewRequest("POST", "/api/v1/user/exchangeToken", bytes.NewBuffer(requestBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 

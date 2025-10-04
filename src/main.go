@@ -57,7 +57,7 @@ func main() {
 	auth.POST("/user/generateToken", h.PostUserGenerateToken)
 
 	// Setup routes (no middleware - token-based auth)
-	v1.POST("/setup/exchangeToken", h.PostSetupExchangeToken)
+	v1.POST("/user/exchangeToken", h.PostSetupExchangeToken)
 
 	// Health check route (no middleware)
 	v1.GET("/health", h.GetHealth)

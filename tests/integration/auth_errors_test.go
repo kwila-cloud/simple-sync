@@ -27,7 +27,7 @@ func TestAuthErrorScenariosIntegration(t *testing.T) {
 	v1 := router.Group("/api/v1")
 	v1.POST("/user/generateToken", h.PostUserGenerateToken)
 	v1.POST("/user/resetKey", h.PostUserResetKey)
-	v1.POST("/setup/exchangeToken", h.PostSetupExchangeToken)
+	v1.POST("/user/exchangeToken", h.PostSetupExchangeToken)
 
 	t.Run("InsufficientPermissions", func(t *testing.T) {
 		req, _ := http.NewRequest("POST", fmt.Sprintf("/api/v1/user/generateToken?user=%s", storage.TestingUserId), nil)
@@ -73,7 +73,7 @@ func TestAuthErrorScenariosIntegration(t *testing.T) {
 		}
 		requestBody, _ := json.Marshal(exchangeRequest)
 
-		req, _ := http.NewRequest("POST", "/api/v1/setup/exchangeToken", bytes.NewBuffer(requestBody))
+		req, _ := http.NewRequest("POST", "/api/v1/user/exchangeToken", bytes.NewBuffer(requestBody))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 
@@ -97,7 +97,7 @@ func TestAuthErrorScenariosIntegration(t *testing.T) {
 		}
 		requestBody, _ := json.Marshal(exchangeRequest)
 
-		req, _ := http.NewRequest("POST", "/api/v1/setup/exchangeToken", bytes.NewBuffer(requestBody))
+		req, _ := http.NewRequest("POST", "/api/v1/user/exchangeToken", bytes.NewBuffer(requestBody))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 

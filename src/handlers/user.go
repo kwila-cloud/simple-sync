@@ -109,7 +109,7 @@ func (h *Handlers) PostUserGenerateToken(c *gin.Context) {
 	})
 }
 
-// PostSetupExchangeToken handles POST /api/v1/setup/exchangeToken
+// PostSetupExchangeToken handles POST /api/v1/user/exchangeToken
 func (h *Handlers) PostSetupExchangeToken(c *gin.Context) {
 	var request struct {
 		Token       string `json:"token" binding:"required"`
