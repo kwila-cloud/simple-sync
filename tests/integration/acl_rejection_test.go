@@ -34,11 +34,6 @@ func TestAclRejectionViaEvents(t *testing.T) {
 	store := storage.NewMemoryStorage(aclRules)
 	h := handlers.NewTestHandlersWithStorage(store)
 
-	// Create the default user
-	user := &models.User{Id: "user-123"}
-	err := store.SaveUser(user)
-	assert.NoError(t, err)
-
 	// Use default API key for user-123
 	userApiKey := "sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
 
