@@ -3,7 +3,6 @@ package storage
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"sync"
 	"time"
 
@@ -12,8 +11,12 @@ import (
 	"simple-sync/src/models"
 )
 
-// MemoryStorage implements in-memory storage
-type MemoryStorage struct {
+const TestingUserId = "user-123"
+const TestingApiKey = "sk_fSiYfCABeWUsDjgU3ExViC7/UCkccpxyllbCNJsMGYk"
+const TestingRootApiKey = "sk_RYQR7tiqy82dbNEcAdHtO4mbl4YFo9GDF2sr0PbwTlY"
+
+// TestStorage implements in-memory storage for testing,
+type TestStorage struct {
 	events      []models.Event
 	users       map[string]*models.User       // id -> user
 	apiKeys     map[string]*models.APIKey     // uuid -> api key
@@ -21,26 +24,41 @@ type MemoryStorage struct {
 	mutex       sync.RWMutex
 }
 
-// NewMemoryStorage creates a new instance of MemoryStorage
-func NewMemoryStorage(aclRules []models.AclRule) *MemoryStorage {
-	storage := &MemoryStorage{
+// NewTestStorage creates a new instance of TestStorage with a default user
+func NewTestStorage(aclRules []models.AclRule) *TestStorage {
+	storage := &TestStorage{
 		events:      make([]models.Event, 0),
 		users:       make(map[string]*models.User),
 		apiKeys:     make(map[string]*models.APIKey),
 		setupTokens: make(map[string]*models.SetupToken),
 	}
 
-	// Add default user
-	defaultUser, _ := models.NewUser("user-123")
-	storage.SaveUser(defaultUser)
+	// Add root user
+	rootUser, _ := models.NewUser(".root")
+	storage.SaveUser(rootUser)
 
-	// Add default API key for test user (use a valid base64 key)
-	plainKey := "sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
-	keyHash, _ := bcrypt.GenerateFromPassword([]byte(plainKey), bcrypt.DefaultCost)
+	// Add root API key
+	keyHash, _ := bcrypt.GenerateFromPassword([]byte(TestingRootApiKey), bcrypt.DefaultCost)
 	now := time.Now()
 	apiKey := &models.APIKey{
+		UUID:        "test-root-api-key-uuid",
+		UserID:      ".root",
+		KeyHash:     string(keyHash),
+		Description: "Test Root API Key",
+		CreatedAt:   now,
+		LastUsedAt:  &now,
+	}
+	storage.CreateAPIKey(apiKey)
+
+	// Add default user
+	defaultUser, _ := models.NewUser(TestingUserId)
+	storage.SaveUser(defaultUser)
+
+	keyHash, _ = bcrypt.GenerateFromPassword([]byte(TestingApiKey), bcrypt.DefaultCost)
+	now = time.Now()
+	apiKey = &models.APIKey{
 		UUID:        "test-api-key-uuid",
-		UserID:      "user-123",
+		UserID:      TestingUserId,
 		KeyHash:     string(keyHash),
 		Description: "Test API Key",
 		CreatedAt:   now,
@@ -49,28 +67,22 @@ func NewMemoryStorage(aclRules []models.AclRule) *MemoryStorage {
 	storage.CreateAPIKey(apiKey)
 
 	// Add initial ACL rules as events
-	for i, rule := range aclRules {
-		payload, _ := json.Marshal(map[string]string{
-			"user":   rule.User,
-			"item":   rule.Item,
-			"action": rule.Action,
-		})
-		event := models.Event{
-			UUID:      fmt.Sprintf("acl-%d", i),
-			Timestamp: rule.Timestamp,
-			User:      ".root",
-			Item:      ".acl",
-			Action:    ".acl." + rule.Type,
-			Payload:   string(payload),
-		}
-		storage.events = append(storage.events, event)
+	for _, rule := range aclRules {
+		ruleJson, _ := json.Marshal(rule)
+
+		storage.events = append(storage.events, *models.NewEvent(
+			".root",
+			".acl",
+			".acl.addRule",
+			string(ruleJson),
+		))
 	}
 
 	return storage
 }
 
 // SaveEvents appends new events to the storage
-func (m *MemoryStorage) SaveEvents(events []models.Event) error {
+func (m *TestStorage) SaveEvents(events []models.Event) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	m.events = append(m.events, events...)
@@ -78,7 +90,7 @@ func (m *MemoryStorage) SaveEvents(events []models.Event) error {
 }
 
 // LoadEvents returns all stored events
-func (m *MemoryStorage) LoadEvents() ([]models.Event, error) {
+func (m *TestStorage) LoadEvents() ([]models.Event, error) {
 	m.mutex.RLock()
 	defer m.mutex.RUnlock()
 
@@ -90,7 +102,7 @@ func (m *MemoryStorage) LoadEvents() ([]models.Event, error) {
 }
 
 // SaveUser stores a user by id
-func (m *MemoryStorage) SaveUser(user *models.User) error {
+func (m *TestStorage) SaveUser(user *models.User) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	m.users[user.Id] = user
@@ -98,7 +110,7 @@ func (m *MemoryStorage) SaveUser(user *models.User) error {
 }
 
 // GetUserById retrieves a user by id
-func (m *MemoryStorage) GetUserById(id string) (*models.User, error) {
+func (m *TestStorage) GetUserById(id string) (*models.User, error) {
 	m.mutex.RLock()
 	defer m.mutex.RUnlock()
 	user, exists := m.users[id]
@@ -109,7 +121,7 @@ func (m *MemoryStorage) GetUserById(id string) (*models.User, error) {
 }
 
 // CreateAPIKey stores a new API key
-func (m *MemoryStorage) CreateAPIKey(apiKey *models.APIKey) error {
+func (m *TestStorage) CreateAPIKey(apiKey *models.APIKey) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	m.apiKeys[apiKey.UUID] = apiKey
@@ -117,7 +129,7 @@ func (m *MemoryStorage) CreateAPIKey(apiKey *models.APIKey) error {
 }
 
 // GetAPIKeyByHash retrieves an API key by its hash
-func (m *MemoryStorage) GetAPIKeyByHash(hash string) (*models.APIKey, error) {
+func (m *TestStorage) GetAPIKeyByHash(hash string) (*models.APIKey, error) {
 	m.mutex.RLock()
 	defer m.mutex.RUnlock()
 	for _, apiKey := range m.apiKeys {
@@ -129,7 +141,7 @@ func (m *MemoryStorage) GetAPIKeyByHash(hash string) (*models.APIKey, error) {
 }
 
 // GetAllAPIKeys retrieves all API keys
-func (m *MemoryStorage) GetAllAPIKeys() ([]*models.APIKey, error) {
+func (m *TestStorage) GetAllAPIKeys() ([]*models.APIKey, error) {
 	m.mutex.RLock()
 	defer m.mutex.RUnlock()
 	keys := make([]*models.APIKey, 0, len(m.apiKeys))
@@ -140,7 +152,7 @@ func (m *MemoryStorage) GetAllAPIKeys() ([]*models.APIKey, error) {
 }
 
 // UpdateAPIKey updates an existing API key
-func (m *MemoryStorage) UpdateAPIKey(apiKey *models.APIKey) error {
+func (m *TestStorage) UpdateAPIKey(apiKey *models.APIKey) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	m.apiKeys[apiKey.UUID] = apiKey
@@ -148,7 +160,7 @@ func (m *MemoryStorage) UpdateAPIKey(apiKey *models.APIKey) error {
 }
 
 // CreateSetupToken stores a new setup token
-func (m *MemoryStorage) CreateSetupToken(token *models.SetupToken) error {
+func (m *TestStorage) CreateSetupToken(token *models.SetupToken) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	m.setupTokens[token.Token] = token
@@ -156,7 +168,7 @@ func (m *MemoryStorage) CreateSetupToken(token *models.SetupToken) error {
 }
 
 // GetSetupToken retrieves a setup token by its value
-func (m *MemoryStorage) GetSetupToken(token string) (*models.SetupToken, error) {
+func (m *TestStorage) GetSetupToken(token string) (*models.SetupToken, error) {
 	m.mutex.RLock()
 	defer m.mutex.RUnlock()
 	setupToken, exists := m.setupTokens[token]
@@ -167,7 +179,7 @@ func (m *MemoryStorage) GetSetupToken(token string) (*models.SetupToken, error) 
 }
 
 // UpdateSetupToken updates an existing setup token
-func (m *MemoryStorage) UpdateSetupToken(token *models.SetupToken) error {
+func (m *TestStorage) UpdateSetupToken(token *models.SetupToken) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	m.setupTokens[token.Token] = token
@@ -175,7 +187,7 @@ func (m *MemoryStorage) UpdateSetupToken(token *models.SetupToken) error {
 }
 
 // InvalidateUserSetupTokens marks all setup tokens for a user as used
-func (m *MemoryStorage) InvalidateUserSetupTokens(userID string) error {
+func (m *TestStorage) InvalidateUserSetupTokens(userID string) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	now := time.Now()
@@ -188,7 +200,7 @@ func (m *MemoryStorage) InvalidateUserSetupTokens(userID string) error {
 }
 
 // InvalidateUserAPIKeys removes all API keys for a user
-func (m *MemoryStorage) InvalidateUserAPIKeys(userID string) error {
+func (m *TestStorage) InvalidateUserAPIKeys(userID string) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	for uuid, apiKey := range m.apiKeys {

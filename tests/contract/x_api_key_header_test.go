@@ -7,13 +7,14 @@ import (
 
 	"simple-sync/src/handlers"
 	"simple-sync/src/middleware"
+	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
 
-// TestXAPIKeyHeaderAccepted tests that requests with X-API-Key header are accepted
-func TestXAPIKeyHeaderAccepted(t *testing.T) {
+// Tests that requests with X-API-Key header are accepted
+func TestXApiKeyHeaderAccepted(t *testing.T) {
 	// Setup Gin router in test mode
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
@@ -29,12 +30,9 @@ func TestXAPIKeyHeaderAccepted(t *testing.T) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	// Use default test API key
-	plainKey := "sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
-
 	// Create test request with X-API-Key header
 	req, _ := http.NewRequest("GET", "/api/v1/test", nil)
-	req.Header.Set("X-API-Key", plainKey)
+	req.Header.Set("X-API-Key", storage.TestingApiKey)
 	w := httptest.NewRecorder()
 
 	// Perform request

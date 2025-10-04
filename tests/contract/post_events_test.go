@@ -12,6 +12,7 @@ import (
 	"simple-sync/src/handlers"
 	"simple-sync/src/middleware"
 	"simple-sync/src/models"
+	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -25,11 +26,10 @@ func TestPostEvents(t *testing.T) {
 	// Setup ACL rules to allow the test user to create events
 	aclRules := []models.AclRule{
 		{
-			User:      "user-123",
-			Item:      "item456",
-			Action:    "create",
-			Type:      "allow",
-			Timestamp: 1640995200,
+			User:   storage.TestingUserId,
+			Item:   "item456",
+			Action: "create",
+			Type:   "allow",
 		},
 	}
 
@@ -43,22 +43,19 @@ func TestPostEvents(t *testing.T) {
 	auth.POST("/events", h.PostEvents)
 
 	// Sample event data
-	eventJSON := `[{
+	eventJSON := fmt.Sprintf(`[{
   		"uuid": "123e4567-e89b-12d3-a456-426614174000",
   		"timestamp": 1640995200,
-  		"user": "user-123",
+  		"user": "%s",
   		"item": "item456",
   		"action": "create",
   		"payload": "{}"
-   	}]`
-
-	// Use the default API key from memory storage
-	plainKey := "sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
+   	}]`, storage.TestingUserId)
 
 	// Create test request
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-API-Key", plainKey)
+	req.Header.Set("X-API-Key", storage.TestingApiKey)
 	w := httptest.NewRecorder()
 
 	// Perform request
@@ -85,7 +82,7 @@ func TestPostEvents(t *testing.T) {
 
 	// Check the returned event matches what was posted
 	assert.Equal(t, float64(1640995200), postedEvent["timestamp"])
-	assert.Equal(t, "user-123", postedEvent["user"])
+	assert.Equal(t, storage.TestingUserId, postedEvent["user"])
 	assert.Equal(t, "item456", postedEvent["item"])
 	assert.Equal(t, "create", postedEvent["action"])
 	assert.Equal(t, "{}", postedEvent["payload"])
@@ -106,9 +103,6 @@ func TestConcurrentPostEvents(t *testing.T) {
 	auth.POST("/events", h.PostEvents)
 	auth.GET("/events", h.GetEvents)
 
-	// Use the default API key from memory storage
-	plainKey := "sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
-
 	var wg sync.WaitGroup
 	numGoroutines := 10
 	eventsPerGoroutine := 5
@@ -121,10 +115,10 @@ func TestConcurrentPostEvents(t *testing.T) {
 			defer wg.Done()
 			for j := 0; j < eventsPerGoroutine; j++ {
 				uuid := fmt.Sprintf("%d-%d", id, j)
-				event := fmt.Sprintf(`[{"uuid":"%s","timestamp":%d,"user":"user-123","item":"i","action":"a","payload":"p"}]`, uuid, id*100+j+1)
+				event := fmt.Sprintf(`[{"uuid":"%s","timestamp":%d,"user":"%s","item":"i","action":"a","payload":"p"}]`, uuid, id*100+j+1, storage.TestingUserId)
 				req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(event))
 				req.Header.Set("Content-Type", "application/json")
-				req.Header.Set("X-API-Key", plainKey) // Add API key
+				req.Header.Set("X-API-Key", storage.TestingApiKey)
 				w := httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				assert.Equal(t, http.StatusForbidden, w.Code)
@@ -139,7 +133,7 @@ func TestConcurrentPostEvents(t *testing.T) {
 
 	// Check total events - should be 0 since all posts were denied
 	req, _ := http.NewRequest("GET", "/api/v1/events", nil)
-	req.Header.Set("X-API-Key", plainKey)
+	req.Header.Set("X-API-Key", storage.TestingApiKey)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)

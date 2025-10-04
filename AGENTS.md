@@ -110,7 +110,7 @@ curl -X POST http://localhost:8080/api/v1/user/generateToken?user=testuser \
   -H "X-API-Key: sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
 
 # Exchange setup token for API key
-curl -X POST http://localhost:8080/api/v1/setup/exchangeToken \
+curl -X POST http://localhost:8080/api/v1/user/exchangeToken \
   -H "Content-Type: application/json" \
   -d '{"token":"setup-token-here"}'
 
@@ -133,19 +133,6 @@ curl -X GET http://localhost:8080/api/v1/events \
 # Get events for specific item
 curl -X GET "http://localhost:8080/api/v1/events?itemUuid=item-123" \
   -H "X-API-Key: $API_KEY"
-```
-
-**ACL Testing:**
-```bash
-# Set permissions (post ACL event)
-curl -X POST http://localhost:8080/api/v1/events \
-  -H "X-API-Key: sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E" \
-  -H "Content-Type: application/json" \
-  -d '[{"uuid":"acl-123","timestamp":1640995200,"user":".root","item":".acl","action":".acl.allow","payload":"{\"user\":\"testuser\",\"item\":\"item-123\",\"action\":\"create\"}"}]'
-
-# Get ACL entries
-curl -X GET "http://localhost:8080/api/v1/events?itemUuid=.acl" \
-  -H "X-API-Key: sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
 ```
 
 **Database Persistence Verification:**
@@ -182,7 +169,7 @@ SETUP_TOKEN=$(echo $RESPONSE | jq -r '.token')
 echo "Setup Token: $SETUP_TOKEN"
 
 # 3. Exchange for API key
-RESPONSE=$(curl -s -X POST http://localhost:8080/api/v1/setup/exchangeToken \
+RESPONSE=$(curl -s -X POST http://localhost:8080/api/v1/user/exchangeToken \
   -H "Content-Type: application/json" \
   -d "{\"token\":\"$SETUP_TOKEN\"}")
 

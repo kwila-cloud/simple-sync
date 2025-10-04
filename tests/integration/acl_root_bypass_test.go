@@ -9,30 +9,18 @@ import (
 
 	"simple-sync/src/handlers"
 	"simple-sync/src/middleware"
-	"simple-sync/src/models"
 	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestACLRootUserBypass(t *testing.T) {
+func TestAclRootUserBypass(t *testing.T) {
 	// Setup Gin router in test mode
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// Setup handlers with memory storage
-	store := storage.NewMemoryStorage(nil)
-	h := handlers.NewTestHandlersWithStorage(store)
-
-	// Create root user
-	rootUser := &models.User{Id: ".root"}
-	err := store.SaveUser(rootUser)
-	assert.NoError(t, err)
-
-	// Create API key for root
-	_, adminApiKey, err := h.AuthService().GenerateApiKey(".root", "Test Key")
-	assert.NoError(t, err)
+	h := handlers.NewTestHandlers(nil)
 
 	// Register routes
 	v1 := router.Group("/api/v1")
@@ -60,7 +48,7 @@ func TestACLRootUserBypass(t *testing.T) {
 
 	postReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBuffer(eventBody))
 	postReq.Header.Set("Content-Type", "application/json")
-	postReq.Header.Set("X-API-Key", adminApiKey)
+	postReq.Header.Set("X-API-Key", storage.TestingRootApiKey)
 	postW := httptest.NewRecorder()
 
 	router.ServeHTTP(postW, postReq)

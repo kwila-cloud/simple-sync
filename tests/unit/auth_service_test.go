@@ -10,14 +10,14 @@ import (
 )
 
 func TestGenerateSetupToken(t *testing.T) {
-	store := storage.NewMemoryStorage(nil)
+	store := storage.NewTestStorage(nil)
 	authService := services.NewAuthService(store)
 
 	// Test generating setup token for existing user
-	setupToken, err := authService.GenerateSetupToken("user-123")
+	setupToken, err := authService.GenerateSetupToken(storage.TestingUserId)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, setupToken.Token)
-	assert.Equal(t, "user-123", setupToken.UserID)
+	assert.Equal(t, storage.TestingUserId, setupToken.UserID)
 	assert.NotNil(t, setupToken.ExpiresAt)
 
 	// Test generating for non-existent user
@@ -26,11 +26,11 @@ func TestGenerateSetupToken(t *testing.T) {
 }
 
 func TestExchangeSetupToken(t *testing.T) {
-	store := storage.NewMemoryStorage(nil)
+	store := storage.NewTestStorage(nil)
 	authService := services.NewAuthService(store)
 
 	// Generate setup token
-	setupToken, err := authService.GenerateSetupToken("user-123")
+	setupToken, err := authService.GenerateSetupToken(storage.TestingUserId)
 	assert.NoError(t, err)
 
 	// Test valid exchange
@@ -38,7 +38,7 @@ func TestExchangeSetupToken(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotEmpty(t, apiKey.UUID)
 	assert.NotEmpty(t, plainKey)
-	assert.Equal(t, "user-123", apiKey.UserID)
+	assert.Equal(t, storage.TestingUserId, apiKey.UserID)
 	assert.Equal(t, "Test Client", apiKey.Description)
 
 	// Test invalid token
@@ -51,11 +51,11 @@ func TestExchangeSetupToken(t *testing.T) {
 }
 
 func TestValidateApiKey(t *testing.T) {
-	store := storage.NewMemoryStorage(nil)
+	store := storage.NewTestStorage(nil)
 	authService := services.NewAuthService(store)
 
 	// Generate and exchange setup token to get API key
-	setupToken, err := authService.GenerateSetupToken("user-123")
+	setupToken, err := authService.GenerateSetupToken(storage.TestingUserId)
 	assert.NoError(t, err)
 	_, plainKey, err := authService.ExchangeSetupToken(setupToken.Token, "Test")
 	assert.NoError(t, err)
@@ -63,7 +63,7 @@ func TestValidateApiKey(t *testing.T) {
 	// Test valid API key
 	userID, err := authService.ValidateApiKey(plainKey)
 	assert.NoError(t, err)
-	assert.Equal(t, "user-123", userID)
+	assert.Equal(t, storage.TestingUserId, userID)
 
 	// Test invalid API key
 	_, err = authService.ValidateApiKey("invalid-key")

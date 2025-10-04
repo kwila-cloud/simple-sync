@@ -9,6 +9,7 @@ import (
 
 	"simple-sync/src/handlers"
 	"simple-sync/src/middleware"
+	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -28,23 +29,16 @@ func TestPostUserResetKey(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/user/resetKey", h.PostUserResetKey)
 
-	// Generate setup token and exchange for API key for authentication
-	setupToken, err := h.AuthService().GenerateSetupToken("user-123")
-	assert.NoError(t, err)
-	var apiKey string
-	_, apiKey, err = h.AuthService().ExchangeSetupToken(setupToken.Token, "test")
-	assert.NoError(t, err)
-
-	// Test data - reset key for user
-	resetRequest := map[string]string{
-		"user": "testuser",
+	// Test data - reset key request
+	resetRequest := map[string]interface{}{
+		"user": storage.TestingUserId,
 	}
 	requestBody, _ := json.Marshal(resetRequest)
 
 	// Create test request with valid API key auth
-	req, _ := http.NewRequest("POST", "/api/v1/user/resetKey?user=user-123", bytes.NewBuffer(requestBody))
+	req, _ := http.NewRequest("POST", "/api/v1/user/resetKey", bytes.NewBuffer(requestBody))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-API-Key", apiKey)
+	req.Header.Set("X-API-Key", storage.TestingRootApiKey)
 	w := httptest.NewRecorder()
 
 	// Perform request
@@ -56,7 +50,7 @@ func TestPostUserResetKey(t *testing.T) {
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	var response map[string]interface{}
-	err = json.Unmarshal(w.Body.Bytes(), &response)
+	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
 	assert.Contains(t, response, "message")
 	assert.Equal(t, "API keys invalidated successfully", response["message"])
@@ -76,23 +70,16 @@ func TestPostUserGenerateToken(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/user/generateToken", h.PostUserGenerateToken)
 
-	// Generate setup token and exchange for API key for authentication
-	setupToken, err := h.AuthService().GenerateSetupToken("user-123")
-	assert.NoError(t, err)
-	var apiKey string
-	_, apiKey, err = h.AuthService().ExchangeSetupToken(setupToken.Token, "test")
-	assert.NoError(t, err)
-
-	// Test data - generate token for user
-	generateRequest := map[string]string{
-		"user": "testuser",
+	// Test data - generate token request
+	generateRequest := map[string]interface{}{
+		"user": storage.TestingUserId,
 	}
 	requestBody, _ := json.Marshal(generateRequest)
 
 	// Create test request with valid API key auth
-	req, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=user-123", bytes.NewBuffer(requestBody))
+	req, _ := http.NewRequest("POST", "/api/v1/user/generateToken", bytes.NewBuffer(requestBody))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-API-Key", apiKey)
+	req.Header.Set("X-API-Key", storage.TestingRootApiKey)
 	w := httptest.NewRecorder()
 
 	// Perform request
@@ -104,7 +91,7 @@ func TestPostUserGenerateToken(t *testing.T) {
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	var response map[string]string
-	err = json.Unmarshal(w.Body.Bytes(), &response)
+	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
 	assert.Contains(t, response, "token")
 	assert.Contains(t, response, "expiresAt")
@@ -121,12 +108,12 @@ func TestPostSetupExchangeToken(t *testing.T) {
 	h := handlers.NewTestHandlers(nil)
 
 	// Generate setup token first
-	setupToken, err := h.AuthService().GenerateSetupToken("user-123")
+	setupToken, err := h.AuthService().GenerateSetupToken(storage.TestingUserId)
 	assert.NoError(t, err)
 
 	// Register routes
 	v1 := router.Group("/api/v1")
-	v1.POST("/setup/exchangeToken", h.PostSetupExchangeToken)
+	v1.POST("/user/exchangeToken", h.PostSetupExchangeToken)
 
 	// Test data - exchange setup token
 	exchangeRequest := map[string]interface{}{
@@ -136,7 +123,7 @@ func TestPostSetupExchangeToken(t *testing.T) {
 	requestBody, _ := json.Marshal(exchangeRequest)
 
 	// Create test request (no auth header needed for exchange)
-	req, _ := http.NewRequest("POST", "/api/v1/setup/exchangeToken", bytes.NewBuffer(requestBody))
+	req, _ := http.NewRequest("POST", "/api/v1/user/exchangeToken", bytes.NewBuffer(requestBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
