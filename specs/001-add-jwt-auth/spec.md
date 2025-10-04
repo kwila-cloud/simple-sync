@@ -7,6 +7,8 @@
 ## Summary
 Implemented JWT-based authentication system to secure the simple-sync API endpoints. Added token generation via POST /auth/token, JWT middleware for request validation, and integration with the existing ACL system for fine-grained access control.
 
+NOTE: this was later replaced with API-key authentication (see [`/specs/004-update-auth-system/spec.md`](/specs/004-update-auth-system/spec.md)).
+
 ## Key Technical Decisions
 
 ### Authentication Architecture
@@ -63,14 +65,3 @@ Implemented JWT-based authentication system to secure the simple-sync API endpoi
 - OAuth integration
 - Session management
 
-## Validation Checklist
-- [x] JWT token generation works with valid credentials
-- [x] Protected endpoints reject requests without tokens
-- [x] Valid tokens allow access to protected resources
-- [x] Invalid/expired tokens are properly rejected
-- [x] Authentication integrates with ACL system
-- [x] Performance meets <100ms requirement
-- [x] Error messages are clear and appropriate</content>
-</xai:function_call/>
-</xai:function_call name="run">
-<parameter name="command">cd /home/aemig/Documents/repos/kwila/simple-sync/specs/001-add-jwt-auth && rm plan.md research.md data-model.md quickstart.md tasks.md contracts/auth-api.yaml
