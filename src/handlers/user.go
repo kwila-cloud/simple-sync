@@ -10,47 +10,43 @@ import (
 
 // PostUserResetKey handles POST /api/v1/user/resetKey
 func (h *Handlers) PostUserResetKey(c *gin.Context) {
-	userID := c.Query("user")
-	if userID == "" {
+	userId := c.Query("user")
+	if userId == "" {
 		log.Printf("PostUserResetKey: missing user parameter")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "user parameter required"})
 		return
 	}
 
 	// Check if caller has permission (from middleware)
-	callerUserID, exists := c.Get("user_id")
+	callerUserId, exists := c.Get("user_id")
 	if !exists {
 		log.Printf("PostUserResetKey: user_id not found in context")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
 
-	// TODO(#5): Implement proper ACL permission check for .user.resetKey
-	// For now, allow all authenticated users (temporary until ACL system is implemented)
-	// The .root user should always have access according to the specification
-	if callerUserID == ".root" {
-		// Allow .root user unrestricted access
-	} else {
-		// TODO(#5): Check ACL rules for .user.resetKey permission on target user
+	if !h.aclService.CheckPermission(callerUserId.(string), userId, ".user.resetKey") {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
+		return
 	}
 
 	// Invalidate all existing API keys for the user
-	err := h.storage.InvalidateUserAPIKeys(userID)
+	err := h.storage.InvalidateUserAPIKeys(userId)
 	if err != nil {
-		log.Printf("PostUserResetKey: failed to invalidate API keys for user %s: %v", userID, err)
+		log.Printf("PostUserResetKey: failed to invalidate API keys for user %s: %v", userId, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
 
 	// Log the API call as an internal event
 	event := models.NewEvent(
-		callerUserID.(string),
-		".user."+userID,
+		callerUserId.(string),
+		".user."+userId,
 		".user.resetKey",
 		"{}",
 	)
 	if err := h.storage.SaveEvents([]models.Event{*event}); err != nil {
-		log.Printf("Failed to save reset key event for user %s: %v", userID, err)
+		log.Printf("Failed to save reset key event for user %s: %v", userId, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
