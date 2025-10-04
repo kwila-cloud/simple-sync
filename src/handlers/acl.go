@@ -15,6 +15,13 @@ import (
 
 // PostAcl handles POST /api/v1/acl for submitting ACL events
 func (h *Handlers) PostAcl(c *gin.Context) {
+	// Get authenticated user from context
+	userId, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		return
+	}
+
 	var aclRules []models.AclRule
 
 	// Bind JSON request to ACL rules
@@ -48,11 +55,21 @@ func (h *Handlers) PostAcl(c *gin.Context) {
 		event := models.Event{
 			UUID:      uuid.New().String(),
 			Timestamp: currentTime,
-			User:      rule.User,
+			User:      userId.(string),
 			Item:      ".acl",
 			Action:    eventAction,
 			Payload:   string(payloadJSON),
 		}
+
+		// Validate that the user has permission to set this ACL rule
+		if !h.aclService.ValidateAclEvent(&event) {
+			c.JSON(http.StatusForbidden, gin.H{
+				"error": "Insufficient permissions to set ACL rule",
+				"rule":  rule,
+			})
+			return
+		}
+
 		events = append(events, event)
 	}
 
