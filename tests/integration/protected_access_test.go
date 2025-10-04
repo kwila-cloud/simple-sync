@@ -3,13 +3,13 @@ package integration
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"simple-sync/src/handlers"
 	"simple-sync/src/middleware"
-	"simple-sync/src/models"
 	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
@@ -22,16 +22,8 @@ func TestProtectedEndpointAccess(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers with memory storage
-	store := storage.NewMemoryStorage(nil)
+	store := storage.NewTestStorage(nil)
 	h := handlers.NewTestHandlersWithStorage(store)
-
-	// Create root user and API key for authentication
-	rootUser := &models.User{Id: ".root"}
-	err := store.SaveUser(rootUser)
-	assert.NoError(t, err)
-
-	_, adminApiKey, err := h.AuthService().GenerateApiKey(".root", "Admin Key")
-	assert.NoError(t, err)
 
 	// Register routes
 	v1 := router.Group("/api/v1")
@@ -54,7 +46,6 @@ func TestProtectedEndpointAccess(t *testing.T) {
 
 	router.ServeHTTP(getW, getReq)
 
-	// Expected: 401 (will fail until middleware)
 	assert.Equal(t, http.StatusUnauthorized, getW.Code)
 
 	// Test 2: Access POST /events without token - should fail
@@ -78,8 +69,8 @@ func TestProtectedEndpointAccess(t *testing.T) {
 
 	// Test 3: Get API key, then access with API key - should succeed
 	// Generate setup token
-	setupReq, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=user-123", nil)
-	setupReq.Header.Set("X-API-Key", adminApiKey)
+	setupReq, _ := http.NewRequest("POST", fmt.Sprintf("/api/v1/user/generateToken?user=%s", storage.TestingUserId), nil)
+	setupReq.Header.Set("X-API-Key", storage.TestingRootApiKey)
 	setupW := httptest.NewRecorder()
 
 	router.ServeHTTP(setupW, setupReq)
@@ -87,7 +78,7 @@ func TestProtectedEndpointAccess(t *testing.T) {
 	assert.Equal(t, http.StatusOK, setupW.Code)
 
 	var setupResponse map[string]string
-	err = json.Unmarshal(setupW.Body.Bytes(), &setupResponse)
+	err := json.Unmarshal(setupW.Body.Bytes(), &setupResponse)
 	assert.NoError(t, err)
 	setupToken := setupResponse["token"]
 

@@ -30,8 +30,9 @@ func main() {
 	}
 	log.Printf("Environment loaded: PORT=%d, ENV=%s", envConfig.Port, envConfig.Environment)
 
-	// Initialize storage
-	store := storage.NewMemoryStorage(nil)
+	// Initialize storage.
+	// TODO(#7): use sqlite storage
+	store := storage.NewTestStorage(nil)
 
 	// Initialize handlers
 	h := handlers.NewHandlers(store, Version)

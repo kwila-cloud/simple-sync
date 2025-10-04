@@ -3,6 +3,7 @@ package integration
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -16,7 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSuccessfulAuthenticationFlow(t *testing.T) {
+func TestAuthenticationFlow(t *testing.T) {
 	// Setup Gin router in test mode
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
@@ -24,31 +25,15 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 	// Setup ACL rules to allow the test user to create events
 	aclRules := []models.AclRule{
 		{
-			User:      "user-123",
-			Item:      "item456",
-			Action:    "create",
-			Type:      "allow",
-			Timestamp: 1640995200,
+			User:   storage.TestingUserId,
+			Item:   "item456",
+			Action: "create",
+			Type:   "allow",
 		},
 	}
 
 	// Setup handlers with memory storage
-	store := storage.NewMemoryStorage(aclRules)
-	h := handlers.NewTestHandlersWithStorage(store)
-
-	// Create root user
-	rootUser := &models.User{Id: ".root"}
-	err := store.SaveUser(rootUser)
-	assert.NoError(t, err)
-
-	// Create API key for root
-	_, adminApiKey, err := h.AuthService().GenerateApiKey(".root", "Test Key")
-	assert.NoError(t, err)
-
-	// Create the target user
-	user := &models.User{Id: "user-123"}
-	err = store.SaveUser(user)
-	assert.NoError(t, err)
+	h := handlers.NewTestHandlers(aclRules)
 
 	// Register routes
 	v1 := router.Group("/api/v1")
@@ -64,8 +49,8 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 	v1.POST("/setup/exchangeToken", h.PostSetupExchangeToken)
 
 	// Step 1: Generate setup token
-	setupReq, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=user-123", nil)
-	setupReq.Header.Set("X-API-Key", adminApiKey)
+	setupReq, _ := http.NewRequest("POST", fmt.Sprintf("/api/v1/user/generateToken?user=%s", storage.TestingRootApiKey), nil)
+	setupReq.Header.Set("X-API-Key", storage.TestingRootApiKey)
 	setupW := httptest.NewRecorder()
 
 	router.ServeHTTP(setupW, setupReq)
@@ -73,7 +58,7 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 	assert.Equal(t, http.StatusOK, setupW.Code)
 
 	var setupResponse map[string]string
-	err = json.Unmarshal(setupW.Body.Bytes(), &setupResponse)
+	err := json.Unmarshal(setupW.Body.Bytes(), &setupResponse)
 	assert.NoError(t, err)
 	setupToken := setupResponse["token"]
 	assert.NotEmpty(t, setupToken)
@@ -108,14 +93,14 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 	assert.Equal(t, http.StatusOK, getW.Code)
 
 	// Step 4: Use API key to POST events
-	eventJSON := `[{
+	eventJSON := fmt.Sprintf(`[{
   		"uuid": "123e4567-e89b-12d3-a456-426614174000",
   		"timestamp": 1640995200,
-  		"user": "user-123",
+  		"user": "%s",
   		"item": "item456",
   		"action": "create",
   		"payload": "{}"
-  	}]`
+  	}]`, storage.TestingUserId)
 
 	postReq, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	postReq.Header.Set("Content-Type", "application/json")
@@ -144,7 +129,7 @@ func TestSuccessfulAuthenticationFlow(t *testing.T) {
 
 	// Check the returned event matches what was posted
 	assert.Equal(t, float64(1640995200), postedEvent["timestamp"])
-	assert.Equal(t, "user-123", postedEvent["user"])
+	assert.Equal(t, storage.TestingUserId, postedEvent["user"])
 	assert.Equal(t, "item456", postedEvent["item"])
 	assert.Equal(t, "create", postedEvent["action"])
 	assert.Equal(t, "{}", postedEvent["payload"])

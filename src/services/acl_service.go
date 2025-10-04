@@ -119,7 +119,7 @@ func (s *AclService) CheckPermission(user, item, action string) bool {
 			return actionI > actionJ
 		}
 		// Fallback to using the most recent rule
-		return applicableRules[i].Timestamp > applicableRules[j].Timestamp
+		return i > j
 	})
 
 	// The first (highest specificity/latest) determines

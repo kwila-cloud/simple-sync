@@ -12,52 +12,49 @@ import (
 )
 
 func TestAPIKeyGeneration(t *testing.T) {
-	// Create auth service with memory storage
-	store := storage.NewMemoryStorage(nil)
+	store := storage.NewTestStorage(nil)
 	authService := services.NewAuthService(store)
 
 	// Generate API key
-	apiKey, plainKey, err := authService.GenerateApiKey("user-123", "Test Client")
+	apiKey, plainKey, err := authService.GenerateApiKey(storage.TestingUserId, "Test Client")
 	assert.NoError(t, err)
 	assert.NotEmpty(t, apiKey)
 	assert.NotEmpty(t, plainKey)
 	assert.Contains(t, plainKey, "sk_")
-	assert.Equal(t, "user-123", apiKey.UserID)
+	assert.Equal(t, storage.TestingUserId, apiKey.UserID)
 	assert.Equal(t, "Test Client", apiKey.Description)
 }
 
 func TestSetupTokenGeneration(t *testing.T) {
-	// Create auth service with memory storage
-	store := storage.NewMemoryStorage(nil)
+	store := storage.NewTestStorage(nil)
 	authService := services.NewAuthService(store)
 
 	// Create and save a test user
-	user := &models.User{Id: "user-123"}
+	user := &models.User{Id: storage.TestingUserId}
 	err := store.SaveUser(user)
 	assert.NoError(t, err)
 
 	// Generate setup token
-	token, err := authService.GenerateSetupToken("user-123")
+	token, err := authService.GenerateSetupToken(storage.TestingUserId)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, token)
-	assert.Equal(t, "user-123", token.UserID)
+	assert.Equal(t, storage.TestingUserId, token.UserID)
 	assert.Regexp(t, `^[A-Z0-9]{4}-[A-Z0-9]{4}$`, token.Token)
 	assert.True(t, token.UsedAt.IsZero())
 	assert.True(t, token.ExpiresAt.After(token.ExpiresAt.Add(-25*time.Hour))) // Expires in ~24 hours
 }
 
 func TestSetupTokenValidation(t *testing.T) {
-	// Create auth service with memory storage
-	store := storage.NewMemoryStorage(nil)
+	store := storage.NewTestStorage(nil)
 	authService := services.NewAuthService(store)
 
 	// Create and save a test user
-	user := &models.User{Id: "user-123"}
+	user := &models.User{Id: storage.TestingUserId}
 	err := store.SaveUser(user)
 	assert.NoError(t, err)
 
 	// Generate setup token
-	token, err := authService.GenerateSetupToken("user-123")
+	token, err := authService.GenerateSetupToken(storage.TestingUserId)
 	assert.NoError(t, err)
 
 	// Test valid token

@@ -11,7 +11,7 @@ import (
 )
 
 func TestAclService_CheckPermission(t *testing.T) {
-	store := storage.NewMemoryStorage(nil)
+	store := storage.NewTestStorage(nil)
 	aclService := services.NewAclService(store)
 
 	// Test root bypass
@@ -37,7 +37,7 @@ func TestAclService_CheckPermission(t *testing.T) {
 }
 
 func TestAclService_Matches(t *testing.T) {
-	store := storage.NewMemoryStorage(nil)
+	store := storage.NewTestStorage(nil)
 	aclService := services.NewAclService(store)
 
 	// Test deny by default when no rules
@@ -52,11 +52,11 @@ func TestAclService_Matches(t *testing.T) {
 	}
 	aclService.AddRule(rule)
 
-	assert.True(t, aclService.CheckPermission("anyuser", "item1", "action1"))
+	assert.True(t, aclService.CheckPermission("user1", "item1", "action1"))
 }
 
 func TestAclService_Specificity(t *testing.T) {
-	store := storage.NewMemoryStorage(nil)
+	store := storage.NewTestStorage(nil)
 	aclService := services.NewAclService(store)
 
 	// Add deny rule with lower specificity
@@ -82,7 +82,7 @@ func TestAclService_Specificity(t *testing.T) {
 }
 
 func TestAclService_OrderResolution(t *testing.T) {
-	store := storage.NewMemoryStorage(nil)
+	store := storage.NewTestStorage(nil)
 	aclService := services.NewAclService(store)
 
 	// Add deny rule

@@ -10,6 +10,7 @@ import (
 	"simple-sync/src/handlers"
 	"simple-sync/src/middleware"
 	"simple-sync/src/models"
+	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -23,11 +24,10 @@ func TestPostACL(t *testing.T) {
 	// Setup ACL rules to allow the test user to submit ACL events
 	aclRules := []models.AclRule{
 		{
-			User:      "user-123",
-			Item:      ".acl",
-			Action:    ".acl.allow",
-			Type:      "allow",
-			Timestamp: 1640995200,
+			User:   storage.TestingUserId,
+			Item:   ".acl",
+			Action: ".acl.allow",
+			Type:   "allow",
 		},
 	}
 
@@ -38,7 +38,7 @@ func TestPostACL(t *testing.T) {
 	v1 := router.Group("/api/v1")
 	auth := v1.Group("/")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
-	auth.POST("/acl", h.PostACL) // This will fail until implemented
+	auth.POST("/acl", h.PostACL)
 
 	// Sample ACL rule data
 	aclJSON := `[{
@@ -51,13 +51,13 @@ func TestPostACL(t *testing.T) {
 	// Create request
 	req, _ := http.NewRequest("POST", "/api/v1/acl", bytes.NewBufferString(aclJSON))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-API-Key", "test-api-key")
+	req.Header.Set("X-API-Key", storage.TestingApiKey)
 
 	// Perform request
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
-	// Assert response (will fail until endpoint is implemented)
+	// Assert response
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var response map[string]string

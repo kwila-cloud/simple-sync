@@ -2,6 +2,7 @@ package integration
 
 import (
 	"bytes"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -20,22 +21,19 @@ func TestAclRejectionViaEvents(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// Setup ACL rules to allow the default user to create events
+	// Setup ACL rules to allow user to update the ACL
 	aclRules := []models.AclRule{
 		{
-			User:   "user-123",
-			Item:   "item456",
-			Action: "create",
+			User:   storage.TestingUserId,
+			Item:   ".acl",
+			Action: ".acl.*",
 			Type:   "allow",
 		},
 	}
 
 	// Setup handlers with memory storage
-	store := storage.NewMemoryStorage(aclRules)
+	store := storage.NewTestStorage(aclRules)
 	h := handlers.NewTestHandlersWithStorage(store)
-
-	// Use default API key for user-123
-	userApiKey := "sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
 
 	// Register routes with auth middleware
 	v1 := router.Group("/api/v1")
@@ -44,22 +42,22 @@ func TestAclRejectionViaEvents(t *testing.T) {
 	auth.POST("/events", h.PostEvents)
 
 	// Attempt to submit ACL event via /events (should be rejected)
-	aclEventJSON := `[{
+	aclEventJSON := fmt.Sprintf(`[{
 		"uuid": "acl-test-123",
 		"timestamp": 1640995200,
-		"user": "user-123",
+		"user": "%s",
 		"item": ".acl",
 		"action": ".acl.allow",
 		"payload": "{\"user\":\"user-456\",\"item\":\"item789\",\"action\":\"read\"}"
-	}]`
+	}]`, storage.TestingUserId)
 
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(aclEventJSON))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-API-Key", userApiKey)
+	req.Header.Set("X-API-Key", storage.TestingApiKey)
 
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
-	// Assert ACL event is rejected (will fail until rejection logic implemented)
+	// Assert ACL event is rejected
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 }

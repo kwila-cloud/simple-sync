@@ -34,7 +34,7 @@ func NewHandlers(storage storage.Storage, version string) *Handlers {
 
 // NewTestHandlers creates a new handlers instance with test defaults
 func NewTestHandlers(aclRules []models.AclRule) *Handlers {
-	return NewTestHandlersWithStorage(storage.NewMemoryStorage(aclRules))
+	return NewTestHandlersWithStorage(storage.NewTestStorage(aclRules))
 }
 
 // NewTestHandlersWithStorage creates a new handlers instance with test defaults and custom storage
@@ -79,22 +79,6 @@ func (h *Handlers) GetEvents(c *gin.Context) {
 
 // PostEvents handles POST /events
 func (h *Handlers) PostEvents(c *gin.Context) {
-	var events []models.Event
-
-	// Bind JSON array
-	if err := c.ShouldBindJSON(&events); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format"})
-		return
-	}
-
-	// Reject ACL events submitted via /events
-	for _, event := range events {
-		if event.Item == ".acl" && len(event.Action) > 4 && event.Action[:5] == ".acl." {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "ACL events must be submitted via dedicated /api/v1/acl endpoint"})
-			return
-		}
-	}
-
 	// Get authenticated user from context
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -104,35 +88,50 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 
 	userIDStr := userID.(string)
 
+	// Bind JSON array
+	var events []models.Event
+	if err := c.ShouldBindJSON(&events); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format"})
+		return
+	}
+
+	// Reject ACL events submitted via /events
+	for _, event := range events {
+		if event.Item == ".acl" && len(event.Action) > 4 && event.Action[:5] == ".acl." {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "ACL events must be submitted via dedicated /api/v1/acl endpoint", "eventUuid": event.UUID})
+			return
+		}
+	}
+
 	// Basic validation for each event first
-	for i := range events {
-		if events[i].UUID == "" || events[i].Item == "" || events[i].Action == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required fields", "eventUuid": events[i].UUID})
+	for _, event := range events {
+		if event.UUID == "" || event.Item == "" || event.Action == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required fields", "eventUuid": event.UUID})
 			return
 		}
 
 		// Enhanced timestamp validation
-		if err := validateTimestamp(events[i].Timestamp); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid timestamp", "eventUuid": events[i].UUID})
+		if err := validateTimestamp(event.Timestamp); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid timestamp", "eventUuid": event.UUID})
 			return
 		}
 
 		// Validate that the event user matches the authenticated user
-		if events[i].User != "" && events[i].User != userID.(string) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Cannot submit events for other users", "eventUuid": events[i].UUID})
+		if event.User != "" && event.User != userID.(string) {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Cannot submit events for other users", "eventUuid": event.UUID})
 			return
 		}
 	}
 
 	// ACL permission checks for each event
-	for i := range events {
-		if !h.aclService.CheckPermission(userIDStr, events[i].Item, events[i].Action) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions", "eventUuid": events[i].UUID})
+	for _, event := range events {
+		if !h.aclService.CheckPermission(userIDStr, event.Item, event.Action) {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions", "eventUuid": event.UUID})
 			return
 		}
 		// For ACL events, additional validation
-		if events[i].IsAclEvent() {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Cannot modify ACL rules through this endpoint", "eventUuid": events[i].UUID})
+		if event.IsAclEvent() {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Cannot modify ACL rules through this endpoint", "eventUuid": event.UUID})
 		}
 	}
 
