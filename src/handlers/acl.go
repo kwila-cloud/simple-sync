@@ -41,6 +41,12 @@ func (h *Handlers) PostAcl(c *gin.Context) {
 		return
 	}
 
+	// Validate that at least one ACL rule is provided
+	if len(aclRules) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "At least one ACL rule required"})
+		return
+	}
+
 	// Validate each ACL rule
 	for _, rule := range aclRules {
 		if err := validateAclRule(&rule); err != nil {
