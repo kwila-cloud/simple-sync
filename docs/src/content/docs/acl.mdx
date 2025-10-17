@@ -82,6 +82,10 @@ For item `task.456`, user `admin.123`, action `edit.description`, with item and 
 
 Item and user tied, compare action: Rule J (5.5) > Rule I (0.5) → Rule J wins.
 
+## Action Values
+
+Action values in ACL rules can be any custom string that matches the actions your application uses. The examples below show common patterns, but you can use any action names that make sense for your use case (e.g., `create`, `update`, `delete`, `publish`, `archive`, or domain-specific actions like `markComplete`, `assign`, `review`).
+
 ## Rule Examples
 
 To allow all users to mark "task.123" as complete:
