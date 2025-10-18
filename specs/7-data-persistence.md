@@ -24,8 +24,8 @@ Encryption at rest will be addressed separately (issue #17) using SQLCipher or f
 - [x] Add ACL-specific methods to storage interface
 
 ### ACL Service Refactoring  
-- [ ] Add tests expecting ACL service to use storage methods instead of events
-- [ ] Decouple ACL service from event-based rule loading
+- [x] Add tests expecting ACL service to use storage methods instead of events
+- [x] Decouple ACL service from event-based rule loading
 
 ### Storage Factory and Error Types
 - [ ] Add tests for storage factory and database-specific errors

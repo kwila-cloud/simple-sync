@@ -1,7 +1,6 @@
 ---
 description: Start a new pull request by checking specs and creating the appropriate branch
 agent: build
-subtask: true
 ---
 
 Automates the process of starting work on a new pull request for the given issue.
