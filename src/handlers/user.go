@@ -46,7 +46,7 @@ func (h *Handlers) PostUserResetKey(c *gin.Context) {
 	}
 
 	// Invalidate all existing API keys for the user
-	err := h.storage.InvalidateUserAPIKeys(userId)
+	err := h.storage.InvalidateUserApiKeys(userId)
 	if err != nil {
 		log.Printf("PostUserResetKey: failed to invalidate API keys for user %s: %v", userId, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})

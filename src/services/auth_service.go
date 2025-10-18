@@ -48,7 +48,7 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 	}
 
 	// Get all API keys and find the one that matches
-	apiKeys, err := s.storage.GetAllAPIKeys()
+	apiKeys, err := s.storage.GetAllApiKeys()
 	if err != nil {
 		return "", errors.New("failed to retrieve API keys")
 	}
@@ -67,7 +67,7 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 			}
 			go func() {
 				keyCopy.UpdateLastUsed()
-				if err := s.storage.UpdateAPIKey(keyCopy); err != nil {
+				if err := s.storage.UpdateApiKey(keyCopy); err != nil {
 					log.Printf("failed to update API key last used: %v", err)
 				}
 			}()
@@ -96,7 +96,7 @@ func (s *AuthService) GenerateApiKey(userID, description string) (*models.APIKey
 	apiKey := models.NewAPIKey(userID, string(keyHash), description)
 
 	// Store the API key
-	err = s.storage.CreateAPIKey(apiKey)
+	err = s.storage.CreateApiKey(apiKey)
 	if err != nil {
 		return nil, "", errors.New("failed to store API key")
 	}

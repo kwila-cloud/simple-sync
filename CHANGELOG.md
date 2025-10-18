@@ -1,6 +1,10 @@
 # Release History
 
-## [0.3.0] - unreleased
+## [0.4.0] - unreleased
+- [#49](https://github.com/kwila-cloud/simple-sync/pull/49): Added data persistence implementation specification
+
+
+## [0.3.0] - 2025-10-18
 - [#45](https://github.com/kwila-cloud/simple-sync/pull/45): Implement ACL endpoint
 - [#43](https://github.com/kwila-cloud/simple-sync/pull/43): Changed API authentication from Authorization: Bearer to X-API-Key header
 - [#40](https://github.com/kwila-cloud/simple-sync/pull/40): Implemented ACL system
