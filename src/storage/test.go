@@ -210,3 +210,40 @@ func (m *TestStorage) InvalidateUserApiKeys(userID string) error {
 	}
 	return nil
 }
+
+// CreateAclRule stores a new ACL rule
+func (m *TestStorage) CreateAclRule(rule *models.AclRule) error {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	// Convert ACL rule to event for backward compatibility during transition
+	ruleJson, _ := json.Marshal(rule)
+	event := models.NewEvent(
+		".root",
+		".acl",
+		".acl.addRule",
+		string(ruleJson),
+	)
+	m.events = append(m.events, *event)
+
+	return nil
+}
+
+// GetAclRules retrieves all ACL rules
+func (m *TestStorage) GetAclRules() ([]models.AclRule, error) {
+	m.mutex.RLock()
+	defer m.mutex.RUnlock()
+
+	var rules []models.AclRule
+	for _, event := range m.events {
+		if event.IsAclEvent() {
+			rule, err := event.ToAclRule()
+			if err != nil {
+				continue // Skip malformed ACL events
+			}
+			rules = append(rules, *rule)
+		}
+	}
+
+	return rules, nil
+}

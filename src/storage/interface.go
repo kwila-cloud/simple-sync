@@ -24,4 +24,8 @@ type Storage interface {
 	GetSetupToken(token string) (*models.SetupToken, error)
 	UpdateSetupToken(token *models.SetupToken) error
 	InvalidateUserSetupTokens(userID string) error
+
+	// ACL operations
+	CreateAclRule(rule *models.AclRule) error
+	GetAclRules() ([]models.AclRule, error)
 }
