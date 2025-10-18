@@ -178,3 +178,58 @@ func TestCreateAclRuleAndGetAclRulesIntegration(t *testing.T) {
 		}
 	}
 }
+
+func TestGetAclRulesWithMalformedRule(t *testing.T) {
+	testStorage := storage.NewTestStorage([]models.AclRule{})
+
+	// Add a valid rule
+	validRule := models.AclRule{
+		User:   "alice",
+		Item:   "document1",
+		Action: "read",
+		Type:   "allow",
+	}
+	err := testStorage.CreateAclRule(&validRule)
+	if err != nil {
+		t.Fatalf("Expected no error creating valid rule, got %v", err)
+	}
+
+	// Manually add a malformed ACL event (invalid JSON)
+	malformedEvent := models.Event{
+		User:    ".root",
+		Item:    ".acl",
+		Action:  ".acl.addRule",
+		Payload: "{invalid json}",
+	}
+	err = testStorage.SaveEvents([]models.Event{malformedEvent})
+	if err != nil {
+		t.Fatalf("Expected no error saving malformed event, got %v", err)
+	}
+
+	// GetAclRules should return an error due to malformed rule
+	_, err = testStorage.GetAclRules()
+	if err == nil {
+		t.Fatalf("Expected error due to malformed ACL rule, got nil")
+	}
+
+	expectedError := "malformed ACL rule in event"
+	if !contains(err.Error(), expectedError) {
+		t.Errorf("Expected error containing '%s', got '%s'", expectedError, err.Error())
+	}
+}
+
+// Helper function to check if string contains substring
+func contains(s, substr string) bool {
+	return len(s) >= len(substr) && (s == substr || len(s) > len(substr) &&
+		(s[:len(substr)] == substr || s[len(s)-len(substr):] == substr ||
+			indexOfSubstring(s, substr) >= 0))
+}
+
+func indexOfSubstring(s, substr string) int {
+	for i := 0; i <= len(s)-len(substr); i++ {
+		if s[i:i+len(substr)] == substr {
+			return i
+		}
+	}
+	return -1
+}

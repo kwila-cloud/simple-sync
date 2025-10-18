@@ -3,6 +3,7 @@ package storage
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -239,7 +240,7 @@ func (m *TestStorage) GetAclRules() ([]models.AclRule, error) {
 		if event.IsAclEvent() {
 			rule, err := event.ToAclRule()
 			if err != nil {
-				continue // Skip malformed ACL events
+				return nil, fmt.Errorf("malformed ACL rule in event: %w", err)
 			}
 			rules = append(rules, *rule)
 		}
