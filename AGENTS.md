@@ -81,6 +81,17 @@ See `specs/7-data-persistence.md` for a well-structured specification that:
 - **IMPORTANT**: Always verify the actual PR content before updating the changelog. Use `gh pr view <PR-number>` to check the PR title, body, and changed files to ensure accurate changelog entries.
 - **CRITICAL**: Add exactly ONE entry per PR. Never add multiple entries for the same pull request, even if the PR contains multiple types of changes. Combine all changes into a single, concise description.
 
+### Opencode Commands
+
+Opencode commands are defined as separate markdown files in `.opencode/command/`. Each command file should:
+- Have a `description` and `agent` in the frontmatter
+- Contain the command logic and usage instructions
+- Follow the naming convention `{command-name}.md`
+
+See `.opencode/command/` directory for examples.
+
+**Common mistake to avoid:** Do NOT add command documentation to AGENTS.md. Commands belong in their own files in `.opencode/command/`.
+
 ### Naming Scheme
 
 - **Code Names (variables, methods, functions)**: Don't put acronyms as all-caps in names. For example, use `AclRule` rather than `ACLRule` for an ACL rule.
