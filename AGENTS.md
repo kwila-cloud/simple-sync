@@ -67,6 +67,28 @@ See `specs/7-data-persistence.md` for a well-structured specification that:
 - Groups related functionality logically
 - Maintains focus without excessive detail
 
+### TDD Implementation Process
+
+**CRITICAL**: Always follow Test-Driven Development (TDD) when implementing features:
+
+1. **Tests First**: Write tests BEFORE implementing any code
+   - ✅ Good: "Add tests for X", then "Implement X" 
+   - ❌ Bad: "Implement X", then "Add tests for X"
+   - ✅ Good: Plan implementation order based on test requirements
+   - ❌ Bad: Plan implementation without considering test structure
+
+2. **Implementation Order**: 
+   - Read the spec task list carefully - tests are always listed before implementation
+   - Write failing tests first
+   - Implement minimal code to make tests pass
+   - Refactor if needed
+
+3. **Examples**:
+   - ✅ Good: "First I'll add tests for the new ACL storage methods, then implement the interface methods"
+   - ❌ Bad: "I'll implement the ACL storage interface, then add tests for it"
+
+4. **When in doubt**: If you're about to implement code without writing tests first, stop - you're violating TDD principles
+
 ### Git Workflow
 
 - Feature branches for issues (e.g., `63-new-setting`)
