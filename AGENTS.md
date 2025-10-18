@@ -32,14 +32,11 @@ Simple-sync is a lightweight REST API built in Go that provides event storage an
 - Use GitHub CLI for PR creation: `gh pr create`
 - Commit messages follow conventional format: `feat:`, `refactor:`, `chore:`, `fix:`, etc.
 
-**CHANGELOG Reminder:**
-- **ALWAYS update CHANGELOG.md** for any pull request that introduces user-facing changes
+### Changelog
+- **ALWAYS update add a new line to CHANGELOG.md for each new pull request.**
 - Document new features, enhancements, bug fixes, and breaking changes
 - Follow the existing format with PR links and clear descriptions
 - Keep entries concise but descriptive for users and maintainers
-
-### Changelog
-- **ALWAYS update add a new line to CHANGELOG.md for each new pull request.**
 
 ### Naming Scheme
 
