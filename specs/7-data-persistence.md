@@ -6,14 +6,40 @@ Implement SQLite-based persistent storage for events, users, API keys, setup tok
 
 Continue to use the current in-memory TestStorage for tests, but the new SQLite-based storage in main.go.
 
+## Design Decisions
+
+SQLite chosen over Go marshaling for:
+- Rich querying capabilities for ACL lookups and event filtering
+- Better scalability with indexing and pagination
+- Built-in transaction support and concurrent access
+- Future growth potential for complex queries and analytics
+- ACID compliance for data integrity
+
+Encryption at rest will be addressed separately (issue #17) using SQLCipher or file-level encryption.
+
 ## Implementation Checklist
 
+### Pre-Implementation Refactoring
 - [ ] Add ACL-specific methods to storage interface
   - [ ] CreateAclRule(rule *models.AclRule) error
   - [ ] GetAclRules() ([]models.AclRule, error)
   - [ ] GetAclRulesByUser(user string) ([]models.AclRule, error)
   - [ ] UpdateAclRule(rule *models.AclRule) error
   - [ ] DeleteAclRule(user, item, action string) error
+- [ ] Decouple ACL service from event-based rule loading
+  - [ ] Modify AclService to use storage ACL methods instead of parsing events
+  - [ ] Update loadRules method to use GetAclRules()
+  - [ ] Maintain backward compatibility during transition
+- [ ] Create storage factory for better testability
+  - [ ] Add storage factory function for environment-based storage selection
+  - [ ] Update tests to use storage factory instead of direct TestStorage instantiation
+  - [ ] Add database-specific error types
+- [ ] Review model validation for database compatibility
+  - [ ] Separate validation concerns for in-memory vs database storage
+  - [ ] Update model validation to handle database-generated IDs
+  - [ ] Add database-specific model considerations
+
+### Database Implementation
 - [ ] Add database initialization method
   - [ ] Initialize() error
   - [ ] Close() error
@@ -60,6 +86,8 @@ Continue to use the current in-memory TestStorage for tests, but the new SQLite-
   - [ ] Index on user, item, action combination
   - [ ] Index on user for quick lookups
   - [ ] Index on item for item-based permissions
+
+### Integration and Configuration
 - [ ] Update ACL service
   - [ ] Modify loadRules to use ACL storage instead of events
   - [ ] Update AddRule to use dedicated storage
@@ -82,6 +110,8 @@ Continue to use the current in-memory TestStorage for tests, but the new SQLite-
   - [ ] Add data volume mounting
   - [ ] Database file persistence
   - [ ] Backup strategy documentation
+
+### Testing and Validation
 - [ ] Create SQLite storage tests
   - [ ] Unit tests for all storage methods
   - [ ] Transaction rollback tests
@@ -94,6 +124,8 @@ Continue to use the current in-memory TestStorage for tests, but the new SQLite-
   - [ ] Large dataset handling
   - [ ] Concurrent access testing
   - [ ] Query performance validation
+
+### Documentation and Security
 - [ ] Update documentation
   - [ ] Update AGENTS.md storage section
   - [ ] Add SQLite setup instructions
