@@ -10,6 +10,19 @@ import (
 
 // PostUserResetKey handles POST /api/v1/user/resetKey
 func (h *Handlers) PostUserResetKey(c *gin.Context) {
+	// Check if caller has permission (from middleware)
+	callerUserId, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		return
+	}
+
+	callerUserIdStr, ok := callerUserId.(string)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
 	var request struct {
 		User string `json:"user" binding:"required"`
 	}
@@ -27,15 +40,7 @@ func (h *Handlers) PostUserResetKey(c *gin.Context) {
 		return
 	}
 
-	// Check if caller has permission (from middleware)
-	callerUserId, exists := c.Get("user_id")
-	if !exists {
-		log.Printf("PostUserResetKey: user_id not found in context")
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
-	}
-
-	if !h.aclService.CheckPermission(callerUserId.(string), userId, ".user.resetKey") {
+	if !h.aclService.CheckPermission(callerUserIdStr, userId, ".user.resetKey") {
 		c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
 		return
 	}
@@ -50,7 +55,7 @@ func (h *Handlers) PostUserResetKey(c *gin.Context) {
 
 	// Log the API call as an internal event
 	event := models.NewEvent(
-		callerUserId.(string),
+		callerUserIdStr,
 		".user."+userId,
 		".user.resetKey",
 		"{}",
@@ -88,12 +93,17 @@ func (h *Handlers) PostUserGenerateToken(c *gin.Context) {
 	// Check if caller has permission (from middleware)
 	callerUserId, exists := c.Get("user_id")
 	if !exists {
-		log.Printf("PostUserGenerateToken: user_id not found in context")
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
 		return
 	}
 
-	if !h.aclService.CheckPermission(callerUserId.(string), userId, ".user.generateToken") {
+	callerUserIdStr, ok := callerUserId.(string)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	if !h.aclService.CheckPermission(callerUserIdStr, userId, ".user.generateToken") {
 		c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
 		return
 	}
@@ -108,7 +118,7 @@ func (h *Handlers) PostUserGenerateToken(c *gin.Context) {
 
 	// Log the API call as an internal event
 	event := models.Event{
-		User:    callerUserId.(string),
+		User:    callerUserIdStr,
 		Item:    ".user." + userId,
 		Action:  ".user.generateToken",
 		Payload: "{}",

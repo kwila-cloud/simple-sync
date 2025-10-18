@@ -22,13 +22,13 @@ func (h *Handlers) PostAcl(c *gin.Context) {
 
 	userIdStr, ok := userId.(string)
 	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID"})
 		return
 	}
 
 	if !h.aclService.CheckPermission(userIdStr, ".acl", ".acl.addRule") {
 		c.JSON(http.StatusForbidden, gin.H{
-			"error": "Insufficient permissions to update ACL",
+			"error": "Insufficient permissions",
 		})
 		return
 	}
