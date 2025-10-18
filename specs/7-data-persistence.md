@@ -20,8 +20,8 @@ Encryption at rest will be addressed separately (issue #17) using SQLCipher or f
 ## Task List
 
 ### Storage Interface Updates
-- [ ] Add tests for new ACL storage interface methods
-- [ ] Add ACL-specific methods to storage interface
+- [x] Add tests for new ACL storage interface methods
+- [x] Add ACL-specific methods to storage interface
 
 ### ACL Service Refactoring  
 - [ ] Add tests expecting ACL service to use storage methods instead of events
