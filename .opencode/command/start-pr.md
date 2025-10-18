@@ -6,11 +6,14 @@ agent: build
 Automates the process of starting work on a new pull request:
 
 1. Ask user for the issue number
-2. Check the spec for that issue in `specs/`
-3. Determine the next incomplete section from the Task List
-4. Create branch using format `{issue-number}-{section-name}`
-5. Research codebase to understand what's needed for the section
-6. Explain the plan to the user for completing the section
+1. Check the spec for that issue in `specs/`
+1. Determine the next incomplete section from the Task List
+1. Create branch using format `{issue-number}-{section-name}`
+1. Research codebase to understand what's needed for the section
+1. Ask the user any clarifying questions needed to implement the section
+1. Explain the plan to the user for completing the section
+1. Refine plan based on user feedback
+1. Start implementing the plan when the user approves
 
 Example usage:
 - User: `/start-pr`
