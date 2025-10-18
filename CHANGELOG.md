@@ -1,6 +1,7 @@
 # Release History
 
 ## [0.4.0] - unreleased
+- [#52](https://github.com/kwila-cloud/simple-sync/pull/52): Refactor ACL service to use storage interface directly with proper error handling
 - [#49](https://github.com/kwila-cloud/simple-sync/pull/49): Added data persistence implementation specification
 - [#51](https://github.com/kwila-cloud/simple-sync/pull/51): Add ACL storage interface methods with comprehensive test coverage
 
