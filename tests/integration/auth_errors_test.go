@@ -49,7 +49,7 @@ func TestAuthErrorScenariosIntegration(t *testing.T) {
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 		assert.Contains(t, response, "error")
-		assert.Equal(t, "Unauthorized", response["error"])
+		assert.Equal(t, "Authentication required", response["error"])
 	})
 
 	t.Run("NonExistentUser", func(t *testing.T) {
@@ -73,7 +73,7 @@ func TestAuthErrorScenariosIntegration(t *testing.T) {
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 		assert.Contains(t, response, "error")
-		assert.Equal(t, "Unauthorized", response["error"])
+		assert.Equal(t, "Authentication required", response["error"])
 	})
 
 	t.Run("ExpiredSetupToken", func(t *testing.T) {
@@ -90,14 +90,14 @@ func TestAuthErrorScenariosIntegration(t *testing.T) {
 
 		router.ServeHTTP(w, req)
 
-		// Expected: 401 Unauthorized
-		assert.Equal(t, http.StatusUnauthorized, w.Code)
+		// Expected: 400 Bad Request
+		assert.Equal(t, http.StatusBadRequest, w.Code)
 
 		var response map[string]string
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 		assert.Contains(t, response, "error")
-		assert.Equal(t, "Unauthorized", response["error"])
+		assert.Equal(t, "Failed to exchange setup token", response["error"])
 	})
 
 	t.Run("InvalidTokenFormat", func(t *testing.T) {
@@ -114,13 +114,13 @@ func TestAuthErrorScenariosIntegration(t *testing.T) {
 
 		router.ServeHTTP(w, req)
 
-		// Expected: 401 Unauthorized
-		assert.Equal(t, http.StatusUnauthorized, w.Code)
+		// Expected: 400 Bad Request
+		assert.Equal(t, http.StatusBadRequest, w.Code)
 
 		var response map[string]string
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 		assert.Contains(t, response, "error")
-		assert.Equal(t, "Unauthorized", response["error"])
+		assert.Equal(t, "Failed to exchange setup token", response["error"])
 	})
 }

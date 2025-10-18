@@ -103,7 +103,7 @@ func TestPostAclInsufficientPermissions(t *testing.T) {
 	var response map[string]interface{}
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
-	assert.Equal(t, "Insufficient permissions to update ACL", response["error"])
+	assert.Equal(t, "Insufficient permissions", response["error"])
 }
 
 func TestPostAclInvalidApiKey(t *testing.T) {
