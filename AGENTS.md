@@ -36,6 +36,16 @@ Simple-sync is a lightweight REST API built in Go that provides event storage an
   - ✅ Good: Group related items logically
   - ❌ Avoid: Verbose descriptions, detailed explanations, multiple sections
 
+### Specification Development Process
+
+- **CRITICAL**: DO NOT make code changes while working on specifications
+- **Specification phase**: Focus only on planning, design, and checklist creation
+- **Implementation phase**: After spec is finalized, then proceed with code changes
+- **Examples**:
+  - ✅ Good: Discussing TDD approaches, test strategies, implementation order
+  - ❌ Bad: Reading files, writing tests, or implementing code during spec phase
+- **When in doubt**: If you're about to read/write code files, stop - you're still in spec phase
+
 ### Git Workflow
 
 - Feature branches for issues (e.g., `63-new-setting`)
