@@ -43,5 +43,8 @@ Simple-sync is a lightweight REST API built in Go that provides event storage an
 
 ### Naming Scheme
 
-- Don't put acronyms as all-caps in names. For example, use `AclRule` rather than `ACLRule` for an ACL rule.
+- **Code Names (variables, methods, functions)**: Don't put acronyms as all-caps in names. For example, use `AclRule` rather than `ACLRule` for an ACL rule.
   - This way, words are clearly differentiated by case.
+  - Examples: `CreateApiKey`, `GetAclRules`, `UpdateAclRule` (NOT: `CreateAPIKey`, `GetACLRules`)
+- **Documentation**: Use normal capitalization for acronyms in plain text, comments, and documentation.
+  - Examples: "API key", "ACL rule", "REST API" (NOT: "ApiKey", "AclRule" in documentation)

@@ -51,11 +51,11 @@ Continue to use the current in-memory TestStorage for tests, but the new SQLite-
   - [ ] UpdateSetupToken with usage tracking
   - [ ] InvalidateUserSetupTokens with batch operations
 - [ ] Implement ACL rule storage
-  - [ ] CreateACLRule with validation
-  - [ ] GetACLRules with filtering
-  - [ ] GetACLRulesByUser for user-specific rules
-  - [ ] UpdateACLRule with conflict resolution
-  - [ ] DeleteACLRule with cascade effects
+  - [ ] CreateAclRule with validation
+  - [ ] GetAclRules with filtering
+  - [ ] GetAclRulesByUser for user-specific rules
+  - [ ] UpdateAclRule with conflict resolution
+  - [ ] DeleteAclRule with cascade effects
 - [ ] Add ACL-specific indexes
   - [ ] Index on user, item, action combination
   - [ ] Index on user for quick lookups
