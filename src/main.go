@@ -35,7 +35,10 @@ func main() {
 	store := storage.NewTestStorage(nil)
 
 	// Initialize handlers
-	h := handlers.NewHandlers(store, Version)
+	h, err := handlers.NewHandlers(store, Version)
+	if err != nil {
+		log.Fatal("Failed to initialize handlers:", err)
+	}
 
 	// Setup Gin router
 	router := gin.Default()

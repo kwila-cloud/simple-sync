@@ -18,38 +18,30 @@ type AclService struct {
 }
 
 // NewAclService creates a new ACL service
-func NewAclService(storage storage.Storage) *AclService {
+func NewAclService(storage storage.Storage) (*AclService, error) {
 	service := &AclService{
 		storage: storage,
 	}
-	service.loadRules()
-	return service
+	err := service.loadRules()
+	if err != nil {
+		return nil, err
+	}
+	return service, nil
 }
 
 // loadRules loads ACL rules from storage
-func (s *AclService) loadRules() {
+func (s *AclService) loadRules() error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	events, err := s.storage.LoadEvents()
+	rules, err := s.storage.GetAclRules()
 	if err != nil {
-		log.Printf("Failed to load events for ACL: %v", err)
-		return
-	}
-
-	var rules []models.AclRule
-	for _, event := range events {
-		if event.IsAclEvent() {
-			rule, err := event.ToAclRule()
-			if err != nil {
-				log.Printf("Failed to parse ACL rule: %v", err)
-				continue
-			}
-			rules = append(rules, *rule)
-		}
+		log.Printf("Failed to load ACL rules: %v", err)
+		return err
 	}
 
 	s.rules = rules
+	return nil
 }
 
 // CheckPermission checks if a user has permission for an action on an item
@@ -116,11 +108,18 @@ func (s *AclService) matches(pattern, value string) bool {
 	return pattern == value
 }
 
-// AddRule adds a new ACL rule (called after event is stored)
-func (s *AclService) AddRule(rule models.AclRule) {
+// AddRule adds a new ACL rule
+func (s *AclService) AddRule(rule models.AclRule) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
+
+	err := s.storage.CreateAclRule(&rule)
+	if err != nil {
+		return err
+	}
+
 	s.rules = append(s.rules, rule)
+	return nil
 }
 
 // Calculates the specificity score for a pattern (wildcards worth 0.5)

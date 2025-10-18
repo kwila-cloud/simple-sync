@@ -17,24 +17,36 @@ type Handlers struct {
 }
 
 // NewHandlers creates a new handlers instance
-func NewHandlers(storage storage.Storage, version string) *Handlers {
+func NewHandlers(storage storage.Storage, version string) (*Handlers, error) {
+	authService := services.NewAuthService(storage)
+	aclService, err := services.NewAclService(storage)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Handlers{
 		storage:     storage,
-		authService: services.NewAuthService(storage),
-		aclService:  services.NewAclService(storage),
+		authService: authService,
+		aclService:  aclService,
 		startTime:   time.Now(),
 		version:     version,
-	}
+	}, nil
 }
 
 // NewTestHandlers creates a new handlers instance with test defaults
+// Panics on error for test convenience
 func NewTestHandlers(aclRules []models.AclRule) *Handlers {
 	return NewTestHandlersWithStorage(storage.NewTestStorage(aclRules))
 }
 
 // NewTestHandlersWithStorage creates a new handlers instance with test defaults and custom storage
+// Panics on error for test convenience
 func NewTestHandlersWithStorage(store storage.Storage) *Handlers {
-	return NewHandlers(store, "test")
+	h, err := NewHandlers(store, "test")
+	if err != nil {
+		panic("Failed to create test handlers: " + err.Error())
+	}
+	return h
 }
 
 // AuthService returns the auth service instance
