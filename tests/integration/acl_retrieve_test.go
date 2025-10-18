@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestACLRetrieve(t *testing.T) {
+func TestAclRetrieve(t *testing.T) {
 	// Setup Gin router in test mode
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
@@ -23,26 +23,14 @@ func TestACLRetrieve(t *testing.T) {
 	// Setup ACL rules
 	aclRules := []models.AclRule{
 		{
-			User:      "someuser",
-			Item:      "someitem",
-			Action:    "delete",
-			Type:      "allow",
-			Timestamp: 1640995200,
+			User:   "someuser",
+			Item:   "someitem",
+			Action: "delete",
+			Type:   "allow",
 		},
 	}
 
-	// Setup handlers with memory storage
-	store := storage.NewMemoryStorage(aclRules)
-	h := handlers.NewTestHandlersWithStorage(store)
-
-	// Create root user
-	rootUser := &models.User{Id: ".root"}
-	err := store.SaveUser(rootUser)
-	assert.NoError(t, err)
-
-	// Create API key for root
-	_, adminApiKey, err := h.AuthService().GenerateApiKey(".root", "Test Key")
-	assert.NoError(t, err)
+	h := handlers.NewTestHandlers(aclRules)
 
 	// Register routes
 	v1 := router.Group("/api/v1")
@@ -50,22 +38,18 @@ func TestACLRetrieve(t *testing.T) {
 	// Auth routes with middleware
 	auth := v1.Group("/")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
-	auth.POST("/user/generateToken", h.PostUserGenerateToken)
 	auth.GET("/events", h.GetEvents)
 	auth.POST("/events", h.PostEvents)
 
-	// Setup routes
-	v1.POST("/setup/exchangeToken", h.PostSetupExchangeToken)
-
-	// Retrieve ACL events
-	getReq, _ := http.NewRequest("GET", "/api/v1/events?itemUuid=.acl", nil)
-	getReq.Header.Set("X-API-Key", adminApiKey)
+	// Retrieve events
+	getReq, _ := http.NewRequest("GET", "/api/v1/events", nil)
+	getReq.Header.Set("X-API-Key", storage.TestingRootApiKey)
 	getW := httptest.NewRecorder()
 	router.ServeHTTP(getW, getReq)
 	assert.Equal(t, http.StatusOK, getW.Code)
 
 	var responseEvents []map[string]interface{}
-	err = json.Unmarshal(getW.Body.Bytes(), &responseEvents)
+	err := json.Unmarshal(getW.Body.Bytes(), &responseEvents)
 	assert.NoError(t, err)
 
 	// Should include the ACL event
@@ -78,5 +62,5 @@ func TestACLRetrieve(t *testing.T) {
 	}
 	assert.NotNil(t, aclEventFound)
 	assert.Equal(t, ".acl", aclEventFound["item"])
-	assert.Equal(t, ".acl.allow", aclEventFound["action"])
+	assert.Equal(t, ".acl.addRule", aclEventFound["action"])
 }

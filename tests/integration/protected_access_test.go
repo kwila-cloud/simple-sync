@@ -9,7 +9,6 @@ import (
 
 	"simple-sync/src/handlers"
 	"simple-sync/src/middleware"
-	"simple-sync/src/models"
 	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
@@ -21,17 +20,7 @@ func TestProtectedEndpointAccess(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	// Setup handlers with memory storage
-	store := storage.NewMemoryStorage(nil)
-	h := handlers.NewTestHandlersWithStorage(store)
-
-	// Create root user and API key for authentication
-	rootUser := &models.User{Id: ".root"}
-	err := store.SaveUser(rootUser)
-	assert.NoError(t, err)
-
-	_, adminApiKey, err := h.AuthService().GenerateApiKey(".root", "Admin Key")
-	assert.NoError(t, err)
+	h := handlers.NewTestHandlers(nil)
 
 	// Register routes
 	v1 := router.Group("/api/v1")
@@ -42,7 +31,7 @@ func TestProtectedEndpointAccess(t *testing.T) {
 	auth.POST("/user/generateToken", h.PostUserGenerateToken)
 
 	// Setup routes (no middleware)
-	v1.POST("/setup/exchangeToken", h.PostSetupExchangeToken)
+	v1.POST("/user/exchangeToken", h.PostSetupExchangeToken)
 
 	// Protected routes with auth middleware
 	auth.GET("/events", h.GetEvents)
@@ -54,7 +43,6 @@ func TestProtectedEndpointAccess(t *testing.T) {
 
 	router.ServeHTTP(getW, getReq)
 
-	// Expected: 401 (will fail until middleware)
 	assert.Equal(t, http.StatusUnauthorized, getW.Code)
 
 	// Test 2: Access POST /events without token - should fail
@@ -78,8 +66,13 @@ func TestProtectedEndpointAccess(t *testing.T) {
 
 	// Test 3: Get API key, then access with API key - should succeed
 	// Generate setup token
-	setupReq, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=user-123", nil)
-	setupReq.Header.Set("X-API-Key", adminApiKey)
+	generateRequest := map[string]interface{}{
+		"user": storage.TestingUserId,
+	}
+	requestBody, _ := json.Marshal(generateRequest)
+	setupReq, _ := http.NewRequest("POST", "/api/v1/user/generateToken", bytes.NewBuffer(requestBody))
+	setupReq.Header.Set("Content-Type", "application/json")
+	setupReq.Header.Set("X-API-Key", storage.TestingRootApiKey)
 	setupW := httptest.NewRecorder()
 
 	router.ServeHTTP(setupW, setupReq)
@@ -87,7 +80,7 @@ func TestProtectedEndpointAccess(t *testing.T) {
 	assert.Equal(t, http.StatusOK, setupW.Code)
 
 	var setupResponse map[string]string
-	err = json.Unmarshal(setupW.Body.Bytes(), &setupResponse)
+	err := json.Unmarshal(setupW.Body.Bytes(), &setupResponse)
 	assert.NoError(t, err)
 	setupToken := setupResponse["token"]
 
@@ -97,7 +90,7 @@ func TestProtectedEndpointAccess(t *testing.T) {
 	}
 	exchangeBody, _ := json.Marshal(exchangeRequest)
 
-	exchangeReq, _ := http.NewRequest("POST", "/api/v1/setup/exchangeToken", bytes.NewBuffer(exchangeBody))
+	exchangeReq, _ := http.NewRequest("POST", "/api/v1/user/exchangeToken", bytes.NewBuffer(exchangeBody))
 	exchangeReq.Header.Set("Content-Type", "application/json")
 	exchangeW := httptest.NewRecorder()
 

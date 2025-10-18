@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"simple-sync/src/handlers"
+	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -25,16 +26,16 @@ func TestAuthErrorScenariosIntegration(t *testing.T) {
 	v1 := router.Group("/api/v1")
 	v1.POST("/user/generateToken", h.PostUserGenerateToken)
 	v1.POST("/user/resetKey", h.PostUserResetKey)
-	v1.POST("/setup/exchangeToken", h.PostSetupExchangeToken)
+	v1.POST("/user/exchangeToken", h.PostSetupExchangeToken)
 
 	t.Run("InsufficientPermissions", func(t *testing.T) {
-		// Try to generate token without proper permissions
-		generateRequest := map[string]string{
-			"user": "testuser",
+		// Test data - generate token request
+		generateRequest := map[string]interface{}{
+			"user": storage.TestingUserId,
 		}
 		requestBody, _ := json.Marshal(generateRequest)
 
-		req, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=testuser", bytes.NewBuffer(requestBody))
+		req, _ := http.NewRequest("POST", "/api/v1/user/generateToken", bytes.NewBuffer(requestBody))
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("X-API-Key", "sk_insufficient123456789012345678901234567890")
 		w := httptest.NewRecorder()
@@ -48,17 +49,17 @@ func TestAuthErrorScenariosIntegration(t *testing.T) {
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 		assert.Contains(t, response, "error")
-		assert.Equal(t, "Unauthorized", response["error"])
+		assert.Equal(t, "Authentication required", response["error"])
 	})
 
 	t.Run("NonExistentUser", func(t *testing.T) {
-		// Try to generate token for non-existent user
-		generateRequest := map[string]string{
+		// Test data - generate token request for nonexistent user
+		generateRequest := map[string]interface{}{
 			"user": "nonexistent",
 		}
 		requestBody, _ := json.Marshal(generateRequest)
 
-		req, _ := http.NewRequest("POST", "/api/v1/user/generateToken?user=nonexistent", bytes.NewBuffer(requestBody))
+		req, _ := http.NewRequest("POST", "/api/v1/user/generateToken", bytes.NewBuffer(requestBody))
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("X-API-Key", "sk_admin123456789012345678901234567890")
 		w := httptest.NewRecorder()
@@ -72,7 +73,7 @@ func TestAuthErrorScenariosIntegration(t *testing.T) {
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 		assert.Contains(t, response, "error")
-		assert.Equal(t, "Unauthorized", response["error"])
+		assert.Equal(t, "Authentication required", response["error"])
 	})
 
 	t.Run("ExpiredSetupToken", func(t *testing.T) {
@@ -83,20 +84,20 @@ func TestAuthErrorScenariosIntegration(t *testing.T) {
 		}
 		requestBody, _ := json.Marshal(exchangeRequest)
 
-		req, _ := http.NewRequest("POST", "/api/v1/setup/exchangeToken", bytes.NewBuffer(requestBody))
+		req, _ := http.NewRequest("POST", "/api/v1/user/exchangeToken", bytes.NewBuffer(requestBody))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 
 		router.ServeHTTP(w, req)
 
-		// Expected: 401 Unauthorized
-		assert.Equal(t, http.StatusUnauthorized, w.Code)
+		// Expected: 400 Bad Request
+		assert.Equal(t, http.StatusBadRequest, w.Code)
 
 		var response map[string]string
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 		assert.Contains(t, response, "error")
-		assert.Equal(t, "Unauthorized", response["error"])
+		assert.Equal(t, "Failed to exchange setup token", response["error"])
 	})
 
 	t.Run("InvalidTokenFormat", func(t *testing.T) {
@@ -107,19 +108,19 @@ func TestAuthErrorScenariosIntegration(t *testing.T) {
 		}
 		requestBody, _ := json.Marshal(exchangeRequest)
 
-		req, _ := http.NewRequest("POST", "/api/v1/setup/exchangeToken", bytes.NewBuffer(requestBody))
+		req, _ := http.NewRequest("POST", "/api/v1/user/exchangeToken", bytes.NewBuffer(requestBody))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 
 		router.ServeHTTP(w, req)
 
-		// Expected: 401 Unauthorized
-		assert.Equal(t, http.StatusUnauthorized, w.Code)
+		// Expected: 400 Bad Request
+		assert.Equal(t, http.StatusBadRequest, w.Code)
 
 		var response map[string]string
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 		assert.Contains(t, response, "error")
-		assert.Equal(t, "Unauthorized", response["error"])
+		assert.Equal(t, "Failed to exchange setup token", response["error"])
 	})
 }

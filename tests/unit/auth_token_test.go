@@ -5,17 +5,22 @@ import (
 	"time"
 
 	"simple-sync/src/models"
+	"simple-sync/src/storage"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAPIKeyModelValidation(t *testing.T) {
+func TestApiKeyModelValidation(t *testing.T) {
+	keyUuid, _ := uuid.NewV7()
+	unixTimeSeconds, _ := keyUuid.Time().UnixTime()
+
 	// Test valid API key
 	validKey := &models.APIKey{
-		UUID:        "550e8400-e29b-41d4-a716-446655440000",
-		UserID:      "user-123",
+		UUID:        keyUuid.String(),
+		UserID:      storage.TestingUserId,
 		KeyHash:     "hash-data",
-		CreatedAt:   time.Now(),
+		CreatedAt:   time.Unix(unixTimeSeconds, 0),
 		Description: "Test Key",
 	}
 	err := validKey.Validate()
@@ -23,7 +28,7 @@ func TestAPIKeyModelValidation(t *testing.T) {
 
 	// Test invalid API key - missing UUID
 	invalidKey := &models.APIKey{
-		UserID:    "user-123",
+		UserID:    storage.TestingUserId,
 		KeyHash:   "hash-data",
 		CreatedAt: time.Now(),
 	}
@@ -35,7 +40,7 @@ func TestSetupTokenModelValidation(t *testing.T) {
 	// Test valid setup token
 	validToken := &models.SetupToken{
 		Token:     "ABCD-1234",
-		UserID:    "user-123",
+		UserID:    storage.TestingUserId,
 		ExpiresAt: time.Now().Add(24 * time.Hour),
 		UsedAt:    time.Time{},
 	}
@@ -46,7 +51,7 @@ func TestSetupTokenModelValidation(t *testing.T) {
 	// Test invalid token format
 	invalidToken := &models.SetupToken{
 		Token:     "INVALID-FORMAT",
-		UserID:    "user-123",
+		UserID:    storage.TestingUserId,
 		ExpiresAt: time.Now().Add(24 * time.Hour),
 		UsedAt:    time.Time{},
 	}

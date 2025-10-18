@@ -23,8 +23,14 @@ func (k *APIKey) Validate() error {
 		return errors.New("UUID is required")
 	}
 
-	if _, err := uuid.Parse(k.UUID); err != nil {
+	uuid, err := uuid.Parse(k.UUID)
+	if err != nil {
 		return errors.New("UUID must be valid format")
+	}
+
+	timestamp, _ := uuid.Time().UnixTime()
+	if timestamp != k.CreatedAt.Unix() {
+		return errors.New("UUID must match timestamp")
 	}
 
 	if k.UserID == "" {
@@ -44,11 +50,14 @@ func (k *APIKey) Validate() error {
 
 // NewAPIKey creates a new API key instance
 func NewAPIKey(userID, keyHash, description string) *APIKey {
+	keyUuid, _ := uuid.NewV7()
+	unixTimeSeconds, _ := keyUuid.Time().UnixTime()
+
 	return &APIKey{
-		UUID:        uuid.New().String(),
+		UUID:        keyUuid.String(),
 		UserID:      userID,
 		KeyHash:     keyHash,
-		CreatedAt:   time.Now(),
+		CreatedAt:   time.Unix(unixTimeSeconds, 0),
 		Description: description,
 	}
 }

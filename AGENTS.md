@@ -13,29 +13,6 @@ Simple-sync is a lightweight REST API built in Go that provides event storage an
 - User authentication with API keys
 - Event storage with timestamps and metadata
 - ACL-based permission system (read/write permissions)
-- Persistent SQLite database storage for data survival across restarts
-
-## Key Files & Documentation
-
-**Main Application Files:**
-- `main.go` - Application entry point and server setup
-- `handlers/` - HTTP endpoint handlers
-- `models/` - Data structures for events, users, ACL
-- `middleware/` - Authentication and CORS middleware
-- `storage/` - SQLite persistence layer
-
-**Configuration & Data:**
-- `config/` - Environment variables and configuration
-- `data/simple-sync.db` - SQLite database for persistent storage
-- `data/backups/` - Database backup files for data safety
-
-**Documentation:**
-- `README.md` - Setup and deployment instructions
-- `docs/src/content/docs/api/` - Complete API specification and examples
-- `docs/src/content/docs/acl.md` - ACL system documentation and permission model
-- `AGENTS.md` - This file - AI development guide
-- `docker-compose.yml` - Local development environment
-- Frontend integration examples in `/examples`
 
 ## GitHub CLI Instructions
 
@@ -103,21 +80,6 @@ gh pr view
 
 ## Verification & Testing
 
-**Authentication Testing:**
-```bash
-# Generate setup token for user (requires admin API key)
-curl -X POST http://localhost:8080/api/v1/user/generateToken?user=testuser \
-  -H "X-API-Key: sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
-
-# Exchange setup token for API key
-curl -X POST http://localhost:8080/api/v1/setup/exchangeToken \
-  -H "Content-Type: application/json" \
-  -d '{"token":"setup-token-here"}'
-
-# Save API key for subsequent requests
-export API_KEY="your-api-key-here"
-```
-
 **Event Management Testing:**
 ```bash
 # Create event
@@ -129,34 +91,6 @@ curl -X POST http://localhost:8080/api/v1/events \
 # Get events
 curl -X GET http://localhost:8080/api/v1/events \
   -H "X-API-Key: $API_KEY"
-
-# Get events for specific item
-curl -X GET "http://localhost:8080/api/v1/events?itemUuid=item-123" \
-  -H "X-API-Key: $API_KEY"
-```
-
-**ACL Testing:**
-```bash
-# Set permissions (post ACL event)
-curl -X POST http://localhost:8080/api/v1/events \
-  -H "X-API-Key: sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E" \
-  -H "Content-Type: application/json" \
-  -d '[{"uuid":"acl-123","timestamp":1640995200,"user":".root","item":".acl","action":".acl.allow","payload":"{\"user\":\"testuser\",\"item\":\"item-123\",\"action\":\"create\"}"}]'
-
-# Get ACL entries
-curl -X GET "http://localhost:8080/api/v1/events?itemUuid=.acl" \
-  -H "X-API-Key: sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
-```
-
-**Database Persistence Verification:**
-```bash
-# Check SQLite database exists and has data
-ls -la data/
-sqlite3 data/simple-sync.db "SELECT COUNT(*) FROM events;"
-sqlite3 data/simple-sync.db "SELECT COUNT(*) FROM acl;"
-
-# Restart server and verify data persists
-# Stop server, restart, then test GET endpoints
 ```
 
 **CORS Testing:**
@@ -182,26 +116,13 @@ SETUP_TOKEN=$(echo $RESPONSE | jq -r '.token')
 echo "Setup Token: $SETUP_TOKEN"
 
 # 3. Exchange for API key
-RESPONSE=$(curl -s -X POST http://localhost:8080/api/v1/setup/exchangeToken \
+RESPONSE=$(curl -s -X POST http://localhost:8080/api/v1/user/exchangeToken \
   -H "Content-Type: application/json" \
   -d "{\"token\":\"$SETUP_TOKEN\"}")
 
 # 4. Extract API key (requires jq)
 API_KEY=$(echo $RESPONSE | jq -r '.apiKey')
 echo "API Key: $API_KEY"
-```
-
-**End-to-End Event Flow:**
-```bash
-# Create event
-curl -X POST http://localhost:8080/api/v1/events \
-  -H "X-API-Key: $API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '[{"uuid":"event-123","timestamp":1640995200,"user":"testuser","item":"product-456","action":"view","payload":"{}"}]'
-
-# Verify event was stored
-curl -X GET "http://localhost:8080/api/v1/events?itemUuid=product-456" \
-  -H "X-API-Key: $API_KEY" | jq .
 ```
 
 ## Docker Setup Instructions
@@ -240,126 +161,3 @@ docker logs simple-sync
 docker exec -it simple-sync /bin/sh
 ```
 
-**Testing with Docker:**
-```bash
-# Test health endpoint
-curl http://localhost:8080/health
-
-# Full integration test
-./scripts/integration-test.sh  # If available
-```
-
-## Code Structure & Patterns
-
-**File Organization:**
-```
-simple-sync/
-├── main.go                 # Application entry point
-├── handlers/
-│   ├── auth.go            # Authentication endpoints
-│   ├── events.go          # Event management endpoints
-│   └── acl.go             # ACL management endpoints
-├── middleware/
-│   ├── auth.go            # API key authentication middleware
-│   └── cors.go            # CORS middleware
-├── models/
-│   ├── user.go            # User data structures
-│   ├── event.go           # Event data structures
-│   └── acl.go             # ACL data structures
-├── storage/
-│   ├── interface.go       # Storage interface definition
-│   ├── sqlite.go          # SQLite storage implementation
-│   └── memory.go          # In-memory storage (for tests)
-└── config/
-    └── config.go          # Configuration management
-```
-
-**Coding Patterns to Follow:**
-
-1. **Error Handling:**
-```go
-if err != nil {
-    c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-    return
-}
-```
-
-2. **Response Format:**
-```go
-// Success responses
-c.JSON(http.StatusOK, gin.H{"data": result})
-
-// Error responses
-c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
-```
-
-3. **Middleware Usage:**
-```go
-// Protected routes
-protected := router.Group("/")
-protected.Use(middleware.AuthMiddleware())
-protected.GET("/events", handlers.GetEvents)
-```
-
-4. **Storage Interface:**
-```go
-type Storage interface {
-    SaveEvents(events []Event) error
-    LoadEvents() ([]Event, error)
-    SaveACL(acl []ACLEntry) error
-    LoadACL() ([]ACLEntry, error)
-}
-```
-
-## Common Troubleshooting
-
-**Authentication Issues:**
-- Check API key format in X-API-Key header
-- Validate user exists in storage
-
-**Database Issues:**
-- Check data directory permissions and SQLite database file permissions
-- Verify disk space availability
-- Look for SQLite errors in logs (corruption, locking, etc.)
-- Check for concurrent access issues with WAL mode
-- Verify SQLite database integrity with PRAGMA integrity_check
-
-**CORS Problems:**
-- Verify Origin header in requests
-- Check preflight OPTIONS responses
-- Ensure all required headers are allowed
-- Test with browser developer tools
-
-**Performance Issues:**
-- Monitor file I/O operations
-- Check for file locking bottlenecks
-- Consider data file sizes
-- Verify concurrent access handling
-
-**Common Error Codes:**
-- 401: Invalid or missing authentication
-- 403: Insufficient permissions (ACL)
-- 400: Invalid request format
-- 500: Server/storage errors
-
-Remember to always test your changes incrementally and verify that existing functionality still works after implementing new features.
-
-## Debug Commands
-```bash
-# Check server logs
-docker-compose logs simple-sync
-
-# Verify SQLite database exists
-ls -la data/
-sqlite3 data/simple-sync.db ".tables"
-sqlite3 data/simple-sync.db "SELECT name FROM sqlite_master WHERE type='table';"
-
-# Inspect events table
-sqlite3 data/simple-sync.db "SELECT * FROM events LIMIT 5;"
-
-# Inspect ACL table
-sqlite3 data/simple-sync.db "SELECT * FROM acl LIMIT 5;"
-
-# Restart server and verify data persists
-# Stop server, restart, then test GET endpoints
-```

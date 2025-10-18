@@ -34,7 +34,7 @@ This is a Go REST API project using Gin framework for event storage and access c
 - Implement proper logging
 - Add unit tests for new functionality
 - Ensure data validation
-- Follow API specifications in `docs/api/v1.md`
+- Follow API specifications in `docs/src/contents/docs/api/v1.md`
 
 ## Security
 - Never expose sensitive information

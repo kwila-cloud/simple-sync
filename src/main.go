@@ -30,8 +30,9 @@ func main() {
 	}
 	log.Printf("Environment loaded: PORT=%d, ENV=%s", envConfig.Port, envConfig.Environment)
 
-	// Initialize storage
-	store := storage.NewMemoryStorage(nil)
+	// Initialize storage.
+	// TODO(#7): use sqlite storage
+	store := storage.NewTestStorage(nil)
 
 	// Initialize handlers
 	h := handlers.NewHandlers(store, Version)
@@ -49,13 +50,14 @@ func main() {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.GET("/events", h.GetEvents)
 	auth.POST("/events", h.PostEvents)
+	auth.POST("/acl", h.PostAcl)
 
 	// Auth routes (with middleware for permission checks)
 	auth.POST("/user/resetKey", h.PostUserResetKey)
 	auth.POST("/user/generateToken", h.PostUserGenerateToken)
 
 	// Setup routes (no middleware - token-based auth)
-	v1.POST("/setup/exchangeToken", h.PostSetupExchangeToken)
+	v1.POST("/user/exchangeToken", h.PostSetupExchangeToken)
 
 	// Health check route (no middleware)
 	v1.GET("/health", h.GetHealth)

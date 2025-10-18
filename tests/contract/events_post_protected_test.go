@@ -3,6 +3,7 @@ package contract
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -10,6 +11,7 @@ import (
 	"simple-sync/src/handlers"
 	"simple-sync/src/middleware"
 	"simple-sync/src/models"
+	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -30,14 +32,14 @@ func TestPostEventsProtected(t *testing.T) {
 	auth.POST("/events", h.PostEvents)
 
 	// Test data
-	eventJSON := `[{
+	eventJSON := fmt.Sprintf(`[{
 		"uuid": "123e4567-e89b-12d3-a456-426614174000",
 		"timestamp": 1640995200,
-		"userUuid": "user123",
-		"itemUuid": "item456",
+		"user": "%s",
+		"item": "item456",
 		"action": "create",
 		"payload": "{}"
-	}]`
+	}]`, storage.TestingUserId)
 
 	// Test without X-API-Key header - should fail with 401
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
@@ -65,11 +67,10 @@ func TestPostEventsWithValidToken(t *testing.T) {
 	// Setup ACL rules to allow the test user to create item
 	aclRules := []models.AclRule{
 		{
-			User:      "user-123",
-			Item:      "item456",
-			Action:    "create",
-			Type:      "allow",
-			Timestamp: 1640995200,
+			User:   storage.TestingUserId,
+			Item:   "item456",
+			Action: "create",
+			Type:   "allow",
 		},
 	}
 
@@ -82,23 +83,20 @@ func TestPostEventsWithValidToken(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/events", h.PostEvents)
 
-	// Use the default API key from memory storage
-	plainKey := "sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
-
 	// Test data - user will be overridden by authenticated user
-	eventJSON := `[{
+	eventJSON := fmt.Sprintf(`[{
  		"uuid": "123e4567-e89b-12d3-a456-426614174000",
  		"timestamp": 1640995200,
- 		"user": "user-123",
+ 		"user": "%s",
  		"item": "item456",
  		"action": "create",
  		"payload": "{}"
- 	}]`
+ 	}]`, storage.TestingUserId)
 
 	// Test with valid X-API-Key header
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-API-Key", plainKey)
+	req.Header.Set("X-API-Key", storage.TestingApiKey)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -124,7 +122,7 @@ func TestPostEventsWithValidToken(t *testing.T) {
 
 	// Check the returned event matches what was posted
 	assert.Equal(t, float64(1640995200), postedEvent["timestamp"])
-	assert.Equal(t, "user-123", postedEvent["user"])
+	assert.Equal(t, storage.TestingUserId, postedEvent["user"])
 	assert.Equal(t, "item456", postedEvent["item"])
 	assert.Equal(t, "create", postedEvent["action"])
 	assert.Equal(t, "{}", postedEvent["payload"])
@@ -166,8 +164,7 @@ func TestPostEventsWithInvalidToken(t *testing.T) {
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 }
 
-func TestPostEventsAclPermissionFailure(t *testing.T) {
-	// Setup Gin router in test mode
+func TestPostEventsAclEventNotAllowed(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
@@ -180,36 +177,32 @@ func TestPostEventsAclPermissionFailure(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/events", h.PostEvents)
 
-	// Use the default API key from memory storage
-	plainKey := "sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
-
 	// Test data - ACL event (should be denied by default)
-	eventJSON := `[{
+	eventJSON := fmt.Sprintf(`[{
   		"uuid": "123e4567-e89b-12d3-a456-426614174000",
   		"timestamp": 1640995200,
-  		"user": "user-123",
+  		"user": "%s",
   		"item": ".acl",
-  		"action": ".acl.allow",
+  		"action": ".acl.addRule",
    		"payload": "{\"user\":\"user2\",\"item\":\"item1\",\"action\":\"delete\",\"type\":\"allow\"}"
-  	}]`
+  	}]`, storage.TestingUserId)
 
 	// Test with valid X-API-Key header
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-API-Key", plainKey)
+	req.Header.Set("X-API-Key", storage.TestingApiKey)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
 
-	// Expected: 403 Forbidden with eventUuid
-	assert.Equal(t, http.StatusForbidden, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	var response map[string]interface{}
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
 	assert.Contains(t, response, "error")
-	assert.Equal(t, "Insufficient permissions", response["error"])
+	assert.Equal(t, "ACL events must be submitted via dedicated /api/v1/acl endpoint", response["error"])
 	assert.Contains(t, response, "eventUuid")
 	assert.Equal(t, "123e4567-e89b-12d3-a456-426614174000", response["eventUuid"])
 }
@@ -228,22 +221,19 @@ func TestPostEventsMissingRequiredFields(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/events", h.PostEvents)
 
-	// Use the default API key from memory storage
-	plainKey := "sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
-
 	// Test data - missing action field
-	eventJSON := `[{
+	eventJSON := fmt.Sprintf(`[{
   		"uuid": "123e4567-e89b-12d3-a456-426614174000",
   		"timestamp": 1640995200,
-  		"user": "user-123",
+  		"user": "%s",
   		"item": "item456",
   		"payload": "{}"
-  	}]`
+  	}]`, storage.TestingUserId)
 
 	// Test with valid X-API-Key header
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-API-Key", plainKey)
+	req.Header.Set("X-API-Key", storage.TestingApiKey)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -262,7 +252,6 @@ func TestPostEventsMissingRequiredFields(t *testing.T) {
 }
 
 func TestPostEventsInvalidTimestamp(t *testing.T) {
-	// Setup Gin router in test mode
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
@@ -275,23 +264,20 @@ func TestPostEventsInvalidTimestamp(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/events", h.PostEvents)
 
-	// Use the default API key from memory storage
-	plainKey := "sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
-
 	// Test data - invalid timestamp (zero)
-	eventJSON := `[{
+	eventJSON := fmt.Sprintf(`[{
   		"uuid": "123e4567-e89b-12d3-a456-426614174000",
   		"timestamp": 0,
-  		"user": "user-123",
+  		"user": "%s",
   		"item": "item456",
   		"action": "create",
   		"payload": "{}"
-  	}]`
+  	}]`, storage.TestingUserId)
 
 	// Test with valid X-API-Key header
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-API-Key", plainKey)
+	req.Header.Set("X-API-Key", storage.TestingApiKey)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -310,7 +296,6 @@ func TestPostEventsInvalidTimestamp(t *testing.T) {
 }
 
 func TestPostEventsWrongUser(t *testing.T) {
-	// Setup Gin router in test mode
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
@@ -322,9 +307,6 @@ func TestPostEventsWrongUser(t *testing.T) {
 	auth := v1.Group("/")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/events", h.PostEvents)
-
-	// Use the default API key from memory storage
-	plainKey := "sk_ATlUSWpdQVKROfmh47z7q60KjlkQcCaC9ps181Jov8E"
 
 	// Test data - event for different user
 	eventJSON := `[{
@@ -339,7 +321,7 @@ func TestPostEventsWrongUser(t *testing.T) {
 	// Test with valid X-API-Key header
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-API-Key", plainKey)
+	req.Header.Set("X-API-Key", storage.TestingApiKey)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)

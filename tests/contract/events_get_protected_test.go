@@ -8,6 +8,7 @@ import (
 
 	"simple-sync/src/handlers"
 	"simple-sync/src/middleware"
+	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -59,7 +60,7 @@ func TestGetEventsWithValidToken(t *testing.T) {
 	auth.GET("/events", h.GetEvents)
 
 	// Generate setup token and exchange for API key
-	setupToken, err := h.AuthService().GenerateSetupToken("user-123")
+	setupToken, err := h.AuthService().GenerateSetupToken(storage.TestingUserId)
 	assert.NoError(t, err)
 	_, plainKey, err := h.AuthService().ExchangeSetupToken(setupToken.Token, "test")
 	assert.NoError(t, err)
@@ -79,7 +80,7 @@ func TestGetEventsWithValidToken(t *testing.T) {
 	assert.JSONEq(t, "[]", w.Body.String())
 }
 
-func TestGetEventsWithInvalidToken(t *testing.T) {
+func TestGetEventsWithInvalidApiKey(t *testing.T) {
 	// Setup Gin router in test mode
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
