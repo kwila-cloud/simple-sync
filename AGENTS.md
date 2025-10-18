@@ -37,6 +37,8 @@ Simple-sync is a lightweight REST API built in Go that provides event storage an
 - Document new features, enhancements, bug fixes, and breaking changes
 - Follow the existing format with PR links and clear descriptions
 - Keep entries concise but descriptive for users and maintainers
+- **IMPORTANT**: Always verify the actual PR content before updating the changelog. Use `gh pr view <PR-number>` to check the PR title, body, and changed files to ensure accurate changelog entries.
+- **CRITICAL**: Add exactly ONE entry per PR. Never add multiple entries for the same pull request, even if the PR contains multiple types of changes. Combine all changes into a single, concise description.
 
 ### Naming Scheme
 
