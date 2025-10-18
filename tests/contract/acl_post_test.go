@@ -32,7 +32,7 @@ func TestPostAcl(t *testing.T) {
 	}
 
 	// Setup handlers
-	h := handlers.NewTestHandlers(aclRules)
+	h := handlers.NewTestHandlersOrDie(aclRules)
 
 	// Register routes with auth middleware
 	v1 := router.Group("/api/v1")
@@ -72,7 +72,7 @@ func TestPostAclInsufficientPermissions(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers WITHOUT ACL rules (user has no permission to set ACL rules)
-	h := handlers.NewTestHandlers(nil)
+	h := handlers.NewTestHandlersOrDie(nil)
 
 	// Register routes with auth middleware
 	v1 := router.Group("/api/v1")
@@ -112,7 +112,7 @@ func TestPostAclInvalidApiKey(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers
-	h := handlers.NewTestHandlers(nil)
+	h := handlers.NewTestHandlersOrDie(nil)
 
 	// Register routes with auth middleware
 	v1 := router.Group("/api/v1")

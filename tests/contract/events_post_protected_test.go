@@ -23,7 +23,7 @@ func TestPostEventsProtected(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers
-	h := handlers.NewTestHandlers(nil)
+	h := handlers.NewTestHandlersOrDie(nil)
 
 	// Register routes with auth middleware
 	v1 := router.Group("/api/v1")
@@ -75,7 +75,7 @@ func TestPostEventsWithValidToken(t *testing.T) {
 	}
 
 	// Setup handlers
-	h := handlers.NewTestHandlers(aclRules)
+	h := handlers.NewTestHandlersOrDie(aclRules)
 
 	// Register routes with auth
 	v1 := router.Group("/api/v1")
@@ -134,7 +134,7 @@ func TestPostEventsWithInvalidToken(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers
-	h := handlers.NewTestHandlers(nil)
+	h := handlers.NewTestHandlersOrDie(nil)
 
 	// Register routes with auth
 	v1 := router.Group("/api/v1")
@@ -169,7 +169,7 @@ func TestPostEventsAclEventNotAllowed(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers
-	h := handlers.NewTestHandlers(nil)
+	h := handlers.NewTestHandlersOrDie(nil)
 
 	// Register routes with auth
 	v1 := router.Group("/api/v1")
@@ -213,7 +213,7 @@ func TestPostEventsMissingRequiredFields(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers
-	h := handlers.NewTestHandlers(nil)
+	h := handlers.NewTestHandlersOrDie(nil)
 
 	// Register routes with auth
 	v1 := router.Group("/api/v1")
@@ -256,7 +256,7 @@ func TestPostEventsInvalidTimestamp(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers
-	h := handlers.NewTestHandlers(nil)
+	h := handlers.NewTestHandlersOrDie(nil)
 
 	// Register routes with auth
 	v1 := router.Group("/api/v1")
@@ -300,7 +300,7 @@ func TestPostEventsWrongUser(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers
-	h := handlers.NewTestHandlers(nil)
+	h := handlers.NewTestHandlersOrDie(nil)
 
 	// Register routes with auth
 	v1 := router.Group("/api/v1")

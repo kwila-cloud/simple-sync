@@ -21,7 +21,7 @@ func TestPostUserResetKey(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers
-	h := handlers.NewTestHandlers(nil)
+	h := handlers.NewTestHandlersOrDie(nil)
 
 	// Register routes
 	v1 := router.Group("/api/v1")
@@ -62,7 +62,7 @@ func TestPostUserGenerateToken(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers
-	h := handlers.NewTestHandlers(nil)
+	h := handlers.NewTestHandlersOrDie(nil)
 
 	// Register routes
 	v1 := router.Group("/api/v1")
@@ -105,7 +105,7 @@ func TestPostSetupExchangeToken(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers
-	h := handlers.NewTestHandlers(nil)
+	h := handlers.NewTestHandlersOrDie(nil)
 
 	// Generate setup token first
 	setupToken, err := h.AuthService().GenerateSetupToken(storage.TestingUserId)

@@ -30,7 +30,7 @@ func TestAclRetrieve(t *testing.T) {
 		},
 	}
 
-	h := handlers.NewTestHandlers(aclRules)
+	h := handlers.NewTestHandlersOrDie(aclRules)
 
 	// Register routes
 	v1 := router.Group("/api/v1")

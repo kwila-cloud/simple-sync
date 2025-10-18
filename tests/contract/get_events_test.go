@@ -19,7 +19,7 @@ func TestGetEvents(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers
-	h := handlers.NewTestHandlers(nil)
+	h := handlers.NewTestHandlersOrDie(nil)
 
 	// Register routes with auth
 	v1 := router.Group("/api/v1")
