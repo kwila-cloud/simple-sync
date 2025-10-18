@@ -20,7 +20,7 @@ func TestXApiKeyHeaderAccepted(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers
-	h := handlers.NewTestHandlersOrDie(nil)
+	h := handlers.NewTestHandlers(nil)
 
 	// Register protected route
 	v1 := router.Group("/api/v1")

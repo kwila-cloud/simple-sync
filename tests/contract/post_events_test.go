@@ -34,7 +34,7 @@ func TestPostEvents(t *testing.T) {
 	}
 
 	// Setup handlers
-	h := handlers.NewTestHandlersOrDie(aclRules)
+	h := handlers.NewTestHandlers(aclRules)
 
 	// Register routes with auth middleware
 	v1 := router.Group("/api/v1")
@@ -94,7 +94,7 @@ func TestConcurrentPostEvents(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers
-	h := handlers.NewTestHandlersOrDie(nil)
+	h := handlers.NewTestHandlers(nil)
 
 	// Register routes with auth
 	v1 := router.Group("/api/v1")

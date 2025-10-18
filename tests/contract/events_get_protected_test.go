@@ -20,7 +20,7 @@ func TestGetEventsProtected(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers
-	h := handlers.NewTestHandlersOrDie(nil)
+	h := handlers.NewTestHandlers(nil)
 
 	// Register routes with auth middleware
 	v1 := router.Group("/api/v1")
@@ -51,7 +51,7 @@ func TestGetEventsWithValidToken(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers
-	h := handlers.NewTestHandlersOrDie(nil)
+	h := handlers.NewTestHandlers(nil)
 
 	// Register routes with auth middleware
 	v1 := router.Group("/api/v1")
@@ -86,7 +86,7 @@ func TestGetEventsWithInvalidApiKey(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers
-	h := handlers.NewTestHandlersOrDie(nil)
+	h := handlers.NewTestHandlers(nil)
 
 	// Register routes with auth middleware
 	v1 := router.Group("/api/v1")

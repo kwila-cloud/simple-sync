@@ -34,28 +34,15 @@ func NewHandlers(storage storage.Storage, version string) (*Handlers, error) {
 }
 
 // NewTestHandlers creates a new handlers instance with test defaults
-func NewTestHandlers(aclRules []models.AclRule) (*Handlers, error) {
+// Panics on error for test convenience
+func NewTestHandlers(aclRules []models.AclRule) *Handlers {
 	return NewTestHandlersWithStorage(storage.NewTestStorage(aclRules))
 }
 
 // NewTestHandlersWithStorage creates a new handlers instance with test defaults and custom storage
-func NewTestHandlersWithStorage(store storage.Storage) (*Handlers, error) {
-	return NewHandlers(store, "test")
-}
-
-// NewTestHandlersOrDie creates a new handlers instance with test defaults, panics on error
-// This is a convenience function for tests that want to fail fast on setup errors
-func NewTestHandlersOrDie(aclRules []models.AclRule) *Handlers {
-	h, err := NewTestHandlers(aclRules)
-	if err != nil {
-		panic("Failed to create test handlers: " + err.Error())
-	}
-	return h
-}
-
-// NewTestHandlersWithStorageOrDie creates a new handlers instance with test defaults and custom storage, panics on error
-func NewTestHandlersWithStorageOrDie(store storage.Storage) *Handlers {
-	h, err := NewTestHandlersWithStorage(store)
+// Panics on error for test convenience
+func NewTestHandlersWithStorage(store storage.Storage) *Handlers {
+	h, err := NewHandlers(store, "test")
 	if err != nil {
 		panic("Failed to create test handlers: " + err.Error())
 	}

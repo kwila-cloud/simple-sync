@@ -31,7 +31,7 @@ func TestAclPermissionGranted(t *testing.T) {
 		},
 	}
 
-	h := handlers.NewTestHandlersOrDie(aclRules)
+	h := handlers.NewTestHandlers(aclRules)
 
 	// Register routes
 	v1 := router.Group("/api/v1")

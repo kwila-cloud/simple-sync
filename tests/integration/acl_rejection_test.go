@@ -32,7 +32,7 @@ func TestAclRejectionViaEvents(t *testing.T) {
 	}
 
 	// Setup handlers with memory storage
-	h := handlers.NewTestHandlersOrDie(aclRules)
+	h := handlers.NewTestHandlers(aclRules)
 
 	// Register routes with auth middleware
 	v1 := router.Group("/api/v1")

@@ -20,7 +20,7 @@ func TestAuthErrorScenariosIntegration(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers
-	h := handlers.NewTestHandlersOrDie(nil)
+	h := handlers.NewTestHandlers(nil)
 
 	// Register routes
 	v1 := router.Group("/api/v1")

@@ -20,7 +20,7 @@ func TestAclRootUserBypass(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 
-	h := handlers.NewTestHandlersOrDie(nil)
+	h := handlers.NewTestHandlers(nil)
 
 	// Register routes
 	v1 := router.Group("/api/v1")

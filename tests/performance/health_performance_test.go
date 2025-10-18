@@ -18,7 +18,7 @@ func TestHealthEndpointPerformance(t *testing.T) {
 	router := gin.Default()
 
 	// Setup handlers
-	h := handlers.NewTestHandlersOrDie(nil)
+	h := handlers.NewTestHandlers(nil)
 
 	// Register health route
 	v1 := router.Group("/api/v1")
