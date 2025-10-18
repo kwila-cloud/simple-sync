@@ -121,3 +121,27 @@ See `.opencode/command/` directory for examples.
   - Examples: `CreateApiKey`, `GetAclRules`, `UpdateAclRule` (NOT: `CreateAPIKey`, `GetACLRules`)
 - **Documentation**: Use normal capitalization for acronyms in plain text, comments, and documentation.
   - Examples: "API key", "ACL rule", "REST API" (NOT: "ApiKey", "AclRule" in documentation)
+
+### Standard Library Usage
+
+**CRITICAL**: Always use functions from the standard library when possible, rather than creating custom helper functions.
+
+1. **Prefer Standard Library**: Check if Go's standard library already provides the functionality you need
+   - ✅ Good: `strings.Contains()`, `strings.HasPrefix()`, `strings.Split()`
+   - ✅ Good: `fmt.Sprintf()`, `strconv.Atoi()`, `time.Parse()`
+   - ❌ Bad: Creating custom `contains()`, `split()`, `parseTime()` functions
+
+2. **Common Standard Library Functions to Use**:
+   - **Strings**: `strings.Contains()`, `strings.HasPrefix()`, `strings.HasSuffix()`, `strings.Split()`, `strings.Join()`
+   - **Formatting**: `fmt.Sprintf()`, `fmt.Errorf()`
+   - **Conversions**: `strconv.Atoi()`, `strconv.Itoa()`, `strconv.ParseBool()`
+   - **Time**: `time.Now()`, `time.Parse()`, `time.Format()`
+   - **Slices**: `sort.Slice()`, `append()`, `copy()`
+
+3. **Examples**:
+   - ✅ Good: `if strings.Contains(err.Error(), "malformed") { ... }`
+   - ❌ Bad: Creating custom `contains(s, substr string) bool` function
+   - ✅ Good: `result := fmt.Sprintf("User %s has %d items", user, count)`
+   - ❌ Bad: Creating custom string formatting helpers
+
+4. **When in doubt**: If you're about to write a helper function, first check the Go standard library documentation for existing solutions
