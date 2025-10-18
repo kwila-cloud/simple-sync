@@ -48,7 +48,7 @@ func NewTestStorage(aclRules []models.AclRule) *TestStorage {
 		CreatedAt:   now,
 		LastUsedAt:  &now,
 	}
-	storage.CreateAPIKey(apiKey)
+	storage.CreateApiKey(apiKey)
 
 	// Add default user
 	defaultUser, _ := models.NewUser(TestingUserId)
@@ -64,7 +64,7 @@ func NewTestStorage(aclRules []models.AclRule) *TestStorage {
 		CreatedAt:   now,
 		LastUsedAt:  &now,
 	}
-	storage.CreateAPIKey(apiKey)
+	storage.CreateApiKey(apiKey)
 
 	// Add initial ACL rules as events
 	for _, rule := range aclRules {
@@ -120,16 +120,16 @@ func (m *TestStorage) GetUserById(id string) (*models.User, error) {
 	return user, nil
 }
 
-// CreateAPIKey stores a new API key
-func (m *TestStorage) CreateAPIKey(apiKey *models.APIKey) error {
+// CreateApiKey stores a new API key
+func (m *TestStorage) CreateApiKey(apiKey *models.APIKey) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	m.apiKeys[apiKey.UUID] = apiKey
 	return nil
 }
 
-// GetAPIKeyByHash retrieves an API key by its hash
-func (m *TestStorage) GetAPIKeyByHash(hash string) (*models.APIKey, error) {
+// GetApiKeyByHash retrieves an API key by its hash
+func (m *TestStorage) GetApiKeyByHash(hash string) (*models.APIKey, error) {
 	m.mutex.RLock()
 	defer m.mutex.RUnlock()
 	for _, apiKey := range m.apiKeys {
@@ -140,8 +140,8 @@ func (m *TestStorage) GetAPIKeyByHash(hash string) (*models.APIKey, error) {
 	return nil, errors.New("API key not found")
 }
 
-// GetAllAPIKeys retrieves all API keys
-func (m *TestStorage) GetAllAPIKeys() ([]*models.APIKey, error) {
+// GetAllApiKeys retrieves all API keys
+func (m *TestStorage) GetAllApiKeys() ([]*models.APIKey, error) {
 	m.mutex.RLock()
 	defer m.mutex.RUnlock()
 	keys := make([]*models.APIKey, 0, len(m.apiKeys))
@@ -151,8 +151,8 @@ func (m *TestStorage) GetAllAPIKeys() ([]*models.APIKey, error) {
 	return keys, nil
 }
 
-// UpdateAPIKey updates an existing API key
-func (m *TestStorage) UpdateAPIKey(apiKey *models.APIKey) error {
+// UpdateApiKey updates an existing API key
+func (m *TestStorage) UpdateApiKey(apiKey *models.APIKey) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	m.apiKeys[apiKey.UUID] = apiKey
@@ -199,8 +199,8 @@ func (m *TestStorage) InvalidateUserSetupTokens(userID string) error {
 	return nil
 }
 
-// InvalidateUserAPIKeys removes all API keys for a user
-func (m *TestStorage) InvalidateUserAPIKeys(userID string) error {
+// InvalidateUserApiKeys removes all API keys for a user
+func (m *TestStorage) InvalidateUserApiKeys(userID string) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	for uuid, apiKey := range m.apiKeys {
