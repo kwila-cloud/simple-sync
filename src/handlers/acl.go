@@ -49,7 +49,7 @@ func (h *Handlers) PostAcl(c *gin.Context) {
 
 	// Validate each ACL rule
 	for _, rule := range aclRules {
-		if err := validateAclRule(&rule); err != nil {
+		if err := validateAclRule(rule); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
@@ -79,7 +79,7 @@ func (h *Handlers) PostAcl(c *gin.Context) {
 }
 
 // checks if an ACL rule has valid data
-func validateAclRule(rule *models.AclRule) error {
+func validateAclRule(rule models.AclRule) error {
 	if !isValidPattern(rule.User) {
 		return errors.New("invalid user pattern")
 	}
