@@ -17,66 +17,77 @@ SQLite chosen over Go marshaling for:
 
 Encryption at rest will be addressed separately (issue #17) using SQLCipher or file-level encryption.
 
-## Implementation Checklist
+## Task List
 
-### PR 1: Storage Interface Updates
+### Storage Interface Updates
+- [ ] Add tests for new ACL storage interface methods
 - [ ] Add ACL-specific methods to storage interface
 
-### PR 2: ACL Service Refactoring  
+### ACL Service Refactoring  
+- [ ] Add tests expecting ACL service to use storage methods instead of events
 - [ ] Decouple ACL service from event-based rule loading
 
-### PR 3: Storage Factory and Error Types
+### Storage Factory and Error Types
+- [ ] Add tests for storage factory and database-specific errors
 - [ ] Create storage factory for better testability
 - [ ] Add database-specific error types
 
-### PR 4: Model Validation Updates
+### Model Validation Updates
+- [ ] Add tests for database-compatible model validation
 - [ ] Review model validation for database compatibility
 
-### PR 5: SQLite Storage Foundation
+### SQLite Storage Foundation
+- [ ] Add tests for SQLite storage initialization and connection management
 - [ ] Create SQLite storage implementation with database connection management
 - [ ] Add database initialization methods (Initialize, Close)
 
-### PR 6: Database Schema and Migrations
+### Database Schema and Migrations
+- [ ] Add tests for database schema creation and migrations
 - [ ] Design and implement database schema (events, users, api_keys, setup_tokens, acl_rules tables)
 - [ ] Implement table creation with migrations, indexes, and constraints
 
-### PR 7: Event Storage Implementation
+### Event Storage Implementation
+- [ ] Add tests for event storage operations
 - [ ] Implement event storage with transaction support and pagination
 
-### PR 8: User Storage Implementation
+### User Storage Implementation
+- [ ] Add tests for user storage operations
 - [ ] Implement user storage with uniqueness constraints
 
-### PR 9: API Key Storage Implementation
+### API Key Storage Implementation
+- [ ] Add tests for API key storage operations
 - [ ] Implement API key storage with security considerations
 
-### PR 10: Setup Token Storage Implementation
+### Setup Token Storage Implementation
+- [ ] Add tests for setup token storage operations
 - [ ] Implement setup token storage with expiration handling
 
-### PR 11: ACL Rule Storage Implementation
+### ACL Rule Storage Implementation
+- [ ] Add tests for ACL rule storage operations
 - [ ] Implement ACL rule storage with filtering and indexing
 
-### PR 12: Service Integration
+### Service Integration
+- [ ] Add tests for updated ACL and authentication services
 - [ ] Update ACL and authentication services to use SQLite storage
 
-### PR 13: Main Application Integration
+### Main Application Integration
+- [ ] Add tests for main application SQLite integration
 - [ ] Update main.go to use SQLite storage with database configuration
 - [ ] Add database connection management with pooling and health checks
 
-### PR 14: Docker Configuration
+### Docker Configuration
+- [ ] Add tests for Docker data persistence
 - [ ] Update Docker configuration for data persistence
 
-### PR 15: Integration Testing
-- [ ] Create integration tests for SQLite storage operations
-- [ ] Test data persistence for all entities (events, users, API keys, ACLs)
-
-### PR 16: Performance and Concurrency Testing
+### Performance and Concurrency Testing
+- [ ] Add performance and concurrency tests
 - [ ] Validate concurrent access and large dataset handling
 - [ ] Test database migrations and schema updates
 
-### PR 17: Documentation Updates
+### Documentation Updates
 - [ ] Update AGENTS.md with SQLite storage information
 - [ ] Update README.md with data persistence features and setup instructions
 
-### PR 18: User Documentation
+### User Documentation
 - [ ] Update user-facing documentation in docs/ with SQLite configuration
 - [ ] Document backup/restore procedures and security considerations

@@ -30,21 +30,36 @@ Simple-sync is a lightweight REST API built in Go that provides event storage an
 - **Structure**: 
   - Title with issue link: `# Title\n\nhttps://github.com/kwila-cloud/simple-sync/issues/{number}`
   - Brief plan description
-  - Checklist format using `[ ]` for pending and `[x]` for completed
+  - Design decisions section (if applicable)
+  - Task List with atomic items using `[ ]` for pending and `[x]` for completed
 - **Style**: 
   - ✅ Good: Simple, scannable checklist format
   - ✅ Good: Group related items logically
   - ❌ Avoid: Verbose descriptions, detailed explanations, multiple sections
+- **TDD Approach**: Each task should include tests first, then implementation
+  - ✅ Good: "Add tests for X", "Implement X"
+  - ❌ Bad: Separate testing section at the end
+- **Atomic Tasks**: Task List contains atomic tasks small enough for single pull requests
+  - ✅ Good: Focused, self-contained items
+  - ❌ Bad: Large, multi-feature items
 
 ### Specification Development Process
 
 - **CRITICAL**: DO NOT make code changes while working on specifications
-- **Specification phase**: Focus only on planning, design, and checklist creation
+- **Specification phase**: Focus only on planning, design, and Task List creation
 - **Implementation phase**: After spec is finalized, then proceed with code changes
 - **Examples**:
   - ✅ Good: Discussing TDD approaches, test strategies, implementation order
   - ❌ Bad: Reading files, writing tests, or implementing code during spec phase
 - **When in doubt**: If you're about to read/write code files, stop - you're still in spec phase
+
+#### Example: Issue #7 Data Persistence
+See `specs/7-data-persistence.md` for a well-structured specification that:
+- Includes design decisions section explaining SQLite vs Go marshaling choice
+- Uses TDD approach with tests first for each implementation item
+- Task List contains atomic tasks small enough for single pull requests
+- Groups related functionality logically
+- Maintains focus without excessive detail
 
 ### Git Workflow
 
