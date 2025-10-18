@@ -31,17 +31,22 @@ Simple-sync is a lightweight REST API built in Go that provides event storage an
   - Title with issue link: `# Title\n\nhttps://github.com/kwila-cloud/simple-sync/issues/{number}`
   - Brief plan description
   - Design decisions section (if applicable)
-  - Task List with atomic items using `[ ]` for pending and `[x]` for completed
+  - Task List with sections corresponding to atomic pull requests
+    - Each section header represents one PR
+    - Items within section are changes included in that PR (not necessarily atomic)
+    - Use `[ ]` for pending and `[x]` for completed
 - **Style**: 
   - ✅ Good: Simple, scannable checklist format
   - ✅ Good: Group related items logically
   - ❌ Avoid: Verbose descriptions, detailed explanations, multiple sections
-- **TDD Approach**: Each task should include tests first, then implementation
+- **TDD Approach**: Each task item should include tests first, then implementation
   - ✅ Good: "Add tests for X", "Implement X"
   - ❌ Bad: Separate testing section at the end
-- **Atomic Tasks**: Task List contains atomic tasks small enough for single pull requests
-  - ✅ Good: Focused, self-contained items
-  - ❌ Bad: Large, multi-feature items
+- **Task List Structure**: 
+  - Each section = one atomic pull request
+  - Items within section = changes included in that PR (can be multiple related changes)
+  - ✅ Good: Section with multiple related implementation items
+  - ❌ Bad: Each individual item as separate PR
 
 ### Specification Development Process
 
@@ -57,7 +62,8 @@ Simple-sync is a lightweight REST API built in Go that provides event storage an
 See `specs/7-data-persistence.md` for a well-structured specification that:
 - Includes design decisions section explaining SQLite vs Go marshaling choice
 - Uses TDD approach with tests first for each implementation item
-- Task List contains atomic tasks small enough for single pull requests
+- Task List sections correspond to atomic pull requests
+- Items within sections are related changes for that PR
 - Groups related functionality logically
 - Maintains focus without excessive detail
 
