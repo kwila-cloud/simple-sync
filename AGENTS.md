@@ -14,6 +14,16 @@ Simple-sync is a lightweight REST API built in Go that provides event storage an
 - Event storage with timestamps and metadata
 - ACL-based permission system (read/write permissions)
 
+### GitHub Data Access
+
+- **ALWAYS use GitHub CLI for GitHub data** - NEVER use webfetch for issues, PRs, or other GitHub information
+- **Issue information**: Use `gh issue view <number>`
+- **PR information**: Use `gh pr view <number>`
+- **PR diff**: Use `gh pr diff <number>`
+- **Examples**:
+  - ✅ Good: `gh issue view 7` (clean, structured output)
+  - ❌ Bad: `webfetch` with GitHub URL (scraped HTML, verbose output)
+
 ### Issue Specifications
 
 - **File Naming**: Use format `{issue-number}-{brief-description}.md` in `specs/`
