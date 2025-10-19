@@ -2,7 +2,6 @@ package storage
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -116,7 +115,7 @@ func (m *TestStorage) GetUserById(id string) (*models.User, error) {
 	defer m.mutex.RUnlock()
 	user, exists := m.users[id]
 	if !exists {
-		return nil, errors.New("user not found")
+		return nil, ErrNotFound
 	}
 	return user, nil
 }
@@ -138,7 +137,7 @@ func (m *TestStorage) GetApiKeyByHash(hash string) (*models.APIKey, error) {
 			return apiKey, nil
 		}
 	}
-	return nil, errors.New("API key not found")
+	return nil, ErrNotFound
 }
 
 // GetAllApiKeys retrieves all API keys
@@ -174,7 +173,7 @@ func (m *TestStorage) GetSetupToken(token string) (*models.SetupToken, error) {
 	defer m.mutex.RUnlock()
 	setupToken, exists := m.setupTokens[token]
 	if !exists {
-		return nil, errors.New("setup token not found")
+		return nil, ErrNotFound
 	}
 	return setupToken, nil
 }
