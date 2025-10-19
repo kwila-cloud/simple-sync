@@ -1,11 +1,12 @@
 package handlers
 
 import (
-	"errors"
 	"log"
 	"net/http"
-	"simple-sync/src/models"
 	"time"
+
+	"simple-sync/src/models"
+	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
 )
@@ -108,14 +109,14 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 func validateTimestamp(timestamp uint64) error {
 	// Basic zero check
 	if timestamp == 0 {
-		return errors.New("Invalid timestamp")
+		return storage.ErrInvalidTimestamp
 	}
 
 	// Maximum timestamp: Allow up to 24 hours in the future for clock skew tolerance
 	now := time.Now().Unix()
 	maxTimestamp := now + (24 * 60 * 60) // 24 hours from now
 	if int64(timestamp) > maxTimestamp {
-		return errors.New("Invalid timestamp")
+		return storage.ErrInvalidTimestamp
 	}
 
 	return nil

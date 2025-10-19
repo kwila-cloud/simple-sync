@@ -3,6 +3,7 @@ package services
 import (
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"log"
 	"sync"
 	"time"
@@ -34,7 +35,7 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 
 	// Validate API key format before expensive operations
 	if len(apiKey) < 3 || apiKey[:3] != "sk_" {
-		return "", errors.New("invalid API key format")
+		return "", storage.ErrInvalidApiKeyFormat
 	}
 
 	// Check if the remaining part is valid base64 (try with padding since keys are truncated)
@@ -43,14 +44,14 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 	if _, err := base64.StdEncoding.DecodeString(base64Part); err != nil {
 		// Try with padding added (generated keys are truncated to 43 chars)
 		if _, err := base64.StdEncoding.DecodeString(base64Part + "="); err != nil {
-			return "", errors.New("invalid API key format")
+			return "", storage.ErrInvalidApiKeyFormat
 		}
 	}
 
 	// Get all API keys and find the one that matches
 	apiKeys, err := s.storage.GetAllApiKeys()
 	if err != nil {
-		return "", errors.New("failed to retrieve API keys")
+		return "", fmt.Errorf("failed to retrieve API keys: %w", err)
 	}
 
 	for _, apiKeyModel := range apiKeys {
@@ -75,7 +76,7 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 		}
 	}
 
-	return "", errors.New("invalid API key")
+	return "", storage.ErrInvalidApiKey
 }
 
 // GenerateApiKey generates a new API key for a user
@@ -109,7 +110,7 @@ func (s *AuthService) GenerateSetupToken(userID string) (*models.SetupToken, err
 	// Verify user exists
 	_, err := s.storage.GetUserById(userID)
 	if err != nil {
-		return nil, errors.New("user not found")
+		return nil, storage.ErrUserNotFound
 	}
 
 	// Invalidate any existing setup tokens for this user
@@ -142,12 +143,12 @@ func (s *AuthService) ExchangeSetupToken(token, description string) (*models.API
 	// Get the setup token
 	setupToken, err := s.storage.GetSetupToken(token)
 	if err != nil {
-		return nil, "", errors.New("invalid setup token")
+		return nil, "", storage.ErrInvalidSetupToken
 	}
 
 	// Validate the token
 	if !setupToken.IsValid() {
-		return nil, "", errors.New("setup token is expired or already used")
+		return nil, "", storage.ErrSetupTokenExpired
 	}
 
 	// Mark the token as used

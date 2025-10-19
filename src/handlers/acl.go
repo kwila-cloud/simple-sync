@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"strings"
 
 	"simple-sync/src/models"
+	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
 )
@@ -80,37 +80,85 @@ func (h *Handlers) PostAcl(c *gin.Context) {
 
 // checks if an ACL rule has valid data
 func validateAclRule(rule models.AclRule) error {
-	if !isValidPattern(rule.User) {
-		return errors.New("invalid user pattern")
+	if err := validateUserPattern(rule.User); err != nil {
+		return err
 	}
-	if !isValidPattern(rule.Item) {
-		return errors.New("invalid item pattern")
+	if err := validateItemPattern(rule.Item); err != nil {
+		return err
 	}
-	if !isValidPattern(rule.Action) {
-		return errors.New("invalid action pattern")
+	if err := validateActionPattern(rule.Action); err != nil {
+		return err
 	}
 	if rule.Type != "allow" && rule.Type != "deny" {
-		return errors.New("type must be either 'allow' or 'deny'")
+		return storage.ErrInvalidAclType
 	}
 	return nil
 }
 
-// Checks if a pattern has valid wildcard usage (at most one at the end)
-func isValidPattern(pattern string) bool {
+// validateUserPattern validates the user pattern with specific error messages
+func validateUserPattern(pattern string) error {
 	if pattern == "" {
-		return false
+		return storage.ErrAclUserEmpty
 	}
 	if pattern == "*" {
-		return true
+		return nil
 	}
 	if containsControlChars(pattern) {
-		return false
+		return storage.ErrAclUserControlChars
 	}
 	if strings.HasSuffix(pattern, "*") {
 		prefix := strings.TrimSuffix(pattern, "*")
-		return !strings.Contains(prefix, "*")
+		if strings.Contains(prefix, "*") {
+			return storage.ErrAclUserMultipleWildcards
+		}
+	} else if strings.Contains(pattern, "*") {
+		return storage.ErrAclUserMultipleWildcards
 	}
-	return !strings.Contains(pattern, "*")
+	return nil
+}
+
+// validateItemPattern validates the item pattern with specific error messages
+func validateItemPattern(pattern string) error {
+	if pattern == "" {
+		return storage.ErrAclItemEmpty
+	}
+	if pattern == "*" {
+		return nil
+	}
+	if containsControlChars(pattern) {
+		return storage.ErrAclItemControlChars
+	}
+	if strings.HasSuffix(pattern, "*") {
+		prefix := strings.TrimSuffix(pattern, "*")
+		if strings.Contains(prefix, "*") {
+			return storage.ErrAclItemMultipleWildcards
+		}
+	} else if strings.Contains(pattern, "*") {
+		return storage.ErrAclItemMultipleWildcards
+	}
+	return nil
+}
+
+// validateActionPattern validates the action pattern with specific error messages
+func validateActionPattern(pattern string) error {
+	if pattern == "" {
+		return storage.ErrAclActionEmpty
+	}
+	if pattern == "*" {
+		return nil
+	}
+	if containsControlChars(pattern) {
+		return storage.ErrAclActionControlChars
+	}
+	if strings.HasSuffix(pattern, "*") {
+		prefix := strings.TrimSuffix(pattern, "*")
+		if strings.Contains(prefix, "*") {
+			return storage.ErrAclActionMultipleWildcards
+		}
+	} else if strings.Contains(pattern, "*") {
+		return storage.ErrAclActionMultipleWildcards
+	}
+	return nil
 }
 
 // checks if string contains control characters
