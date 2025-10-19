@@ -52,28 +52,44 @@ func TestNewStorageWithAclRules(t *testing.T) {
 }
 
 func TestErrorTypes(t *testing.T) {
-	// Test that storage error types are properly defined
-	if ErrNotFound == nil {
-		t.Error("ErrNotFound should not be nil")
-	}
-	if ErrDuplicateKey == nil {
-		t.Error("ErrDuplicateKey should not be nil")
-	}
-	if ErrInvalidData == nil {
-		t.Error("ErrInvalidData should not be nil")
+	// Test error messages for storage-specific errors
+	tests := []struct {
+		name     string
+		err      error
+		expected string
+	}{
+		{
+			name:     "ErrNotFound",
+			err:      ErrNotFound,
+			expected: "resource not found",
+		},
+		{
+			name:     "ErrDuplicateKey",
+			err:      ErrDuplicateKey,
+			expected: "duplicate key",
+		},
+		{
+			name:     "ErrInvalidData",
+			err:      ErrInvalidData,
+			expected: "invalid data",
+		},
+		{
+			name:     "ErrApiKeyNotFound",
+			err:      ErrApiKeyNotFound,
+			expected: "API key not found",
+		},
+		{
+			name:     "ErrSetupTokenNotFound",
+			err:      ErrSetupTokenNotFound,
+			expected: "setup token not found",
+		},
 	}
 
-	// Test storage-specific resource errors
-	if ErrApiKeyNotFound == nil {
-		t.Error("ErrApiKeyNotFound should not be nil")
-	}
-	if ErrSetupTokenNotFound == nil {
-		t.Error("ErrSetupTokenNotFound should not be nil")
-	}
-
-	// Test error messages
-	expectedApiKeyNotFound := "API key not found"
-	if ErrApiKeyNotFound.Error() != expectedApiKeyNotFound {
-		t.Errorf("Expected error message '%s', got '%s'", expectedApiKeyNotFound, ErrApiKeyNotFound.Error())
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.err.Error() != tt.expected {
+				t.Errorf("Expected error message '%s', got '%s'", tt.expected, tt.err.Error())
+			}
+		})
 	}
 }

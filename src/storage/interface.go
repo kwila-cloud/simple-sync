@@ -46,11 +46,7 @@ type Storage interface {
 // NewStorage creates a new storage instance based on the current environment
 // Returns TestStorage when running tests, SQLiteStorage in production (future)
 func NewStorage() Storage {
-	if testing.Testing() {
-		return NewTestStorage(nil)
-	}
-	// TODO: Return SQLiteStorage for production
-	return NewTestStorage(nil)
+	return NewStorageWithAclRules(nil)
 }
 
 // NewStorageWithAclRules creates a new storage instance with initial ACL rules
