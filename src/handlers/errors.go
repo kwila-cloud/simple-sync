@@ -1,27 +1,27 @@
 package handlers
 
-import "errors"
+import "simple-sync/src/errors"
 
-// Handler and validation specific error types
+// Re-export shared errors for convenience in handlers package
 var (
 	// Authentication errors
-	ErrInvalidApiKeyFormat = errors.New("invalid API key format")
-	ErrInvalidApiKey       = errors.New("invalid API key")
-	ErrInvalidSetupToken   = errors.New("invalid setup token")
-	ErrSetupTokenExpired   = errors.New("setup token is expired or already used")
+	ErrInvalidApiKeyFormat = errors.ErrInvalidApiKeyFormat
+	ErrInvalidApiKey       = errors.ErrInvalidApiKey
+	ErrInvalidSetupToken   = errors.ErrInvalidSetupToken
+	ErrSetupTokenExpired   = errors.ErrSetupTokenExpired
 
 	// Validation errors
-	ErrInvalidTimestamp = errors.New("invalid timestamp")
+	ErrInvalidTimestamp = errors.ErrInvalidTimestamp
 
 	// ACL validation errors
-	ErrInvalidAclType             = errors.New("type must be either 'allow' or 'deny'")
-	ErrAclUserEmpty               = errors.New("user pattern cannot be empty")
-	ErrAclItemEmpty               = errors.New("item pattern cannot be empty")
-	ErrAclActionEmpty             = errors.New("action pattern cannot be empty")
-	ErrAclUserMultipleWildcards   = errors.New("user pattern can have at most one wildcard at the end")
-	ErrAclItemMultipleWildcards   = errors.New("item pattern can have at most one wildcard at the end")
-	ErrAclActionMultipleWildcards = errors.New("action pattern can have at most one wildcard at the end")
-	ErrAclUserControlChars        = errors.New("user pattern contains invalid control characters")
-	ErrAclItemControlChars        = errors.New("item pattern contains invalid control characters")
-	ErrAclActionControlChars      = errors.New("action pattern contains invalid control characters")
+	ErrInvalidAclType             = errors.ErrInvalidAclType
+	ErrAclUserEmpty               = errors.ErrAclUserEmpty
+	ErrAclItemEmpty               = errors.ErrAclItemEmpty
+	ErrAclActionEmpty             = errors.ErrAclActionEmpty
+	ErrAclUserMultipleWildcards   = errors.ErrAclUserMultipleWildcards
+	ErrAclItemMultipleWildcards   = errors.ErrAclItemMultipleWildcards
+	ErrAclActionMultipleWildcards = errors.ErrAclActionMultipleWildcards
+	ErrAclUserControlChars        = errors.ErrAclUserControlChars
+	ErrAclItemControlChars        = errors.ErrAclItemControlChars
+	ErrAclActionControlChars      = errors.ErrAclActionControlChars
 )

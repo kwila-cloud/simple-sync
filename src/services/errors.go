@@ -1,15 +1,15 @@
 package services
 
-import "errors"
+import "simple-sync/src/errors"
 
-// Service-specific error types
+// Re-export shared errors for convenience in services package
 var (
 	// Authentication errors
-	ErrInvalidApiKeyFormat = errors.New("invalid API key format")
-	ErrInvalidApiKey       = errors.New("invalid API key")
-	ErrInvalidSetupToken   = errors.New("invalid setup token")
-	ErrSetupTokenExpired   = errors.New("setup token is expired or already used")
+	ErrInvalidApiKeyFormat = errors.ErrInvalidApiKeyFormat
+	ErrInvalidApiKey       = errors.ErrInvalidApiKey
+	ErrInvalidSetupToken   = errors.ErrInvalidSetupToken
+	ErrSetupTokenExpired   = errors.ErrSetupTokenExpired
 
 	// Business logic errors
-	ErrUserNotFound = errors.New("user not found")
+	ErrUserNotFound = errors.ErrUserNotFound
 )
