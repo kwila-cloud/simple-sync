@@ -28,9 +28,9 @@ Encryption at rest will be addressed separately (issue #17) using SQLCipher or f
 - [x] Decouple ACL service from event-based rule loading
 
 ### Storage Factory and Error Types
-- [ ] Add tests for storage factory and database-specific errors
-- [ ] Create storage factory for better testability
-- [ ] Add database-specific error types
+- [x] Add tests for storage factory and database-specific errors
+- [x] Create storage factory for better testability
+- [x] Add specific error types
 
 ### Model Validation Updates
 - [ ] Add tests for database-compatible model validation
