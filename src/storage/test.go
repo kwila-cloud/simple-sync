@@ -115,7 +115,7 @@ func (m *TestStorage) GetUserById(id string) (*models.User, error) {
 	defer m.mutex.RUnlock()
 	user, exists := m.users[id]
 	if !exists {
-		return nil, ErrUserNotFound
+		return nil, ErrNotFound
 	}
 	return user, nil
 }

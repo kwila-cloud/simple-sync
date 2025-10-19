@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"simple-sync/src/models"
-	"simple-sync/src/storage"
 	"testing"
 )
 
@@ -20,7 +19,7 @@ func TestValidateAclRuleSpecificErrors(t *testing.T) {
 				Action: "read",
 				Type:   "allow",
 			},
-			expectedErr: storage.ErrAclUserEmpty,
+			expectedErr: ErrAclUserEmpty,
 		},
 		{
 			name: "empty item pattern",
@@ -30,7 +29,7 @@ func TestValidateAclRuleSpecificErrors(t *testing.T) {
 				Action: "read",
 				Type:   "allow",
 			},
-			expectedErr: storage.ErrAclItemEmpty,
+			expectedErr: ErrAclItemEmpty,
 		},
 		{
 			name: "empty action pattern",
@@ -40,7 +39,7 @@ func TestValidateAclRuleSpecificErrors(t *testing.T) {
 				Action: "",
 				Type:   "allow",
 			},
-			expectedErr: storage.ErrAclActionEmpty,
+			expectedErr: ErrAclActionEmpty,
 		},
 		{
 			name: "multiple wildcards in user",
@@ -50,7 +49,7 @@ func TestValidateAclRuleSpecificErrors(t *testing.T) {
 				Action: "read",
 				Type:   "allow",
 			},
-			expectedErr: storage.ErrAclUserMultipleWildcards,
+			expectedErr: ErrAclUserMultipleWildcards,
 		},
 		{
 			name: "multiple wildcards in item",
@@ -60,7 +59,7 @@ func TestValidateAclRuleSpecificErrors(t *testing.T) {
 				Action: "read",
 				Type:   "allow",
 			},
-			expectedErr: storage.ErrAclItemMultipleWildcards,
+			expectedErr: ErrAclItemMultipleWildcards,
 		},
 		{
 			name: "multiple wildcards in action",
@@ -70,7 +69,7 @@ func TestValidateAclRuleSpecificErrors(t *testing.T) {
 				Action: "read*write*",
 				Type:   "allow",
 			},
-			expectedErr: storage.ErrAclActionMultipleWildcards,
+			expectedErr: ErrAclActionMultipleWildcards,
 		},
 		{
 			name: "invalid ACL type",
@@ -80,7 +79,7 @@ func TestValidateAclRuleSpecificErrors(t *testing.T) {
 				Action: "read",
 				Type:   "invalid",
 			},
-			expectedErr: storage.ErrInvalidAclType,
+			expectedErr: ErrInvalidAclType,
 		},
 		{
 			name: "valid rule",

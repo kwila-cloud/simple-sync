@@ -35,7 +35,7 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 
 	// Validate API key format before expensive operations
 	if len(apiKey) < 3 || apiKey[:3] != "sk_" {
-		return "", storage.ErrInvalidApiKeyFormat
+		return "", ErrInvalidApiKeyFormat
 	}
 
 	// Check if the remaining part is valid base64 (try with padding since keys are truncated)
@@ -44,7 +44,7 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 	if _, err := base64.StdEncoding.DecodeString(base64Part); err != nil {
 		// Try with padding added (generated keys are truncated to 43 chars)
 		if _, err := base64.StdEncoding.DecodeString(base64Part + "="); err != nil {
-			return "", storage.ErrInvalidApiKeyFormat
+			return "", ErrInvalidApiKeyFormat
 		}
 	}
 
@@ -76,7 +76,7 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 		}
 	}
 
-	return "", storage.ErrInvalidApiKey
+	return "", ErrInvalidApiKey
 }
 
 // GenerateApiKey generates a new API key for a user
@@ -110,7 +110,10 @@ func (s *AuthService) GenerateSetupToken(userID string) (*models.SetupToken, err
 	// Verify user exists
 	_, err := s.storage.GetUserById(userID)
 	if err != nil {
-		return nil, storage.ErrUserNotFound
+		if err == storage.ErrNotFound {
+			return nil, ErrUserNotFound
+		}
+		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
 	// Invalidate any existing setup tokens for this user
@@ -143,12 +146,12 @@ func (s *AuthService) ExchangeSetupToken(token, description string) (*models.API
 	// Get the setup token
 	setupToken, err := s.storage.GetSetupToken(token)
 	if err != nil {
-		return nil, "", storage.ErrInvalidSetupToken
+		return nil, "", ErrInvalidSetupToken
 	}
 
 	// Validate the token
 	if !setupToken.IsValid() {
-		return nil, "", storage.ErrSetupTokenExpired
+		return nil, "", ErrSetupTokenExpired
 	}
 
 	// Mark the token as used

@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"simple-sync/src/models"
-	"simple-sync/src/storage"
 
 	"github.com/gin-gonic/gin"
 )
@@ -90,7 +89,7 @@ func validateAclRule(rule models.AclRule) error {
 		return err
 	}
 	if rule.Type != "allow" && rule.Type != "deny" {
-		return storage.ErrInvalidAclType
+		return ErrInvalidAclType
 	}
 	return nil
 }
@@ -100,11 +99,11 @@ func validatePattern(pattern, fieldType string) error {
 	if pattern == "" {
 		switch fieldType {
 		case "user":
-			return storage.ErrAclUserEmpty
+			return ErrAclUserEmpty
 		case "item":
-			return storage.ErrAclItemEmpty
+			return ErrAclItemEmpty
 		case "action":
-			return storage.ErrAclActionEmpty
+			return ErrAclActionEmpty
 		}
 	}
 	if pattern == "*" {
@@ -113,11 +112,11 @@ func validatePattern(pattern, fieldType string) error {
 	if containsControlChars(pattern) {
 		switch fieldType {
 		case "user":
-			return storage.ErrAclUserControlChars
+			return ErrAclUserControlChars
 		case "item":
-			return storage.ErrAclItemControlChars
+			return ErrAclItemControlChars
 		case "action":
-			return storage.ErrAclActionControlChars
+			return ErrAclActionControlChars
 		}
 	}
 	if strings.HasSuffix(pattern, "*") {
@@ -125,21 +124,21 @@ func validatePattern(pattern, fieldType string) error {
 		if strings.Contains(prefix, "*") {
 			switch fieldType {
 			case "user":
-				return storage.ErrAclUserMultipleWildcards
+				return ErrAclUserMultipleWildcards
 			case "item":
-				return storage.ErrAclItemMultipleWildcards
+				return ErrAclItemMultipleWildcards
 			case "action":
-				return storage.ErrAclActionMultipleWildcards
+				return ErrAclActionMultipleWildcards
 			}
 		}
 	} else if strings.Contains(pattern, "*") {
 		switch fieldType {
 		case "user":
-			return storage.ErrAclUserMultipleWildcards
+			return ErrAclUserMultipleWildcards
 		case "item":
-			return storage.ErrAclItemMultipleWildcards
+			return ErrAclItemMultipleWildcards
 		case "action":
-			return storage.ErrAclActionMultipleWildcards
+			return ErrAclActionMultipleWildcards
 		}
 	}
 	return nil
