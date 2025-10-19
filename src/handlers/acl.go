@@ -80,13 +80,13 @@ func (h *Handlers) PostAcl(c *gin.Context) {
 
 // checks if an ACL rule has valid data
 func validateAclRule(rule models.AclRule) error {
-	if err := validateUserPattern(rule.User); err != nil {
+	if err := validatePattern(rule.User, "user"); err != nil {
 		return err
 	}
-	if err := validateItemPattern(rule.Item); err != nil {
+	if err := validatePattern(rule.Item, "item"); err != nil {
 		return err
 	}
-	if err := validateActionPattern(rule.Action); err != nil {
+	if err := validatePattern(rule.Action, "action"); err != nil {
 		return err
 	}
 	if rule.Type != "allow" && rule.Type != "deny" {
@@ -95,68 +95,52 @@ func validateAclRule(rule models.AclRule) error {
 	return nil
 }
 
-// validateUserPattern validates the user pattern with specific error messages
-func validateUserPattern(pattern string) error {
+// validatePattern validates a pattern with specific error messages based on the field name
+func validatePattern(pattern, fieldType string) error {
 	if pattern == "" {
-		return storage.ErrAclUserEmpty
+		switch fieldType {
+		case "user":
+			return storage.ErrAclUserEmpty
+		case "item":
+			return storage.ErrAclItemEmpty
+		case "action":
+			return storage.ErrAclActionEmpty
+		}
 	}
 	if pattern == "*" {
 		return nil
 	}
 	if containsControlChars(pattern) {
-		return storage.ErrAclUserControlChars
+		switch fieldType {
+		case "user":
+			return storage.ErrAclUserControlChars
+		case "item":
+			return storage.ErrAclItemControlChars
+		case "action":
+			return storage.ErrAclActionControlChars
+		}
 	}
 	if strings.HasSuffix(pattern, "*") {
 		prefix := strings.TrimSuffix(pattern, "*")
 		if strings.Contains(prefix, "*") {
+			switch fieldType {
+			case "user":
+				return storage.ErrAclUserMultipleWildcards
+			case "item":
+				return storage.ErrAclItemMultipleWildcards
+			case "action":
+				return storage.ErrAclActionMultipleWildcards
+			}
+		}
+	} else if strings.Contains(pattern, "*") {
+		switch fieldType {
+		case "user":
 			return storage.ErrAclUserMultipleWildcards
-		}
-	} else if strings.Contains(pattern, "*") {
-		return storage.ErrAclUserMultipleWildcards
-	}
-	return nil
-}
-
-// validateItemPattern validates the item pattern with specific error messages
-func validateItemPattern(pattern string) error {
-	if pattern == "" {
-		return storage.ErrAclItemEmpty
-	}
-	if pattern == "*" {
-		return nil
-	}
-	if containsControlChars(pattern) {
-		return storage.ErrAclItemControlChars
-	}
-	if strings.HasSuffix(pattern, "*") {
-		prefix := strings.TrimSuffix(pattern, "*")
-		if strings.Contains(prefix, "*") {
+		case "item":
 			return storage.ErrAclItemMultipleWildcards
-		}
-	} else if strings.Contains(pattern, "*") {
-		return storage.ErrAclItemMultipleWildcards
-	}
-	return nil
-}
-
-// validateActionPattern validates the action pattern with specific error messages
-func validateActionPattern(pattern string) error {
-	if pattern == "" {
-		return storage.ErrAclActionEmpty
-	}
-	if pattern == "*" {
-		return nil
-	}
-	if containsControlChars(pattern) {
-		return storage.ErrAclActionControlChars
-	}
-	if strings.HasSuffix(pattern, "*") {
-		prefix := strings.TrimSuffix(pattern, "*")
-		if strings.Contains(prefix, "*") {
+		case "action":
 			return storage.ErrAclActionMultipleWildcards
 		}
-	} else if strings.Contains(pattern, "*") {
-		return storage.ErrAclActionMultipleWildcards
 	}
 	return nil
 }

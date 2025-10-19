@@ -145,4 +145,14 @@ func TestErrorTypes(t *testing.T) {
 	if ErrInvalidTimestamp.Error() != expectedInvalidTimestamp {
 		t.Errorf("Expected error message '%s', got '%s'", expectedInvalidTimestamp, ErrInvalidTimestamp.Error())
 	}
+
+	expectedAclUserEmpty := "user pattern cannot be empty"
+	if ErrAclUserEmpty.Error() != expectedAclUserEmpty {
+		t.Errorf("Expected error message '%s', got '%s'", expectedAclUserEmpty, ErrAclUserEmpty.Error())
+	}
+
+	expectedAclUserMultipleWildcards := "user pattern can have at most one wildcard at the end"
+	if ErrAclUserMultipleWildcards.Error() != expectedAclUserMultipleWildcards {
+		t.Errorf("Expected error message '%s', got '%s'", expectedAclUserMultipleWildcards, ErrAclUserMultipleWildcards.Error())
+	}
 }
