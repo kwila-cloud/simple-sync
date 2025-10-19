@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	apperrors "simple-sync/src/errors"
 	"simple-sync/src/models"
 
 	"github.com/gin-gonic/gin"
@@ -89,7 +90,7 @@ func validateAclRule(rule models.AclRule) error {
 		return err
 	}
 	if rule.Type != "allow" && rule.Type != "deny" {
-		return ErrInvalidAclType
+		return apperrors.ErrInvalidAclType
 	}
 	return nil
 }
@@ -99,11 +100,11 @@ func validatePattern(pattern, fieldType string) error {
 	if pattern == "" {
 		switch fieldType {
 		case "user":
-			return ErrAclUserEmpty
+			return apperrors.ErrAclUserEmpty
 		case "item":
-			return ErrAclItemEmpty
+			return apperrors.ErrAclItemEmpty
 		case "action":
-			return ErrAclActionEmpty
+			return apperrors.ErrAclActionEmpty
 		}
 	}
 	if pattern == "*" {
@@ -112,11 +113,11 @@ func validatePattern(pattern, fieldType string) error {
 	if containsControlChars(pattern) {
 		switch fieldType {
 		case "user":
-			return ErrAclUserControlChars
+			return apperrors.ErrAclUserControlChars
 		case "item":
-			return ErrAclItemControlChars
+			return apperrors.ErrAclItemControlChars
 		case "action":
-			return ErrAclActionControlChars
+			return apperrors.ErrAclActionControlChars
 		}
 	}
 	if strings.HasSuffix(pattern, "*") {
@@ -124,21 +125,21 @@ func validatePattern(pattern, fieldType string) error {
 		if strings.Contains(prefix, "*") {
 			switch fieldType {
 			case "user":
-				return ErrAclUserMultipleWildcards
+				return apperrors.ErrAclUserMultipleWildcards
 			case "item":
-				return ErrAclItemMultipleWildcards
+				return apperrors.ErrAclItemMultipleWildcards
 			case "action":
-				return ErrAclActionMultipleWildcards
+				return apperrors.ErrAclActionMultipleWildcards
 			}
 		}
 	} else if strings.Contains(pattern, "*") {
 		switch fieldType {
 		case "user":
-			return ErrAclUserMultipleWildcards
+			return apperrors.ErrAclUserMultipleWildcards
 		case "item":
-			return ErrAclItemMultipleWildcards
+			return apperrors.ErrAclItemMultipleWildcards
 		case "action":
-			return ErrAclActionMultipleWildcards
+			return apperrors.ErrAclActionMultipleWildcards
 		}
 	}
 	return nil

@@ -1,37 +1,38 @@
 package services
 
 import (
+	"simple-sync/src/errors"
 	"simple-sync/src/storage"
 	"testing"
 )
 
 func TestServiceErrorTypes(t *testing.T) {
 	// Test that service error types are properly defined
-	if ErrInvalidApiKeyFormat == nil {
+	if errors.ErrInvalidApiKeyFormat == nil {
 		t.Error("ErrInvalidApiKeyFormat should not be nil")
 	}
-	if ErrInvalidApiKey == nil {
+	if errors.ErrInvalidApiKey == nil {
 		t.Error("ErrInvalidApiKey should not be nil")
 	}
-	if ErrInvalidSetupToken == nil {
+	if errors.ErrInvalidSetupToken == nil {
 		t.Error("ErrInvalidSetupToken should not be nil")
 	}
-	if ErrSetupTokenExpired == nil {
+	if errors.ErrSetupTokenExpired == nil {
 		t.Error("ErrSetupTokenExpired should not be nil")
 	}
-	if ErrUserNotFound == nil {
+	if errors.ErrUserNotFound == nil {
 		t.Error("ErrUserNotFound should not be nil")
 	}
 
 	// Test error messages
 	expectedUserNotFound := "user not found"
-	if ErrUserNotFound.Error() != expectedUserNotFound {
-		t.Errorf("Expected error message '%s', got '%s'", expectedUserNotFound, ErrUserNotFound.Error())
+	if errors.ErrUserNotFound.Error() != expectedUserNotFound {
+		t.Errorf("Expected error message '%s', got '%s'", expectedUserNotFound, errors.ErrUserNotFound.Error())
 	}
 
 	expectedInvalidApiKey := "invalid API key"
-	if ErrInvalidApiKey.Error() != expectedInvalidApiKey {
-		t.Errorf("Expected error message '%s', got '%s'", expectedInvalidApiKey, ErrInvalidApiKey.Error())
+	if errors.ErrInvalidApiKey.Error() != expectedInvalidApiKey {
+		t.Errorf("Expected error message '%s', got '%s'", expectedInvalidApiKey, errors.ErrInvalidApiKey.Error())
 	}
 }
 

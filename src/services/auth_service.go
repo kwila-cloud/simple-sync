@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	apperrors "simple-sync/src/errors"
 	"simple-sync/src/models"
 	"simple-sync/src/storage"
 	"simple-sync/src/utils"
@@ -35,7 +36,7 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 
 	// Validate API key format before expensive operations
 	if len(apiKey) < 3 || apiKey[:3] != "sk_" {
-		return "", ErrInvalidApiKeyFormat
+		return "", apperrors.ErrInvalidApiKeyFormat
 	}
 
 	// Check if the remaining part is valid base64 (try with padding since keys are truncated)
@@ -44,7 +45,7 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 	if _, err := base64.StdEncoding.DecodeString(base64Part); err != nil {
 		// Try with padding added (generated keys are truncated to 43 chars)
 		if _, err := base64.StdEncoding.DecodeString(base64Part + "="); err != nil {
-			return "", ErrInvalidApiKeyFormat
+			return "", apperrors.ErrInvalidApiKeyFormat
 		}
 	}
 
@@ -76,7 +77,7 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 		}
 	}
 
-	return "", ErrInvalidApiKey
+	return "", apperrors.ErrInvalidApiKey
 }
 
 // GenerateApiKey generates a new API key for a user
@@ -111,7 +112,7 @@ func (s *AuthService) GenerateSetupToken(userID string) (*models.SetupToken, err
 	_, err := s.storage.GetUserById(userID)
 	if err != nil {
 		if err == storage.ErrNotFound {
-			return nil, ErrUserNotFound
+			return nil, apperrors.ErrUserNotFound
 		}
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
@@ -146,12 +147,12 @@ func (s *AuthService) ExchangeSetupToken(token, description string) (*models.API
 	// Get the setup token
 	setupToken, err := s.storage.GetSetupToken(token)
 	if err != nil {
-		return nil, "", ErrInvalidSetupToken
+		return nil, "", apperrors.ErrInvalidSetupToken
 	}
 
 	// Validate the token
 	if !setupToken.IsValid() {
-		return nil, "", ErrSetupTokenExpired
+		return nil, "", apperrors.ErrSetupTokenExpired
 	}
 
 	// Mark the token as used
