@@ -7,8 +7,8 @@ import (
 	"github.com/google/uuid"
 )
 
-// APIKey represents a long-lived API key for user authentication
-type APIKey struct {
+// ApiKey represents a long-lived API key for user authentication
+type ApiKey struct {
 	UUID        string     `json:"uuid" db:"uuid"`
 	UserID      string     `json:"user_id" db:"user_id"`
 	KeyHash     string     `json:"key_hash" db:"key_hash"`
@@ -17,20 +17,15 @@ type APIKey struct {
 	Description string     `json:"description,omitempty" db:"description"`
 }
 
-// Validate performs validation on the APIKey struct
-func (k *APIKey) Validate() error {
+// Validate performs validation on the ApiKey struct
+func (k *ApiKey) Validate() error {
 	if k.UUID == "" {
 		return errors.New("UUID is required")
 	}
 
-	uuid, err := uuid.Parse(k.UUID)
+	_, err := uuid.Parse(k.UUID)
 	if err != nil {
 		return errors.New("UUID must be valid format")
-	}
-
-	timestamp, _ := uuid.Time().UnixTime()
-	if timestamp != k.CreatedAt.Unix() {
-		return errors.New("UUID must match timestamp")
 	}
 
 	if k.UserID == "" {
@@ -48,12 +43,12 @@ func (k *APIKey) Validate() error {
 	return nil
 }
 
-// NewAPIKey creates a new API key instance
-func NewAPIKey(userID, keyHash, description string) *APIKey {
+// NewApiKey creates a new API key instance
+func NewApiKey(userID, keyHash, description string) *ApiKey {
 	keyUuid, _ := uuid.NewV7()
 	unixTimeSeconds, _ := keyUuid.Time().UnixTime()
 
-	return &APIKey{
+	return &ApiKey{
 		UUID:        keyUuid.String(),
 		UserID:      userID,
 		KeyHash:     keyHash,
@@ -63,7 +58,7 @@ func NewAPIKey(userID, keyHash, description string) *APIKey {
 }
 
 // UpdateLastUsed updates the last used timestamp
-func (k *APIKey) UpdateLastUsed() {
+func (k *ApiKey) UpdateLastUsed() {
 	now := time.Now()
 	k.LastUsedAt = &now
 }
