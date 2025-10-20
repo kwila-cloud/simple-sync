@@ -118,21 +118,3 @@ func getDefaultDBPath() string {
 	}
 	return "./data/simple-sync.db"
 }
-
-func getDir(path string) string {
-	// Empty path: nothing to create here (caller will use default path)
-	if path == "" {
-		return ""
-	}
-
-	// Handle in-memory SQLite URIs (e.g. ":memory:", "file::memory:?cache=shared", or any
-	// file: URI that contains "memory"). For these we don't create any directory.
-	if path == ":memory:" || strings.HasPrefix(path, "file:") && strings.Contains(path, "memory") {
-		return ""
-	}
-
-	// Return the parent directory for the given path (e.g. "./data/file.db" -> "./data").
-	// filepath.Dir returns "." for paths without a directory component; callers can
-	// safely call MkdirAll on "." (no-op) but we return the raw Dir value for clarity.
-	return filepath.Dir(path)
-}
