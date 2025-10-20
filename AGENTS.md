@@ -112,6 +112,26 @@ See `specs/7-data-persistence.md` for a well-structured specification that:
 
 - Feature branches for issues (e.g., `63-new-setting`)
 - Use GitHub CLI for PR creation: `gh pr create`
+
+### Shell quoting when using backticks
+
+- **Problem:** Unescaped backticks in bash commands are interpreted as command substitution, causing the shell to execute the content between backticks instead of passing it as literal text (this can break `gh` calls or insert unintended output).
+- **Rule:** When passing text that contains backticks to shell commands, avoid unescaped backticks. Prefer one of these safe patterns:
+  - Single-quoted argument (simple cases):
+    - `gh pr edit 56 --body 'Tables: `users`, `events`'`
+  - Escape backticks inside double quotes:
+    - `gh pr edit 56 --body "Tables: \`users\`, \`events\`"`
+  - HEREDOC with single-quoted delimiter (recommended for multi-line bodies or complex content):
+    - `gh pr edit 56 --body "$(cat <<'EOF'\nTables: `users`, `events`\nEOF\n)"`
+
+- **Examples:**
+  - Bad: `gh pr edit 56 --body "Tables: `users`, `events`"`  (backticks executed by shell)
+  - Good (HEREDOC): `gh pr edit 56 --body "$(cat <<'EOF'\nTables: `users`, `events`\nEOF\n)"`
+  - Good (single quotes): `gh pr edit 56 --body 'Tables: `users`, `events`'`
+  - Good (escaped): `gh pr edit 56 --body "Tables: \`users\`, \`events\`"`
+
+- **Recommendation:** Prefer the HEREDOC pattern when generating multi-line PR bodies that include code formatting or backticks. It avoids shell expansion and is easy to read and maintain.
+
 - Commit messages follow conventional format: `feat:`, `refactor:`, `chore:`, `fix:`, etc.
 
 ### Changelog
