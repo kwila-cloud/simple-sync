@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestACLPermissionDenied(t *testing.T) {
+func TestAclPermissionDenied(t *testing.T) {
 	// Setup Gin router in test mode
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
@@ -33,8 +33,8 @@ func TestACLPermissionDenied(t *testing.T) {
 
 	// Now, try to post an event without permission (deny by default)
 	event := map[string]interface{}{
-		"uuid":      "event-123",
-		"timestamp": 1640995200,
+		"uuid":      "0199c74f-c696-78f8-833a-82f8cf1f1949",
+		"timestamp": 1759985518,
 		"user":      storage.TestingUserId,
 		"item":      "restricted-item",
 		"action":    "write",

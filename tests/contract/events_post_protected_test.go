@@ -276,7 +276,7 @@ func TestPostEventsInvalidTimestamp(t *testing.T) {
 
 	// Test data - invalid timestamp (zero)
 	eventJSON := fmt.Sprintf(`[{
-  		"uuid": "123e4567-e89b-12d3-a456-426614174000",
+  		"uuid": "00000000-0000-7a88-a1c8-395f11f5c9ad",
   		"timestamp": 0,
   		"user": "user-123",
   		"item": "item456",
@@ -302,7 +302,7 @@ func TestPostEventsInvalidTimestamp(t *testing.T) {
 	assert.Contains(t, response, "error")
 	assert.Equal(t, "invalid timestamp", response["error"])
 	assert.Contains(t, response, "eventUuid")
-	assert.Equal(t, "123e4567-e89b-12d3-a456-426614174000", response["eventUuid"])
+	assert.Equal(t, "00000000-0000-7a88-a1c8-395f11f5c9ad", response["eventUuid"])
 }
 
 func TestPostEventsWrongUser(t *testing.T) {

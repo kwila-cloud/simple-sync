@@ -1,9 +1,10 @@
 package models
 
 import (
-	"errors"
 	"regexp"
 	"time"
+
+	apperrors "simple-sync/src/errors"
 )
 
 // SetupToken represents a short-lived token for initial user authentication setup
@@ -17,21 +18,21 @@ type SetupToken struct {
 // Validate performs validation on the SetupToken struct
 func (t *SetupToken) Validate() error {
 	if t.Token == "" {
-		return errors.New("token is required")
+		return apperrors.ErrTokenRequired
 	}
 
 	// Validate token format: XXXX-XXXX
 	tokenRegex := regexp.MustCompile(`^[A-Z0-9]{4}-[A-Z0-9]{4}$`)
 	if !tokenRegex.MatchString(t.Token) {
-		return errors.New("token must be in format XXXX-XXXX")
+		return apperrors.ErrTokenInvalidFormat
 	}
 
 	if t.UserID == "" {
-		return errors.New("user ID is required")
+		return apperrors.ErrUserIdRequired
 	}
 
 	if t.ExpiresAt.IsZero() {
-		return errors.New("expires at time is required")
+		return apperrors.ErrExpiresAtRequired
 	}
 
 	return nil

@@ -1,8 +1,9 @@
 package models
 
 import (
-	"errors"
 	"time"
+
+	apperrors "simple-sync/src/errors"
 )
 
 // User represents an authenticated user in the system
@@ -14,7 +15,7 @@ type User struct {
 // Validate performs validation on the User struct
 func (u *User) Validate() error {
 	if u.Id == "" {
-		return errors.New("id is required")
+		return apperrors.ErrIdRequired
 	}
 
 	if u.CreatedAt.IsZero() {

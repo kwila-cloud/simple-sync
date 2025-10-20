@@ -1,10 +1,10 @@
 package models
 
 import (
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
+	apperrors "simple-sync/src/errors"
 )
 
 // ApiKey represents a long-lived API key for user authentication
@@ -20,24 +20,24 @@ type ApiKey struct {
 // Validate performs validation on the ApiKey struct
 func (k *ApiKey) Validate() error {
 	if k.UUID == "" {
-		return errors.New("UUID is required")
+		return apperrors.ErrUuidRequired
 	}
 
 	_, err := uuid.Parse(k.UUID)
 	if err != nil {
-		return errors.New("UUID must be valid format")
+		return apperrors.ErrInvalidUuidFormat
 	}
 
 	if k.UserID == "" {
-		return errors.New("user ID is required")
+		return apperrors.ErrUserIdRequired
 	}
 
 	if k.KeyHash == "" {
-		return errors.New("key hash is required")
+		return apperrors.ErrKeyHashRequired
 	}
 
 	if k.CreatedAt.IsZero() {
-		return errors.New("created at time is required")
+		return apperrors.ErrCreatedAtRequired
 	}
 
 	return nil

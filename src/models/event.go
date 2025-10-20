@@ -2,12 +2,12 @@ package models
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 
-	"github.com/google/uuid"
 	apperrors "simple-sync/src/errors"
+
+	"github.com/google/uuid"
 )
 
 // Event represents a timestamped event in the system
@@ -47,31 +47,36 @@ func (e *Event) IsAclEvent() bool {
 // Validate performs validation on the Event struct
 func (e *Event) Validate() error {
 	if e.UUID == "" {
-		return errors.New("UUID is required")
+		return apperrors.ErrUuidRequired
 	}
 
 	// Validate UUID format and timestamp matching
 	parsedUuid, err := uuid.Parse(e.UUID)
 	if err != nil {
-		return errors.New("UUID must be valid format")
+		return apperrors.ErrInvalidUuidFormat
 	}
 
-	// For v7 UUIDs, validate that timestamp matches
+	// Validate that timestamp matches the UUID v7 timestamp
 	timestamp, _ := parsedUuid.Time().UnixTime()
 	if uint64(timestamp) != e.Timestamp {
 		return apperrors.ErrInvalidTimestamp
 	}
 
+	// Do not allow timestamps of 0
+	if uint64(timestamp) == 0 {
+		return apperrors.ErrInvalidTimestamp
+	}
+
 	if e.User == "" {
-		return errors.New("user is required")
+		return apperrors.ErrUserRequired
 	}
 
 	if e.Item == "" {
-		return errors.New("item is required")
+		return apperrors.ErrItemRequired
 	}
 
 	if e.Action == "" {
-		return errors.New("action is required")
+		return apperrors.ErrActionRequired
 	}
 
 	return nil
