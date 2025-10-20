@@ -16,7 +16,7 @@ func TestApiKeyModelValidation(t *testing.T) {
 	unixTimeSeconds, _ := keyUuid.Time().UnixTime()
 
 	// Test valid API key
-	validKey := &models.APIKey{
+	validKey := &models.ApiKey{
 		UUID:        keyUuid.String(),
 		UserID:      storage.TestingUserId,
 		KeyHash:     "hash-data",
@@ -27,7 +27,7 @@ func TestApiKeyModelValidation(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Test invalid API key - missing UUID
-	invalidKey := &models.APIKey{
+	invalidKey := &models.ApiKey{
 		UserID:    storage.TestingUserId,
 		KeyHash:   "hash-data",
 		CreatedAt: time.Now(),
