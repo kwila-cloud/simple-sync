@@ -10,9 +10,10 @@ import (
 
 func TestAclRuleValidate(t *testing.T) {
 	tests := []struct {
-		name    string
-		rule    *models.AclRule
-		wantErr bool
+		name        string
+		rule        *models.AclRule
+		wantErr     bool
+		expectedErr string
 	}{
 		{
 			name: "valid rule",
@@ -32,7 +33,8 @@ func TestAclRuleValidate(t *testing.T) {
 				Action: "read",
 				Type:   "allow",
 			},
-			wantErr: true,
+			wantErr:     true,
+			expectedErr: "user pattern cannot be empty",
 		},
 		{
 			name: "empty item should fail",
@@ -42,7 +44,8 @@ func TestAclRuleValidate(t *testing.T) {
 				Action: "read",
 				Type:   "allow",
 			},
-			wantErr: true,
+			wantErr:     true,
+			expectedErr: "item pattern cannot be empty",
 		},
 		{
 			name: "empty action should fail",
@@ -52,17 +55,51 @@ func TestAclRuleValidate(t *testing.T) {
 				Action: "",
 				Type:   "allow",
 			},
-			wantErr: true,
+			wantErr:     true,
+			expectedErr: "action pattern cannot be empty",
 		},
 		{
-			name: "empty type should fail",
+			name: "invalid ACL type",
 			rule: &models.AclRule{
 				User:   "user123",
 				Item:   "item456",
 				Action: "read",
-				Type:   "",
+				Type:   "invalid",
 			},
-			wantErr: true,
+			wantErr:     true,
+			expectedErr: "type must be either 'allow' or 'deny'",
+		},
+		{
+			name: "multiple wildcards in user",
+			rule: &models.AclRule{
+				User:   "user*test*",
+				Item:   "item456",
+				Action: "read",
+				Type:   "allow",
+			},
+			wantErr:     true,
+			expectedErr: "user pattern can have at most one wildcard at the end",
+		},
+		{
+			name: "valid wildcard at end",
+			rule: &models.AclRule{
+				User:   "user*",
+				Item:   "item*",
+				Action: "read*",
+				Type:   "allow",
+			},
+			wantErr: false,
+		},
+		{
+			name: "wildcard in middle should fail",
+			rule: &models.AclRule{
+				User:   "user123",
+				Item:   "item*test",
+				Action: "read",
+				Type:   "allow",
+			},
+			wantErr:     true,
+			expectedErr: "item pattern can have at most one wildcard at the end",
 		},
 	}
 
@@ -71,6 +108,9 @@ func TestAclRuleValidate(t *testing.T) {
 			err := tt.rule.Validate()
 			if tt.wantErr {
 				assert.Error(t, err)
+				if tt.expectedErr != "" {
+					assert.Equal(t, tt.expectedErr, err.Error())
+				}
 			} else {
 				assert.NoError(t, err)
 			}

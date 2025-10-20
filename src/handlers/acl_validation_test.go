@@ -106,9 +106,9 @@ func TestValidateAclRuleSpecificErrors(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := validateAclRule(tt.rule)
+			err := tt.rule.Validate()
 			if err != tt.expectedErr {
-				t.Errorf("validateAclRule() error = %v, expectedErr %v", err, tt.expectedErr)
+				t.Errorf("AclRule.Validate() error = %v, expectedErr %v", err, tt.expectedErr)
 			}
 		})
 	}
