@@ -55,8 +55,15 @@ func NewStorageWithAclRules(aclRules []models.AclRule) Storage {
 	if testing.Testing() {
 		return NewTestStorage(aclRules)
 	}
-	// Return SQLiteStorage in non-test environments
+	// Return SQLiteStorage in non-test environments and initialize with default DB path
 	sqlite := NewSQLiteStorage()
-	_ = sqlite // initialization deferred to main or caller
+	if err := sqlite.Initialize(getDefaultDBPath()); err != nil {
+		// fallback to TestStorage if initialization fails
+		return NewTestStorage(aclRules)
+	}
+	// Load initial ACL rules into storage if provided
+	for _, rule := range aclRules {
+		_ = sqlite.CreateAclRule(&rule)
+	}
 	return sqlite
 }
