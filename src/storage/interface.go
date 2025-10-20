@@ -55,6 +55,8 @@ func NewStorageWithAclRules(aclRules []models.AclRule) Storage {
 	if testing.Testing() {
 		return NewTestStorage(aclRules)
 	}
-	// TODO: Return SQLiteStorage for production
-	return NewTestStorage(aclRules)
+	// Return SQLiteStorage in non-test environments
+	sqlite := NewSQLiteStorage()
+	_ = sqlite // initialization deferred to main or caller
+	return sqlite
 }
