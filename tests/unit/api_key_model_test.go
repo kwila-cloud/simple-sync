@@ -28,7 +28,7 @@ func TestApiKeyValidate(t *testing.T) {
 			name: "empty UUID should fail",
 			key: &models.ApiKey{
 				UUID:        "",
-				UserID:      "user123",
+				User:        "user123",
 				KeyHash:     "hash123",
 				CreatedAt:   time.Now(),
 				Description: "test key",
@@ -39,7 +39,7 @@ func TestApiKeyValidate(t *testing.T) {
 			name: "invalid UUID format should fail",
 			key: &models.ApiKey{
 				UUID:        "invalid-uuid",
-				UserID:      "user123",
+				User:        "user123",
 				KeyHash:     "hash123",
 				CreatedAt:   time.Now(),
 				Description: "test key",
@@ -50,7 +50,7 @@ func TestApiKeyValidate(t *testing.T) {
 			name: "empty user ID should fail",
 			key: &models.ApiKey{
 				UUID:        "550e8400-e29b-41d4-a716-446655440000",
-				UserID:      "",
+				User:        "",
 				KeyHash:     "hash123",
 				CreatedAt:   time.Now(),
 				Description: "test key",
@@ -61,7 +61,7 @@ func TestApiKeyValidate(t *testing.T) {
 			name: "empty key hash should fail",
 			key: &models.ApiKey{
 				UUID:        "550e8400-e29b-41d4-a716-446655440000",
-				UserID:      "user123",
+				User:        "user123",
 				KeyHash:     "",
 				CreatedAt:   time.Now(),
 				Description: "test key",
@@ -72,7 +72,7 @@ func TestApiKeyValidate(t *testing.T) {
 			name: "zero created at should fail",
 			key: &models.ApiKey{
 				UUID:        "550e8400-e29b-41d4-a716-446655440000",
-				UserID:      "user123",
+				User:        "user123",
 				KeyHash:     "hash123",
 				CreatedAt:   time.Time{},
 				Description: "test key",

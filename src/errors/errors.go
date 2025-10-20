@@ -15,7 +15,6 @@ var (
 	ErrInvalidUuidFormat  = errors.New("UUID must be valid format")
 	ErrUuidRequired       = errors.New("UUID is required")
 	ErrUserRequired       = errors.New("user is required")
-	ErrUserIdRequired     = errors.New("user ID is required")
 	ErrItemRequired       = errors.New("item is required")
 	ErrActionRequired     = errors.New("action is required")
 	ErrKeyHashRequired    = errors.New("key hash is required")

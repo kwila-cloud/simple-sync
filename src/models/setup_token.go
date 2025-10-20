@@ -10,7 +10,7 @@ import (
 // SetupToken represents a short-lived token for initial user authentication setup
 type SetupToken struct {
 	Token     string    `json:"token" db:"token"`
-	UserID    string    `json:"user_id" db:"user_id"`
+	User      string    `json:"user" db:"user"`
 	ExpiresAt time.Time `json:"expires_at" db:"expires_at"`
 	UsedAt    time.Time `json:"used_at" db:"used_at"`
 }
@@ -27,8 +27,8 @@ func (t *SetupToken) Validate() error {
 		return apperrors.ErrTokenInvalidFormat
 	}
 
-	if t.UserID == "" {
-		return apperrors.ErrUserIdRequired
+	if t.User == "" {
+		return apperrors.ErrUserRequired
 	}
 
 	if t.ExpiresAt.IsZero() {
@@ -57,7 +57,7 @@ func (t *SetupToken) MarkUsed() {
 func NewSetupToken(token, userID string, expiresAt time.Time) *SetupToken {
 	return &SetupToken{
 		Token:     token,
-		UserID:    userID,
+		User:      userID,
 		ExpiresAt: expiresAt,
 		UsedAt:    time.Time{}, // zero value indicates not used
 	}

@@ -42,7 +42,7 @@ func NewTestStorage(aclRules []models.AclRule) *TestStorage {
 	now := time.Now()
 	apiKey := &models.ApiKey{
 		UUID:        "test-root-api-key-uuid",
-		UserID:      ".root",
+		User:        ".root",
 		KeyHash:     string(keyHash),
 		Description: "Test Root API Key",
 		CreatedAt:   now,
@@ -58,7 +58,7 @@ func NewTestStorage(aclRules []models.AclRule) *TestStorage {
 	now = time.Now()
 	apiKey = &models.ApiKey{
 		UUID:        "test-api-key-uuid",
-		UserID:      TestingUserId,
+		User:        TestingUserId,
 		KeyHash:     string(keyHash),
 		Description: "Test API Key",
 		CreatedAt:   now,
@@ -192,7 +192,7 @@ func (m *TestStorage) InvalidateUserSetupTokens(userID string) error {
 	defer m.mutex.Unlock()
 	now := time.Now()
 	for _, token := range m.setupTokens {
-		if token.UserID == userID {
+		if token.User == userID {
 			token.UsedAt = now
 		}
 	}
@@ -204,7 +204,7 @@ func (m *TestStorage) InvalidateUserApiKeys(userID string) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	for uuid, apiKey := range m.apiKeys {
-		if apiKey.UserID == userID {
+		if apiKey.User == userID {
 			delete(m.apiKeys, uuid)
 		}
 	}

@@ -3,14 +3,15 @@ package models
 import (
 	"time"
 
-	"github.com/google/uuid"
 	apperrors "simple-sync/src/errors"
+
+	"github.com/google/uuid"
 )
 
 // ApiKey represents a long-lived API key for user authentication
 type ApiKey struct {
 	UUID        string     `json:"uuid" db:"uuid"`
-	UserID      string     `json:"user_id" db:"user_id"`
+	User        string     `json:"user" db:"user"`
 	KeyHash     string     `json:"key_hash" db:"key_hash"`
 	CreatedAt   time.Time  `json:"created_at" db:"created_at"`
 	LastUsedAt  *time.Time `json:"last_used_at,omitempty" db:"last_used_at"`
@@ -28,8 +29,8 @@ func (k *ApiKey) Validate() error {
 		return apperrors.ErrInvalidUuidFormat
 	}
 
-	if k.UserID == "" {
-		return apperrors.ErrUserIdRequired
+	if k.User == "" {
+		return apperrors.ErrUserRequired
 	}
 
 	if k.KeyHash == "" {
@@ -50,7 +51,7 @@ func NewApiKey(userID, keyHash, description string) *ApiKey {
 
 	return &ApiKey{
 		UUID:        keyUuid.String(),
-		UserID:      userID,
+		User:        userID,
 		KeyHash:     keyHash,
 		CreatedAt:   time.Unix(unixTimeSeconds, 0),
 		Description: description,

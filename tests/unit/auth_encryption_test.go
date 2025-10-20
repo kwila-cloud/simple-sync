@@ -21,7 +21,7 @@ func TestAPIKeyGeneration(t *testing.T) {
 	assert.NotEmpty(t, apiKey)
 	assert.NotEmpty(t, plainKey)
 	assert.Contains(t, plainKey, "sk_")
-	assert.Equal(t, storage.TestingUserId, apiKey.UserID)
+	assert.Equal(t, storage.TestingUserId, apiKey.User)
 	assert.Equal(t, "Test Client", apiKey.Description)
 }
 
@@ -38,7 +38,7 @@ func TestSetupTokenGeneration(t *testing.T) {
 	token, err := authService.GenerateSetupToken(storage.TestingUserId)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, token)
-	assert.Equal(t, storage.TestingUserId, token.UserID)
+	assert.Equal(t, storage.TestingUserId, token.User)
 	assert.Regexp(t, `^[A-Z0-9]{4}-[A-Z0-9]{4}$`, token.Token)
 	assert.True(t, token.UsedAt.IsZero())
 	assert.True(t, token.ExpiresAt.After(token.ExpiresAt.Add(-25*time.Hour))) // Expires in ~24 hours

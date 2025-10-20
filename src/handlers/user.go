@@ -157,13 +157,13 @@ func (h *Handlers) PostSetupExchangeToken(c *gin.Context) {
 
 	// Log the API call as an internal event
 	event := models.Event{
-		User:    apiKey.UserID,
-		Item:    ".user." + apiKey.UserID,
+		User:    apiKey.User,
+		Item:    ".user." + apiKey.User,
 		Action:  ".user.exchangeToken",
 		Payload: "{}",
 	}
 	if err := h.storage.SaveEvents([]models.Event{event}); err != nil {
-		log.Printf("Failed to save exchange token event for user %s: %v", apiKey.UserID, err)
+		log.Printf("Failed to save exchange token event for user %s: %v", apiKey.User, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
@@ -171,7 +171,7 @@ func (h *Handlers) PostSetupExchangeToken(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"keyUuid":     apiKey.UUID,
 		"apiKey":      plainKey,
-		"user":        apiKey.UserID,
+		"user":        apiKey.User,
 		"description": apiKey.Description,
 	})
 }

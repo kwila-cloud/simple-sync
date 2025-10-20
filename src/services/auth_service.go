@@ -61,7 +61,7 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 			// Create a copy to avoid race conditions (manual copy to avoid mutex issues)
 			keyCopy := &models.ApiKey{
 				UUID:        apiKeyModel.UUID,
-				UserID:      apiKeyModel.UserID,
+				User:        apiKeyModel.User,
 				KeyHash:     apiKeyModel.KeyHash,
 				CreatedAt:   apiKeyModel.CreatedAt,
 				LastUsedAt:  apiKeyModel.LastUsedAt,
@@ -73,7 +73,7 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 					log.Printf("failed to update API key last used: %v", err)
 				}
 			}()
-			return apiKeyModel.UserID, nil
+			return apiKeyModel.User, nil
 		}
 	}
 
@@ -163,7 +163,7 @@ func (s *AuthService) ExchangeSetupToken(token, description string) (*models.Api
 	}
 
 	// Generate API key for the user
-	apiKey, plainKey, err := s.GenerateApiKey(setupToken.UserID, description)
+	apiKey, plainKey, err := s.GenerateApiKey(setupToken.User, description)
 	if err != nil {
 		return nil, "", err
 	}
