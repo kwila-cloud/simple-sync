@@ -36,11 +36,6 @@ var (
 	ErrAclItemInvalidWildcards   = errors.New("item pattern can have at most one wildcard at the end")
 	ErrAclActionInvalidWildcards = errors.New("action pattern can have at most one wildcard at the end")
 
-	// Backwards-compatible aliases for older tests/code
-	ErrAclUserMultipleWildcards   = ErrAclUserInvalidWildcards
-	ErrAclItemMultipleWildcards   = ErrAclItemInvalidWildcards
-	ErrAclActionMultipleWildcards = ErrAclActionInvalidWildcards
-
 	// Business logic errors
 	ErrUserNotFound = errors.New("user not found")
 )
