@@ -79,5 +79,9 @@ func getDir(path string) string {
 	if path == ":memory:" || path == "file::memory:?cache=shared" {
 		return ""
 	}
-	return os.DirFS(path).Name()
+	// Extract directory portion
+	if fi, err := os.Stat(path); err == nil && fi.IsDir() {
+		return path
+	}
+	return os.DirFS(".").Name()
 }
