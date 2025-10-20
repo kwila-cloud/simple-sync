@@ -45,27 +45,18 @@ type Storage interface {
 }
 
 // NewStorage creates a new storage instance based on the current environment
-// Returns TestStorage when running tests, SQLiteStorage in production (future)
+// Returns TestStorage when running tests, SQLiteStorage in production.
+//
+// Note: ACL rules are no longer passed in at construction time; seeding should
+// happen via explicit calls after initialization.
 func NewStorage() Storage {
-	return NewStorageWithAclRules(nil)
-}
-
-// NewStorageWithAclRules creates a new storage instance with initial ACL rules
-// Returns TestStorage when running tests, SQLiteStorage in production (future)
-func NewStorageWithAclRules(aclRules []models.AclRule) Storage {
 	if testing.Testing() {
-		return NewTestStorage(aclRules)
+		return NewTestStorage(nil)
 	}
-	// Return SQLiteStorage in non-test environments and initialize with default DB path
+	// Initialize SQLiteStorage in non-test environments
 	sqlite := NewSQLiteStorage()
 	if err := sqlite.Initialize(getDefaultDBPath()); err != nil {
 		log.Fatalf("Failed to initialize SQLite storage: %v", err)
-	}
-	// Load initial ACL rules into storage if provided
-	for _, rule := range aclRules {
-		if err := sqlite.CreateAclRule(&rule); err != nil {
-			log.Printf("Warning: failed to seed ACL rule %+v: %v", rule, err)
-		}
 	}
 	return sqlite
 }
