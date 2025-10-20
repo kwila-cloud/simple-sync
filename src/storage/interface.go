@@ -2,6 +2,7 @@ package storage
 
 import (
 	"errors"
+	"log"
 	"simple-sync/src/models"
 	"testing"
 )
@@ -63,7 +64,9 @@ func NewStorageWithAclRules(aclRules []models.AclRule) Storage {
 	}
 	// Load initial ACL rules into storage if provided
 	for _, rule := range aclRules {
-		_ = sqlite.CreateAclRule(&rule)
+		if err := sqlite.CreateAclRule(&rule); err != nil {
+			log.Printf("Warning: failed to seed ACL rule %+v: %v", rule, err)
+		}
 	}
 	return sqlite
 }
