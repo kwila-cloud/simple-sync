@@ -1,6 +1,7 @@
 # Release History
 
 ## [0.4.0] - unreleased
+- [#55](https://github.com/kwila-cloud/simple-sync/pull/55): Add SQLite storage foundation (initialization, pragmas, pooling, and tests)
 - [#54](https://github.com/kwila-cloud/simple-sync/pull/54): Add model validation and database compatibility for SQLite storage
 - [#53](https://github.com/kwila-cloud/simple-sync/pull/53): Add storage factory and error types
 - [#52](https://github.com/kwila-cloud/simple-sync/pull/52): Refactor ACL service to use storage interface directly with proper error handling
