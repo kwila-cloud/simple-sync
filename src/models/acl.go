@@ -61,21 +61,21 @@ func (r *AclRule) validatePattern(pattern, fieldType string) error {
 		if strings.Contains(prefix, "*") {
 			switch fieldType {
 			case "user":
-				return apperrors.ErrAclUserMultipleWildcards
+				return apperrors.ErrAclUserInvalidWildcards
 			case "item":
-				return apperrors.ErrAclItemMultipleWildcards
+				return apperrors.ErrAclItemInvalidWildcards
 			case "action":
-				return apperrors.ErrAclActionMultipleWildcards
+				return apperrors.ErrAclActionInvalidWildcards
 			}
 		}
 	} else if strings.Contains(pattern, "*") {
 		switch fieldType {
 		case "user":
-			return apperrors.ErrAclUserMultipleWildcards
+			return apperrors.ErrAclUserInvalidWildcards
 		case "item":
-			return apperrors.ErrAclItemMultipleWildcards
+			return apperrors.ErrAclItemInvalidWildcards
 		case "action":
-			return apperrors.ErrAclActionMultipleWildcards
+			return apperrors.ErrAclActionInvalidWildcards
 		}
 	}
 	return nil
