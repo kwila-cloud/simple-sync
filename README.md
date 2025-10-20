@@ -68,6 +68,15 @@ To run the application locally:
 go run ./src
 
 The server will start on port 8080 by default.
+```
+
+### Database configuration (SQLite)
+
+The application uses SQLite for persistent storage. Configure the database path with the `DB_PATH` environment variable. Defaults to `./data/simple-sync.db`.
+
+Notes:
+- The project currently uses `github.com/mattn/go-sqlite3`, which requires a C toolchain and the system SQLite development headers (`libsqlite3-dev`) to build. Ensure `CGO_ENABLED=1` when building a release binary.
+- For testing, the code uses an in-memory SQLite database (`file::memory:?cache=shared`) where appropriate.
 
 ### Running Tests
 
@@ -88,6 +97,7 @@ This will run all tests including:
 - **Integration tests** (`tests/integration/`) - Full workflow testing
 - **Unit tests** (`tests/unit/`) - Individual component testing
 - **Performance tests** (`tests/performance/`) - Response time validation
+
 
 ## License
 
