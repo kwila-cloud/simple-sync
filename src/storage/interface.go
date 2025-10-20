@@ -46,9 +46,6 @@ type Storage interface {
 
 // NewStorage creates a new storage instance based on the current environment
 // Returns TestStorage when running tests, SQLiteStorage in production.
-//
-// Note: ACL rules are no longer passed in at construction time; seeding should
-// happen via explicit calls after initialization.
 func NewStorage() Storage {
 	if testing.Testing() {
 		return NewTestStorage(nil)
