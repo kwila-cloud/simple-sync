@@ -17,7 +17,7 @@ func TestGenerateSetupToken(t *testing.T) {
 	setupToken, err := authService.GenerateSetupToken(storage.TestingUserId)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, setupToken.Token)
-	assert.Equal(t, storage.TestingUserId, setupToken.UserID)
+	assert.Equal(t, storage.TestingUserId, setupToken.User)
 	assert.NotNil(t, setupToken.ExpiresAt)
 
 	// Test generating for non-existent user
@@ -38,7 +38,7 @@ func TestExchangeSetupToken(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotEmpty(t, apiKey.UUID)
 	assert.NotEmpty(t, plainKey)
-	assert.Equal(t, storage.TestingUserId, apiKey.UserID)
+	assert.Equal(t, storage.TestingUserId, apiKey.User)
 	assert.Equal(t, "Test Client", apiKey.Description)
 
 	// Test invalid token

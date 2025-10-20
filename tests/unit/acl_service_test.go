@@ -197,19 +197,19 @@ func (f *failingStorage) GetUserById(id string) (*models.User, error) {
 	return nil, fmt.Errorf("storage error")
 }
 
-func (f *failingStorage) CreateApiKey(apiKey *models.APIKey) error {
+func (f *failingStorage) CreateApiKey(apiKey *models.ApiKey) error {
 	return fmt.Errorf("storage error")
 }
 
-func (f *failingStorage) GetApiKeyByHash(hash string) (*models.APIKey, error) {
+func (f *failingStorage) GetApiKeyByHash(hash string) (*models.ApiKey, error) {
 	return nil, fmt.Errorf("storage error")
 }
 
-func (f *failingStorage) GetAllApiKeys() ([]*models.APIKey, error) {
+func (f *failingStorage) GetAllApiKeys() ([]*models.ApiKey, error) {
 	return nil, fmt.Errorf("storage error")
 }
 
-func (f *failingStorage) UpdateApiKey(apiKey *models.APIKey) error {
+func (f *failingStorage) UpdateApiKey(apiKey *models.ApiKey) error {
 	return fmt.Errorf("storage error")
 }
 

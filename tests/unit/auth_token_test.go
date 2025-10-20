@@ -16,9 +16,9 @@ func TestApiKeyModelValidation(t *testing.T) {
 	unixTimeSeconds, _ := keyUuid.Time().UnixTime()
 
 	// Test valid API key
-	validKey := &models.APIKey{
+	validKey := &models.ApiKey{
 		UUID:        keyUuid.String(),
-		UserID:      storage.TestingUserId,
+		User:        storage.TestingUserId,
 		KeyHash:     "hash-data",
 		CreatedAt:   time.Unix(unixTimeSeconds, 0),
 		Description: "Test Key",
@@ -27,8 +27,8 @@ func TestApiKeyModelValidation(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Test invalid API key - missing UUID
-	invalidKey := &models.APIKey{
-		UserID:    storage.TestingUserId,
+	invalidKey := &models.ApiKey{
+		User:      storage.TestingUserId,
 		KeyHash:   "hash-data",
 		CreatedAt: time.Now(),
 	}
@@ -40,7 +40,7 @@ func TestSetupTokenModelValidation(t *testing.T) {
 	// Test valid setup token
 	validToken := &models.SetupToken{
 		Token:     "ABCD-1234",
-		UserID:    storage.TestingUserId,
+		User:      storage.TestingUserId,
 		ExpiresAt: time.Now().Add(24 * time.Hour),
 		UsedAt:    time.Time{},
 	}
@@ -51,7 +51,7 @@ func TestSetupTokenModelValidation(t *testing.T) {
 	// Test invalid token format
 	invalidToken := &models.SetupToken{
 		Token:     "INVALID-FORMAT",
-		UserID:    storage.TestingUserId,
+		User:      storage.TestingUserId,
 		ExpiresAt: time.Now().Add(24 * time.Hour),
 		UsedAt:    time.Time{},
 	}

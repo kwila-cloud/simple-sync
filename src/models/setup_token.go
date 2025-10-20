@@ -1,15 +1,16 @@
 package models
 
 import (
-	"errors"
 	"regexp"
 	"time"
+
+	apperrors "simple-sync/src/errors"
 )
 
 // SetupToken represents a short-lived token for initial user authentication setup
 type SetupToken struct {
 	Token     string    `json:"token" db:"token"`
-	UserID    string    `json:"user_id" db:"user_id"`
+	User      string    `json:"user" db:"user"`
 	ExpiresAt time.Time `json:"expires_at" db:"expires_at"`
 	UsedAt    time.Time `json:"used_at" db:"used_at"`
 }
@@ -17,21 +18,21 @@ type SetupToken struct {
 // Validate performs validation on the SetupToken struct
 func (t *SetupToken) Validate() error {
 	if t.Token == "" {
-		return errors.New("token is required")
+		return apperrors.ErrTokenRequired
 	}
 
 	// Validate token format: XXXX-XXXX
 	tokenRegex := regexp.MustCompile(`^[A-Z0-9]{4}-[A-Z0-9]{4}$`)
 	if !tokenRegex.MatchString(t.Token) {
-		return errors.New("token must be in format XXXX-XXXX")
+		return apperrors.ErrTokenInvalidFormat
 	}
 
-	if t.UserID == "" {
-		return errors.New("user ID is required")
+	if t.User == "" {
+		return apperrors.ErrUserRequired
 	}
 
 	if t.ExpiresAt.IsZero() {
-		return errors.New("expires at time is required")
+		return apperrors.ErrExpiresAtRequired
 	}
 
 	return nil
@@ -56,7 +57,7 @@ func (t *SetupToken) MarkUsed() {
 func NewSetupToken(token, userID string, expiresAt time.Time) *SetupToken {
 	return &SetupToken{
 		Token:     token,
-		UserID:    userID,
+		User:      userID,
 		ExpiresAt: expiresAt,
 		UsedAt:    time.Time{}, // zero value indicates not used
 	}

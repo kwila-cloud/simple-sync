@@ -47,8 +47,8 @@ func TestAclPermissionGranted(t *testing.T) {
 
 	// Post an event with permission
 	event := map[string]interface{}{
-		"uuid":      "event-456",
-		"timestamp": 1640995200,
+		"uuid":      "0199c74f-c696-78f8-833a-82f8cf1f1949",
+		"timestamp": 1759985518,
 		"user":      storage.TestingUserId,
 		"item":      "allowed-item",
 		"action":    "write",

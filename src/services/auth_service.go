@@ -59,9 +59,9 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 		if bcrypt.CompareHashAndPassword([]byte(apiKeyModel.KeyHash), []byte(apiKey)) == nil {
 			// Update last used timestamp asynchronously to avoid blocking authentication
 			// Create a copy to avoid race conditions (manual copy to avoid mutex issues)
-			keyCopy := &models.APIKey{
+			keyCopy := &models.ApiKey{
 				UUID:        apiKeyModel.UUID,
-				UserID:      apiKeyModel.UserID,
+				User:        apiKeyModel.User,
 				KeyHash:     apiKeyModel.KeyHash,
 				CreatedAt:   apiKeyModel.CreatedAt,
 				LastUsedAt:  apiKeyModel.LastUsedAt,
@@ -73,7 +73,7 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 					log.Printf("failed to update API key last used: %v", err)
 				}
 			}()
-			return apiKeyModel.UserID, nil
+			return apiKeyModel.User, nil
 		}
 	}
 
@@ -81,7 +81,7 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 }
 
 // GenerateApiKey generates a new API key for a user
-func (s *AuthService) GenerateApiKey(userID, description string) (*models.APIKey, string, error) {
+func (s *AuthService) GenerateApiKey(userID, description string) (*models.ApiKey, string, error) {
 	// Generate a new API key
 	plainKey, err := utils.GenerateApiKey()
 	if err != nil {
@@ -95,7 +95,7 @@ func (s *AuthService) GenerateApiKey(userID, description string) (*models.APIKey
 	}
 
 	// Create API key model
-	apiKey := models.NewAPIKey(userID, string(keyHash), description)
+	apiKey := models.NewApiKey(userID, string(keyHash), description)
 
 	// Store the API key
 	err = s.storage.CreateApiKey(apiKey)
@@ -143,7 +143,7 @@ func (s *AuthService) GenerateSetupToken(userID string) (*models.SetupToken, err
 }
 
 // ExchangeSetupToken exchanges a setup token for an API key
-func (s *AuthService) ExchangeSetupToken(token, description string) (*models.APIKey, string, error) {
+func (s *AuthService) ExchangeSetupToken(token, description string) (*models.ApiKey, string, error) {
 	// Get the setup token
 	setupToken, err := s.storage.GetSetupToken(token)
 	if err != nil {
@@ -163,7 +163,7 @@ func (s *AuthService) ExchangeSetupToken(token, description string) (*models.API
 	}
 
 	// Generate API key for the user
-	apiKey, plainKey, err := s.GenerateApiKey(setupToken.UserID, description)
+	apiKey, plainKey, err := s.GenerateApiKey(setupToken.User, description)
 	if err != nil {
 		return nil, "", err
 	}

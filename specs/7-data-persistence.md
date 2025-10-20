@@ -33,8 +33,8 @@ Encryption at rest will be addressed separately (issue #17) using SQLCipher or f
 - [x] Add specific error types
 
 ### Model Validation Updates
-- [ ] Add tests for database-compatible model validation
-- [ ] Review model validation for database compatibility
+- [x] Add tests for database-compatible model validation
+- [x] Review model validation for database compatibility
 
 ### SQLite Storage Foundation
 - [ ] Add tests for SQLite storage initialization and connection management

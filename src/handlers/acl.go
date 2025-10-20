@@ -3,9 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
 
-	apperrors "simple-sync/src/errors"
 	"simple-sync/src/models"
 
 	"github.com/gin-gonic/gin"
@@ -49,7 +47,7 @@ func (h *Handlers) PostAcl(c *gin.Context) {
 
 	// Validate each ACL rule
 	for _, rule := range aclRules {
-		if err := validateAclRule(rule); err != nil {
+		if err := rule.Validate(); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
@@ -76,81 +74,4 @@ func (h *Handlers) PostAcl(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "ACL events submitted"})
-}
-
-// checks if an ACL rule has valid data
-func validateAclRule(rule models.AclRule) error {
-	if err := validatePattern(rule.User, "user"); err != nil {
-		return err
-	}
-	if err := validatePattern(rule.Item, "item"); err != nil {
-		return err
-	}
-	if err := validatePattern(rule.Action, "action"); err != nil {
-		return err
-	}
-	if rule.Type != "allow" && rule.Type != "deny" {
-		return apperrors.ErrInvalidAclType
-	}
-	return nil
-}
-
-// validatePattern validates a pattern with specific error messages based on the field name
-func validatePattern(pattern, fieldType string) error {
-	if pattern == "" {
-		switch fieldType {
-		case "user":
-			return apperrors.ErrAclUserEmpty
-		case "item":
-			return apperrors.ErrAclItemEmpty
-		case "action":
-			return apperrors.ErrAclActionEmpty
-		}
-	}
-	if pattern == "*" {
-		return nil
-	}
-	if containsControlChars(pattern) {
-		switch fieldType {
-		case "user":
-			return apperrors.ErrAclUserControlChars
-		case "item":
-			return apperrors.ErrAclItemControlChars
-		case "action":
-			return apperrors.ErrAclActionControlChars
-		}
-	}
-	if strings.HasSuffix(pattern, "*") {
-		prefix := strings.TrimSuffix(pattern, "*")
-		if strings.Contains(prefix, "*") {
-			switch fieldType {
-			case "user":
-				return apperrors.ErrAclUserMultipleWildcards
-			case "item":
-				return apperrors.ErrAclItemMultipleWildcards
-			case "action":
-				return apperrors.ErrAclActionMultipleWildcards
-			}
-		}
-	} else if strings.Contains(pattern, "*") {
-		switch fieldType {
-		case "user":
-			return apperrors.ErrAclUserMultipleWildcards
-		case "item":
-			return apperrors.ErrAclItemMultipleWildcards
-		case "action":
-			return apperrors.ErrAclActionMultipleWildcards
-		}
-	}
-	return nil
-}
-
-// checks if string contains control characters
-func containsControlChars(s string) bool {
-	for _, r := range s {
-		if r < 32 || r == 127 {
-			return true
-		}
-	}
-	return false
 }

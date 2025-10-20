@@ -83,18 +83,18 @@ func TestPostEventsWithValidToken(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/events", h.PostEvents)
 
-	// Test data - user will be overridden by authenticated user
-	eventJSON := fmt.Sprintf(`[{
- 		"uuid": "123e4567-e89b-12d3-a456-426614174000",
- 		"timestamp": 1640995200,
- 		"user": "%s",
- 		"item": "item456",
- 		"action": "create",
- 		"payload": "{}"
- 	}]`, storage.TestingUserId)
+	// Create a valid event using the model constructor
+	event := models.NewEvent(storage.TestingUserId, "item456", "create", "{}")
+
+	// Convert to JSON
+	eventData := []models.Event{*event}
+	eventJSON, err := json.Marshal(eventData)
+	if err != nil {
+		t.Fatalf("Failed to marshal event: %v", err)
+	}
 
 	// Test with valid X-API-Key header
-	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
+	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBuffer(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-API-Key", storage.TestingApiKey)
 	w := httptest.NewRecorder()
@@ -106,14 +106,14 @@ func TestPostEventsWithValidToken(t *testing.T) {
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	var response []map[string]interface{}
-	err := json.Unmarshal(w.Body.Bytes(), &response)
+	err = json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
 	assert.True(t, len(response) >= 1)
 
 	// Find the posted event
 	var postedEvent map[string]interface{}
 	for _, e := range response {
-		if e["uuid"] == "123e4567-e89b-12d3-a456-426614174000" {
+		if e["user"] == storage.TestingUserId && e["item"] == "item456" && e["action"] == "create" {
 			postedEvent = e
 			break
 		}
@@ -121,7 +121,7 @@ func TestPostEventsWithValidToken(t *testing.T) {
 	assert.NotNil(t, postedEvent)
 
 	// Check the returned event matches what was posted
-	assert.Equal(t, float64(1640995200), postedEvent["timestamp"])
+	assert.Equal(t, float64(event.Timestamp), postedEvent["timestamp"])
 	assert.Equal(t, storage.TestingUserId, postedEvent["user"])
 	assert.Equal(t, "item456", postedEvent["item"])
 	assert.Equal(t, "create", postedEvent["action"])
@@ -221,17 +221,27 @@ func TestPostEventsMissingRequiredFields(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/events", h.PostEvents)
 
-	// Test data - missing action field
-	eventJSON := fmt.Sprintf(`[{
-  		"uuid": "123e4567-e89b-12d3-a456-426614174000",
-  		"timestamp": 1640995200,
-  		"user": "%s",
-  		"item": "item456",
-  		"payload": "{}"
-  	}]`, storage.TestingUserId)
+	// Create a valid event but remove the action field after marshaling
+	event := models.NewEvent(storage.TestingUserId, "item456", "create", "{}")
+
+	// Convert to map and remove action field to test missing field validation
+	eventMap := map[string]interface{}{
+		"uuid":      event.UUID,
+		"timestamp": event.Timestamp,
+		"user":      event.User,
+		"item":      event.Item,
+		"payload":   event.Payload,
+		// action field intentionally missing
+	}
+
+	eventData := []map[string]interface{}{eventMap}
+	eventJSON, err := json.Marshal(eventData)
+	if err != nil {
+		t.Fatalf("Failed to marshal event: %v", err)
+	}
 
 	// Test with valid X-API-Key header
-	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
+	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBuffer(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-API-Key", storage.TestingApiKey)
 	w := httptest.NewRecorder()
@@ -243,12 +253,12 @@ func TestPostEventsMissingRequiredFields(t *testing.T) {
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	var response map[string]interface{}
-	err := json.Unmarshal(w.Body.Bytes(), &response)
+	err = json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
 	assert.Contains(t, response, "error")
-	assert.Equal(t, "Missing required fields", response["error"])
+	assert.Equal(t, "action is required", response["error"])
 	assert.Contains(t, response, "eventUuid")
-	assert.Equal(t, "123e4567-e89b-12d3-a456-426614174000", response["eventUuid"])
+	assert.Equal(t, event.UUID, response["eventUuid"])
 }
 
 func TestPostEventsInvalidTimestamp(t *testing.T) {
@@ -266,13 +276,13 @@ func TestPostEventsInvalidTimestamp(t *testing.T) {
 
 	// Test data - invalid timestamp (zero)
 	eventJSON := fmt.Sprintf(`[{
-  		"uuid": "123e4567-e89b-12d3-a456-426614174000",
+  		"uuid": "00000000-0000-7e86-826b-dcc18459fe08",
   		"timestamp": 0,
-  		"user": "%s",
+  		"user": "user-123",
   		"item": "item456",
   		"action": "create",
   		"payload": "{}"
-  	}]`, storage.TestingUserId)
+  	}]`)
 
 	// Test with valid X-API-Key header
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
@@ -290,9 +300,9 @@ func TestPostEventsInvalidTimestamp(t *testing.T) {
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
 	assert.Contains(t, response, "error")
-	assert.Equal(t, "Invalid timestamp", response["error"])
+	assert.Equal(t, "invalid timestamp", response["error"])
 	assert.Contains(t, response, "eventUuid")
-	assert.Equal(t, "123e4567-e89b-12d3-a456-426614174000", response["eventUuid"])
+	assert.Equal(t, "00000000-0000-7e86-826b-dcc18459fe08", response["eventUuid"])
 }
 
 func TestPostEventsWrongUser(t *testing.T) {
@@ -308,33 +318,31 @@ func TestPostEventsWrongUser(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/events", h.PostEvents)
 
-	// Test data - event for different user
-	eventJSON := `[{
-  		"uuid": "123e4567-e89b-12d3-a456-426614174000",
-  		"timestamp": 1640995200,
-  		"user": "different-user",
-  		"item": "item456",
-  		"action": "create",
-  		"payload": "{}"
-  	}]`
+	// Test data - event for different user (use NewEvent so UUID/timestamp match)
+	event := models.NewEvent("different-user", "item456", "create", "{}")
+	eventData := []models.Event{*event}
+	eventJSONBytes, err := json.Marshal(eventData)
+	if err != nil {
+		t.Fatalf("Failed to marshal event: %v", err)
+	}
 
 	// Test with valid X-API-Key header
-	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
+	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBuffer(eventJSONBytes))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-API-Key", storage.TestingApiKey)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
 
-	// Expected: 403 Forbidden with eventUuid
+	// Expected: 403 Forbidden because event user differs from authenticated user
 	assert.Equal(t, http.StatusForbidden, w.Code)
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	var response map[string]interface{}
-	err := json.Unmarshal(w.Body.Bytes(), &response)
+	err = json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
 	assert.Contains(t, response, "error")
 	assert.Equal(t, "Cannot submit events for other users", response["error"])
 	assert.Contains(t, response, "eventUuid")
-	assert.Equal(t, "123e4567-e89b-12d3-a456-426614174000", response["eventUuid"])
+	assert.Equal(t, event.UUID, response["eventUuid"])
 }

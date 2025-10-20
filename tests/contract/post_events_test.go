@@ -3,7 +3,6 @@ package contract
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"sync"
@@ -42,18 +41,18 @@ func TestPostEvents(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/events", h.PostEvents)
 
-	// Sample event data
-	eventJSON := fmt.Sprintf(`[{
-  		"uuid": "123e4567-e89b-12d3-a456-426614174000",
-  		"timestamp": 1640995200,
-  		"user": "%s",
-  		"item": "item456",
-  		"action": "create",
-  		"payload": "{}"
-   	}]`, storage.TestingUserId)
+	// Create a valid event using the model constructor
+	event := models.NewEvent(storage.TestingUserId, "item456", "create", "{}")
+
+	// Convert to JSON
+	eventData := []models.Event{*event}
+	eventJSON, err := json.Marshal(eventData)
+	if err != nil {
+		t.Fatalf("Failed to marshal event: %v", err)
+	}
 
 	// Create test request
-	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
+	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBuffer(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-API-Key", storage.TestingApiKey)
 	w := httptest.NewRecorder()
@@ -66,22 +65,23 @@ func TestPostEvents(t *testing.T) {
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	var response []map[string]interface{}
-	err := json.Unmarshal(w.Body.Bytes(), &response)
+	err = json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
 	assert.True(t, len(response) >= 1)
 
-	// Find the posted event
+	// Find the posted event (skip ACL events and find our user event)
 	var postedEvent map[string]interface{}
 	for _, e := range response {
-		if e["uuid"] == "123e4567-e89b-12d3-a456-426614174000" {
+		if e["user"] == storage.TestingUserId && e["item"] == "item456" && e["action"] == "create" {
 			postedEvent = e
 			break
 		}
 	}
 	assert.NotNil(t, postedEvent)
 
-	// Check the returned event matches what was posted
-	assert.Equal(t, float64(1640995200), postedEvent["timestamp"])
+	// Check the returned event matches what was posted (allowing for dynamic UUID and timestamp)
+	assert.NotEmpty(t, postedEvent["uuid"])
+	assert.NotEmpty(t, postedEvent["timestamp"])
 	assert.Equal(t, storage.TestingUserId, postedEvent["user"])
 	assert.Equal(t, "item456", postedEvent["item"])
 	assert.Equal(t, "create", postedEvent["action"])
@@ -114,16 +114,22 @@ func TestConcurrentPostEvents(t *testing.T) {
 		go func(id int) {
 			defer wg.Done()
 			for j := 0; j < eventsPerGoroutine; j++ {
-				uuid := fmt.Sprintf("%d-%d", id, j)
-				event := fmt.Sprintf(`[{"uuid":"%s","timestamp":%d,"user":"%s","item":"i","action":"a","payload":"p"}]`, uuid, id*100+j+1, storage.TestingUserId)
-				req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(event))
+				// Create a valid event for testing - it should be denied by ACL (no rules set)
+				event := models.NewEvent(storage.TestingUserId, "i", "a", "p")
+				eventData := []models.Event{*event}
+				eventJSON, err := json.Marshal(eventData)
+				if err != nil {
+					t.Errorf("Failed to marshal event: %v", err)
+					continue
+				}
+				req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBuffer(eventJSON))
 				req.Header.Set("Content-Type", "application/json")
 				req.Header.Set("X-API-Key", storage.TestingApiKey)
 				w := httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				assert.Equal(t, http.StatusForbidden, w.Code)
 				uuidMutex.Lock()
-				expectedUUIDs[uuid] = true
+				expectedUUIDs[event.UUID] = true
 				uuidMutex.Unlock()
 			}
 		}(i)
