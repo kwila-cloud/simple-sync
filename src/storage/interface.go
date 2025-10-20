@@ -2,6 +2,7 @@ package storage
 
 import (
 	"errors"
+	"log"
 	"simple-sync/src/models"
 	"testing"
 )
@@ -44,17 +45,15 @@ type Storage interface {
 }
 
 // NewStorage creates a new storage instance based on the current environment
-// Returns TestStorage when running tests, SQLiteStorage in production (future)
+// Returns TestStorage when running tests, SQLiteStorage in production.
 func NewStorage() Storage {
-	return NewStorageWithAclRules(nil)
-}
-
-// NewStorageWithAclRules creates a new storage instance with initial ACL rules
-// Returns TestStorage when running tests, SQLiteStorage in production (future)
-func NewStorageWithAclRules(aclRules []models.AclRule) Storage {
 	if testing.Testing() {
-		return NewTestStorage(aclRules)
+		return NewTestStorage(nil)
 	}
-	// TODO: Return SQLiteStorage for production
-	return NewTestStorage(aclRules)
+	// Initialize SQLiteStorage in non-test environments
+	sqlite := NewSQLiteStorage()
+	if err := sqlite.Initialize(getDefaultDBPath()); err != nil {
+		log.Fatalf("Failed to initialize SQLite storage: %v", err)
+	}
+	return sqlite
 }

@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"simple-sync/src/models"
 	"testing"
 )
 
@@ -16,38 +15,6 @@ func TestNewStorage(t *testing.T) {
 	_, isTestStorage := store.(*TestStorage)
 	if !isTestStorage {
 		t.Errorf("Expected TestStorage, got %T", store)
-	}
-}
-
-func TestNewStorageWithAclRules(t *testing.T) {
-	// Test factory with ACL rules
-	aclRules := []models.AclRule{
-		{
-			User:   "user1",
-			Item:   "item1",
-			Action: "read",
-			Type:   "allow",
-		},
-	}
-
-	store := NewStorageWithAclRules(aclRules)
-	if store == nil {
-		t.Fatal("Expected storage to be created")
-	}
-
-	// Verify it's TestStorage
-	_, isTestStorage := store.(*TestStorage)
-	if !isTestStorage {
-		t.Errorf("Expected TestStorage, got %T", store)
-	}
-
-	// Verify ACL rules were loaded
-	rules, err := store.GetAclRules()
-	if err != nil {
-		t.Fatalf("Failed to get ACL rules: %v", err)
-	}
-	if len(rules) != 1 {
-		t.Errorf("Expected 1 ACL rule, got %d", len(rules))
 	}
 }
 
