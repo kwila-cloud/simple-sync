@@ -55,16 +55,16 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 		}
 	}
 
-	// Basic validation for each event first
+	// Validate each event using the model validation
 	for _, event := range events {
-		if event.UUID == "" || event.Item == "" || event.Action == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required fields", "eventUuid": event.UUID})
+		if err := event.Validate(); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "eventUuid": event.UUID})
 			return
 		}
 
-		// Enhanced timestamp validation
+		// Additional timestamp validation for business rules
 		if err := validateTimestamp(event.Timestamp); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid timestamp", "eventUuid": event.UUID})
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "eventUuid": event.UUID})
 			return
 		}
 

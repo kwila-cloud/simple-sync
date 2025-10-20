@@ -43,7 +43,6 @@ func (e *Event) IsAclEvent() bool {
 	return e.Item == ".acl"
 }
 
-// ToAclRule converts an ACL event to AclRule
 // Validate performs validation on the Event struct
 func (e *Event) Validate() error {
 	if e.UUID == "" {
@@ -77,6 +76,7 @@ func (e *Event) Validate() error {
 	return nil
 }
 
+// ToAclRule converts an ACL event to AclRule
 func (e *Event) ToAclRule() (*AclRule, error) {
 	if !e.IsAclEvent() {
 		return nil, fmt.Errorf("not an ACL event")
