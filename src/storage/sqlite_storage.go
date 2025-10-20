@@ -39,14 +39,21 @@ func (s *SQLiteStorage) Initialize(path string) error {
 	}
 
 	// Set pragmas for safety/performance
+	// Use WAL (Write-Ahead Logging) to improve concurrency and crash resilience:
+	// - Allows readers to run while a writer is writing
+	// - Better write throughput for many workloads
 	if _, err := db.Exec("PRAGMA journal_mode=WAL;"); err != nil {
 		db.Close()
 		return err
 	}
+	// Enforce foreign key constraints at the SQLite level to maintain relational integrity.
 	if _, err := db.Exec("PRAGMA foreign_keys=ON;"); err != nil {
 		db.Close()
 		return err
 	}
+	// Set synchronous to NORMAL to balance durability and performance:
+	// - FULL is the most durable (safer on power loss) but slower
+	// - NORMAL offers a good trade-off for many server environments
 	if _, err := db.Exec("PRAGMA synchronous=NORMAL;"); err != nil {
 		db.Close()
 		return err
