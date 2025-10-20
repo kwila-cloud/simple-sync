@@ -2,10 +2,12 @@ package storage
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 	"simple-sync/src/models"
@@ -153,26 +155,218 @@ func (s *SQLiteStorage) Close() error {
 	return err
 }
 
-// Minimal stubs to satisfy the Storage interface — to be implemented later
-func (s *SQLiteStorage) SaveEvents(events []models.Event) error      { return ErrInvalidData }
-func (s *SQLiteStorage) LoadEvents() ([]models.Event, error)         { return nil, ErrNotFound }
-func (s *SQLiteStorage) SaveUser(user *models.User) error            { return ErrInvalidData }
-func (s *SQLiteStorage) GetUserById(id string) (*models.User, error) { return nil, ErrNotFound }
-func (s *SQLiteStorage) CreateApiKey(apiKey *models.ApiKey) error    { return ErrInvalidData }
+// Event operations
+func (s *SQLiteStorage) SaveEvents(events []models.Event) error {
+	if s.db == nil {
+		return ErrInvalidData
+	}
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
+	stmt, err := tx.Prepare(`INSERT INTO events(item, type, data, created_at) VALUES(?, ?, ?, datetime('now'))`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	for _, ev := range events {
+		if _, err := stmt.Exec(ev.Item, ev.Action, ev.Payload); err != nil {
+			return err
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *SQLiteStorage) LoadEvents() ([]models.Event, error) {
+	if s.db == nil {
+		return nil, ErrNotFound
+	}
+	rows, err := s.db.Query(`SELECT id, item, type, data, created_at FROM events ORDER BY id ASC`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var events []models.Event
+	for rows.Next() {
+		var id int
+		var item, typ, data, createdAt string
+		if err := rows.Scan(&id, &item, &typ, &data, &createdAt); err != nil {
+			return nil, err
+		}
+		// Minimal mapping back to models.Event — UUID/timestamp mapping not preserved yet
+		events = append(events, models.Event{UUID: "", User: "", Item: item, Action: typ, Payload: data})
+	}
+	return events, nil
+}
+
+// User operations
+func (s *SQLiteStorage) SaveUser(user *models.User) error {
+	if s.db == nil {
+		return ErrInvalidData
+	}
+	_, err := s.db.Exec(`INSERT OR REPLACE INTO users(id, created_at) VALUES(?, ?)`, user.Id, user.CreatedAt)
+	return err
+}
+
+func (s *SQLiteStorage) GetUserById(id string) (*models.User, error) {
+	if s.db == nil {
+		return nil, ErrNotFound
+	}
+	row := s.db.QueryRow(`SELECT id, created_at FROM users WHERE id = ?`, id)
+	var uid string
+	var createdAt string
+	if err := row.Scan(&uid, &createdAt); err != nil {
+		return nil, ErrNotFound
+	}
+	// Parse createdAt
+	return &models.User{Id: uid}, nil
+}
+
+// API Key operations
+func (s *SQLiteStorage) CreateApiKey(apiKey *models.ApiKey) error {
+	if s.db == nil {
+		return ErrInvalidData
+	}
+	_, err := s.db.Exec(`INSERT INTO api_keys(uuid, user_id, key_hash, description, created_at, last_used_at) VALUES(?, ?, ?, ?, ?, ?)`,
+		apiKey.UUID, apiKey.User, apiKey.KeyHash, apiKey.Description, apiKey.CreatedAt, apiKey.LastUsedAt)
+	return err
+}
+
 func (s *SQLiteStorage) GetApiKeyByHash(hash string) (*models.ApiKey, error) {
-	return nil, ErrApiKeyNotFound
+	if s.db == nil {
+		return nil, ErrApiKeyNotFound
+	}
+	row := s.db.QueryRow(`SELECT uuid, user_id, key_hash, description, created_at, last_used_at FROM api_keys WHERE key_hash = ?`, hash)
+	var uuid, userID, keyHash, description string
+	var createdAt string
+	var lastUsedAt sql.NullString
+	if err := row.Scan(&uuid, &userID, &keyHash, &description, &createdAt, &lastUsedAt); err != nil {
+		return nil, ErrApiKeyNotFound
+	}
+	// Minimal parsing of createdAt/lastUsedAt
+	return &models.ApiKey{UUID: uuid, User: userID, KeyHash: keyHash, Description: description}, nil
 }
-func (s *SQLiteStorage) GetAllApiKeys() ([]*models.ApiKey, error)        { return nil, ErrNotFound }
-func (s *SQLiteStorage) UpdateApiKey(apiKey *models.ApiKey) error        { return ErrInvalidData }
-func (s *SQLiteStorage) InvalidateUserApiKeys(userID string) error       { return nil }
-func (s *SQLiteStorage) CreateSetupToken(token *models.SetupToken) error { return ErrInvalidData }
+
+func (s *SQLiteStorage) GetAllApiKeys() ([]*models.ApiKey, error) {
+	if s.db == nil {
+		return nil, ErrNotFound
+	}
+	rows, err := s.db.Query(`SELECT uuid, user_id, key_hash, description, created_at, last_used_at FROM api_keys`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var keys []*models.ApiKey
+	for rows.Next() {
+		var uuid, userID, keyHash, description string
+		var createdAt string
+		var lastUsedAt sql.NullString
+		if err := rows.Scan(&uuid, &userID, &keyHash, &description, &createdAt, &lastUsedAt); err != nil {
+			return nil, err
+		}
+		keys = append(keys, &models.ApiKey{UUID: uuid, User: userID, KeyHash: keyHash, Description: description})
+	}
+	return keys, nil
+}
+
+func (s *SQLiteStorage) UpdateApiKey(apiKey *models.ApiKey) error {
+	if s.db == nil {
+		return ErrInvalidData
+	}
+	_, err := s.db.Exec(`UPDATE api_keys SET description = ?, last_used_at = ? WHERE uuid = ?`, apiKey.Description, apiKey.LastUsedAt, apiKey.UUID)
+	return err
+}
+
+func (s *SQLiteStorage) InvalidateUserApiKeys(userID string) error {
+	if s.db == nil {
+		return ErrInvalidData
+	}
+	_, err := s.db.Exec(`DELETE FROM api_keys WHERE user_id = ?`, userID)
+	return err
+}
+
+// Setup Token operations
+func (s *SQLiteStorage) CreateSetupToken(token *models.SetupToken) error {
+	if s.db == nil {
+		return ErrInvalidData
+	}
+	_, err := s.db.Exec(`INSERT INTO setup_tokens(token, user_id, expires_at, used_at, created_at) VALUES(?, ?, ?, ?, ?)`,
+		token.Token, token.User, token.ExpiresAt, token.UsedAt, time.Now())
+	return err
+}
+
 func (s *SQLiteStorage) GetSetupToken(token string) (*models.SetupToken, error) {
-	return nil, ErrSetupTokenNotFound
+	if s.db == nil {
+		return nil, ErrSetupTokenNotFound
+	}
+	row := s.db.QueryRow(`SELECT token, user_id, expires_at, used_at, created_at FROM setup_tokens WHERE token = ?`, token)
+	var tk, userID string
+	var expiresAt sql.NullString
+	var usedAt sql.NullString
+	var createdAt string
+	if err := row.Scan(&tk, &userID, &expiresAt, &usedAt, &createdAt); err != nil {
+		return nil, ErrSetupTokenNotFound
+	}
+	return &models.SetupToken{Token: tk, User: userID}, nil
 }
-func (s *SQLiteStorage) UpdateSetupToken(token *models.SetupToken) error { return ErrInvalidData }
-func (s *SQLiteStorage) InvalidateUserSetupTokens(userID string) error   { return nil }
-func (s *SQLiteStorage) CreateAclRule(rule *models.AclRule) error        { return ErrInvalidData }
-func (s *SQLiteStorage) GetAclRules() ([]models.AclRule, error)          { return nil, ErrNotFound }
+
+func (s *SQLiteStorage) UpdateSetupToken(token *models.SetupToken) error {
+	if s.db == nil {
+		return ErrInvalidData
+	}
+	_, err := s.db.Exec(`UPDATE setup_tokens SET expires_at = ?, used_at = ? WHERE token = ?`, token.ExpiresAt, token.UsedAt, token.Token)
+	return err
+}
+
+func (s *SQLiteStorage) InvalidateUserSetupTokens(userID string) error {
+	if s.db == nil {
+		return ErrInvalidData
+	}
+	_, err := s.db.Exec(`UPDATE setup_tokens SET used_at = datetime('now') WHERE user_id = ?`, userID)
+	return err
+}
+
+// ACL operations
+func (s *SQLiteStorage) CreateAclRule(rule *models.AclRule) error {
+	if s.db == nil {
+		return ErrInvalidData
+	}
+	ruleJson, _ := json.Marshal(rule)
+	_, err := s.db.Exec(`INSERT INTO acl_rules(subject, object, action, meta, created_at) VALUES(?, ?, ?, ?, datetime('now'))`, rule.User, rule.Item, rule.Action, string(ruleJson))
+	return err
+}
+
+func (s *SQLiteStorage) GetAclRules() ([]models.AclRule, error) {
+	if s.db == nil {
+		return nil, ErrNotFound
+	}
+	rows, err := s.db.Query(`SELECT meta FROM acl_rules ORDER BY id ASC`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var rules []models.AclRule
+	for rows.Next() {
+		var meta string
+		if err := rows.Scan(&meta); err != nil {
+			return nil, err
+		}
+		var r models.AclRule
+		if err := json.Unmarshal([]byte(meta), &r); err != nil {
+			return nil, err
+		}
+		rules = append(rules, r)
+	}
+	return rules, nil
+}
 
 func getDefaultDBPath() string {
 	if p := os.Getenv("DB_PATH"); p != "" {
