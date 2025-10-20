@@ -318,33 +318,31 @@ func TestPostEventsWrongUser(t *testing.T) {
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.POST("/events", h.PostEvents)
 
-	// Test data - event for different user
-	eventJSON := `[{
-  		"uuid": "123e4567-e89b-12d3-a456-426614174000",
-  		"timestamp": 1640995200,
-  		"user": "different-user",
-  		"item": "item456",
-  		"action": "create",
-  		"payload": "{}"
-  	}]`
+	// Test data - event for different user (use NewEvent so UUID/timestamp match)
+	event := models.NewEvent("different-user", "item456", "create", "{}")
+	eventData := []models.Event{*event}
+	eventJSONBytes, err := json.Marshal(eventData)
+	if err != nil {
+		t.Fatalf("Failed to marshal event: %v", err)
+	}
 
 	// Test with valid X-API-Key header
-	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
+	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBuffer(eventJSONBytes))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-API-Key", storage.TestingApiKey)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
 
-	// Expected: 400 Bad Request with eventUuid (UUID validation happens before user validation)
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	// Expected: 403 Forbidden because event user differs from authenticated user
+	assert.Equal(t, http.StatusForbidden, w.Code)
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
 	var response map[string]interface{}
-	err := json.Unmarshal(w.Body.Bytes(), &response)
+	err = json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
 	assert.Contains(t, response, "error")
-	assert.Equal(t, "invalid timestamp", response["error"])
+	assert.Equal(t, "Cannot submit events for other users", response["error"])
 	assert.Contains(t, response, "eventUuid")
-	assert.Equal(t, "123e4567-e89b-12d3-a456-426614174000", response["eventUuid"])
+	assert.Equal(t, event.UUID, response["eventUuid"])
 }
