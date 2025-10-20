@@ -50,7 +50,7 @@ func TestValidateAclRuleSpecificErrors(t *testing.T) {
 				Action: "read",
 				Type:   "allow",
 			},
-			expectedErr: errors.ErrAclUserMultipleWildcards,
+			expectedErr: errors.ErrAclUserInvalidWildcards,
 		},
 		{
 			name: "multiple wildcards in item",
@@ -60,7 +60,7 @@ func TestValidateAclRuleSpecificErrors(t *testing.T) {
 				Action: "read",
 				Type:   "allow",
 			},
-			expectedErr: errors.ErrAclItemMultipleWildcards,
+			expectedErr: errors.ErrAclItemInvalidWildcards,
 		},
 		{
 			name: "multiple wildcards in action",
@@ -70,7 +70,7 @@ func TestValidateAclRuleSpecificErrors(t *testing.T) {
 				Action: "read*write*",
 				Type:   "allow",
 			},
-			expectedErr: errors.ErrAclActionMultipleWildcards,
+			expectedErr: errors.ErrAclActionInvalidWildcards,
 		},
 		{
 			name: "invalid ACL type",
