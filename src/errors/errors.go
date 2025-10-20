@@ -25,16 +25,16 @@ var (
 	ErrIdRequired         = errors.New("id is required")
 
 	// ACL validation errors
-	ErrInvalidAclType             = errors.New("type must be either 'allow' or 'deny'")
-	ErrAclUserEmpty               = errors.New("user pattern cannot be empty")
-	ErrAclItemEmpty               = errors.New("item pattern cannot be empty")
-	ErrAclActionEmpty             = errors.New("action pattern cannot be empty")
-	ErrAclUserMultipleWildcards   = errors.New("user pattern can have at most one wildcard at the end")
-	ErrAclItemMultipleWildcards   = errors.New("item pattern can have at most one wildcard at the end")
-	ErrAclActionMultipleWildcards = errors.New("action pattern can have at most one wildcard at the end")
-	ErrAclUserControlChars        = errors.New("user pattern contains invalid control characters")
-	ErrAclItemControlChars        = errors.New("item pattern contains invalid control characters")
-	ErrAclActionControlChars      = errors.New("action pattern contains invalid control characters")
+	ErrInvalidAclType            = errors.New("type must be either 'allow' or 'deny'")
+	ErrAclUserEmpty              = errors.New("user pattern cannot be empty")
+	ErrAclItemEmpty              = errors.New("item pattern cannot be empty")
+	ErrAclActionEmpty            = errors.New("action pattern cannot be empty")
+	ErrAclUserControlChars       = errors.New("user pattern contains invalid control characters")
+	ErrAclItemControlChars       = errors.New("item pattern contains invalid control characters")
+	ErrAclActionControlChars     = errors.New("action pattern contains invalid control characters")
+	ErrAclUserInvalidWildcards   = errors.New("user pattern can have at most one wildcard at the end")
+	ErrAclItemInvalidWildcards   = errors.New("item pattern can have at most one wildcard at the end")
+	ErrAclActionInvalidWildcards = errors.New("action pattern can have at most one wildcard at the end")
 
 	// Business logic errors
 	ErrUserNotFound = errors.New("user not found")
