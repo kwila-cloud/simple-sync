@@ -19,7 +19,7 @@ const TestingRootApiKey = "sk_RYQR7tiqy82dbNEcAdHtO4mbl4YFo9GDF2sr0PbwTlY"
 type TestStorage struct {
 	events      []models.Event
 	users       map[string]*models.User       // id -> user
-	apiKeys     map[string]*models.APIKey     // uuid -> api key
+	apiKeys     map[string]*models.ApiKey     // uuid -> api key
 	setupTokens map[string]*models.SetupToken // token -> setup token
 	mutex       sync.RWMutex
 }
@@ -29,7 +29,7 @@ func NewTestStorage(aclRules []models.AclRule) *TestStorage {
 	storage := &TestStorage{
 		events:      make([]models.Event, 0),
 		users:       make(map[string]*models.User),
-		apiKeys:     make(map[string]*models.APIKey),
+		apiKeys:     make(map[string]*models.ApiKey),
 		setupTokens: make(map[string]*models.SetupToken),
 	}
 
@@ -40,7 +40,7 @@ func NewTestStorage(aclRules []models.AclRule) *TestStorage {
 	// Add root API key
 	keyHash, _ := bcrypt.GenerateFromPassword([]byte(TestingRootApiKey), bcrypt.DefaultCost)
 	now := time.Now()
-	apiKey := &models.APIKey{
+	apiKey := &models.ApiKey{
 		UUID:        "test-root-api-key-uuid",
 		UserID:      ".root",
 		KeyHash:     string(keyHash),
@@ -56,7 +56,7 @@ func NewTestStorage(aclRules []models.AclRule) *TestStorage {
 
 	keyHash, _ = bcrypt.GenerateFromPassword([]byte(TestingApiKey), bcrypt.DefaultCost)
 	now = time.Now()
-	apiKey = &models.APIKey{
+	apiKey = &models.ApiKey{
 		UUID:        "test-api-key-uuid",
 		UserID:      TestingUserId,
 		KeyHash:     string(keyHash),
@@ -121,7 +121,7 @@ func (m *TestStorage) GetUserById(id string) (*models.User, error) {
 }
 
 // CreateApiKey stores a new API key
-func (m *TestStorage) CreateApiKey(apiKey *models.APIKey) error {
+func (m *TestStorage) CreateApiKey(apiKey *models.ApiKey) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	m.apiKeys[apiKey.UUID] = apiKey
@@ -129,7 +129,7 @@ func (m *TestStorage) CreateApiKey(apiKey *models.APIKey) error {
 }
 
 // GetApiKeyByHash retrieves an API key by its hash
-func (m *TestStorage) GetApiKeyByHash(hash string) (*models.APIKey, error) {
+func (m *TestStorage) GetApiKeyByHash(hash string) (*models.ApiKey, error) {
 	m.mutex.RLock()
 	defer m.mutex.RUnlock()
 	for _, apiKey := range m.apiKeys {
@@ -141,10 +141,10 @@ func (m *TestStorage) GetApiKeyByHash(hash string) (*models.APIKey, error) {
 }
 
 // GetAllApiKeys retrieves all API keys
-func (m *TestStorage) GetAllApiKeys() ([]*models.APIKey, error) {
+func (m *TestStorage) GetAllApiKeys() ([]*models.ApiKey, error) {
 	m.mutex.RLock()
 	defer m.mutex.RUnlock()
-	keys := make([]*models.APIKey, 0, len(m.apiKeys))
+	keys := make([]*models.ApiKey, 0, len(m.apiKeys))
 	for _, k := range m.apiKeys {
 		keys = append(keys, k)
 	}
@@ -152,7 +152,7 @@ func (m *TestStorage) GetAllApiKeys() ([]*models.APIKey, error) {
 }
 
 // UpdateApiKey updates an existing API key
-func (m *TestStorage) UpdateApiKey(apiKey *models.APIKey) error {
+func (m *TestStorage) UpdateApiKey(apiKey *models.ApiKey) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	m.apiKeys[apiKey.UUID] = apiKey
