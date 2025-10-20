@@ -37,9 +37,9 @@ Encryption at rest will be addressed separately (issue #17) using SQLCipher or f
 - [x] Review model validation for database compatibility
 
 ### SQLite Storage Foundation
-- [ ] Add tests for SQLite storage initialization and connection management
-- [ ] Create SQLite storage implementation with database connection management
-- [ ] Add database initialization methods (Initialize, Close)
+- [x] Add tests for SQLite storage initialization and connection management
+- [x] Create SQLite storage implementation with database connection management
+- [x] Add database initialization methods (Initialize, Close)
 
 ### Database Schema and Migrations
 - [ ] Add tests for database schema creation and migrations
