@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"simple-sync/src/models"
 	"testing"
 )
 
