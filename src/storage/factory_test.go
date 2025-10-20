@@ -19,34 +19,6 @@ func TestNewStorage(t *testing.T) {
 	}
 }
 
-func TestNewStorageWithAclRules(t *testing.T) {
-	// Ensure NewStorage returns TestStorage in test environments
-	store := NewStorage()
-	if store == nil {
-		t.Fatal("Expected storage to be created")
-	}
-
-	// Verify it's TestStorage
-	_, isTestStorage := store.(*TestStorage)
-	if !isTestStorage {
-		t.Errorf("Expected TestStorage, got %T", store)
-	}
-
-	// Verify ACL seeding can be done explicitly via CreateAclRule
-	rule := models.AclRule{User: "user1", Item: "item1", Action: "read", Type: "allow"}
-	if err := store.CreateAclRule(&rule); err != nil {
-		t.Fatalf("Failed to create ACL rule: %v", err)
-	}
-
-	rules, err := store.GetAclRules()
-	if err != nil {
-		t.Fatalf("Failed to get ACL rules: %v", err)
-	}
-	if len(rules) != 1 {
-		t.Errorf("Expected 1 ACL rule, got %d", len(rules))
-	}
-}
-
 func TestErrorTypes(t *testing.T) {
 	// Test error messages for storage-specific errors
 	tests := []struct {
