@@ -84,6 +84,18 @@ func TestEventValidate(t *testing.T) {
 			wantErr: true,
 		},
 		{
+			name: "UUID timestamp mismatch should fail",
+			event: &models.Event{
+				UUID:      "550e8400-e29b-41d4-a716-446655440000",
+				Timestamp: 1234567890, // Different timestamp than UUID
+				User:      "user123",
+				Item:      "item456",
+				Action:    "create",
+				Payload:   "{}",
+			},
+			wantErr: true,
+		},
+		{
 			name: "empty user should fail",
 			event: &models.Event{
 				UUID:      "550e8400-e29b-41d4-a716-446655440000",

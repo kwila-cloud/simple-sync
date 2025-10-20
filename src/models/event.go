@@ -50,10 +50,16 @@ func (e *Event) Validate() error {
 		return errors.New("UUID is required")
 	}
 
-	// Validate UUID format
-	_, err := uuid.Parse(e.UUID)
+	// Validate UUID format and timestamp matching
+	parsedUuid, err := uuid.Parse(e.UUID)
 	if err != nil {
 		return errors.New("UUID must be valid format")
+	}
+
+	// For v7 UUIDs, validate that timestamp matches
+	timestamp, _ := parsedUuid.Time().UnixTime()
+	if uint64(timestamp) != e.Timestamp {
+		return errors.New("UUID timestamp must match event timestamp")
 	}
 
 	if e.User == "" {
