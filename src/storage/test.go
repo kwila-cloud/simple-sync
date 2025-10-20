@@ -38,7 +38,7 @@ func NewTestStorage(aclRules []models.AclRule) *TestStorage {
 	storage.SaveUser(rootUser)
 
 	// Add root API key
-	keyHash, _ := bcrypt.GenerateFromPassword([]byte(TestingRootApiKey), bcrypt.DefaultCost)
+	keyHash, _ := bcrypt.GenerateFromPassword([]byte(TestingRootApiKey), bcrypt.MinCost)
 	now := time.Now()
 	apiKey := &models.ApiKey{
 		UUID:        "test-root-api-key-uuid",
@@ -54,7 +54,7 @@ func NewTestStorage(aclRules []models.AclRule) *TestStorage {
 	defaultUser, _ := models.NewUser(TestingUserId)
 	storage.SaveUser(defaultUser)
 
-	keyHash, _ = bcrypt.GenerateFromPassword([]byte(TestingApiKey), bcrypt.DefaultCost)
+	keyHash, _ = bcrypt.GenerateFromPassword([]byte(TestingApiKey), bcrypt.MinCost)
 	now = time.Now()
 	apiKey = &models.ApiKey{
 		UUID:        "test-api-key-uuid",
