@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 	"simple-sync/src/models"
@@ -104,12 +106,10 @@ func getDefaultDBPath() string {
 }
 
 func getDir(path string) string {
-	if path == ":memory:" || path == "file::memory:?cache=shared" {
+	// Treat any memory variants as in-memory DBs
+	if path == ":memory:" || strings.Contains(path, ":memory:") || path == "file::memory:?cache=shared" {
 		return ""
 	}
-	// If path is a directory, return it; otherwise return the parent directory
-	if fi, err := os.Stat(path); err == nil && fi.IsDir() {
-		return path
-	}
-	return "."
+	// Use filepath.Dir to get the parent directory (handles ./data/file.db -> ./data)
+	return filepath.Dir(path)
 }
