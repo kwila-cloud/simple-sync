@@ -26,10 +26,10 @@ type Storage interface {
 	GetUserById(id string) (*models.User, error)
 
 	// API Key operations
-	CreateApiKey(apiKey *models.APIKey) error
-	GetApiKeyByHash(hash string) (*models.APIKey, error)
-	GetAllApiKeys() ([]*models.APIKey, error)
-	UpdateApiKey(apiKey *models.APIKey) error
+	CreateApiKey(apiKey *models.ApiKey) error
+	GetApiKeyByHash(hash string) (*models.ApiKey, error)
+	GetAllApiKeys() ([]*models.ApiKey, error)
+	UpdateApiKey(apiKey *models.ApiKey) error
 	InvalidateUserApiKeys(userID string) error
 
 	// Setup Token operations
