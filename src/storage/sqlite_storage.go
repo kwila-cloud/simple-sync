@@ -35,6 +35,31 @@ func (s *SQLiteStorage) Initialize(path string) error {
 	if err != nil {
 		return err
 	}
+
+	// Set pragmas for safety/performance
+	if _, err := db.Exec("PRAGMA journal_mode=WAL;"); err != nil {
+		db.Close()
+		return err
+	}
+	if _, err := db.Exec("PRAGMA foreign_keys=ON;"); err != nil {
+		db.Close()
+		return err
+	}
+	if _, err := db.Exec("PRAGMA synchronous=NORMAL;"); err != nil {
+		db.Close()
+		return err
+	}
+
+	// Configure connection pool defaults
+	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(5)
+
+	// Verify connection
+	if err := db.Ping(); err != nil {
+		db.Close()
+		return err
+	}
+
 	s.db = db
 	return nil
 }
@@ -44,7 +69,10 @@ func (s *SQLiteStorage) Close() error {
 	if s.db == nil {
 		return nil
 	}
-	return s.db.Close()
+	// Close DB and clear pointer
+	err := s.db.Close()
+	s.db = nil
+	return err
 }
 
 // Minimal stubs to satisfy the Storage interface — to be implemented later
