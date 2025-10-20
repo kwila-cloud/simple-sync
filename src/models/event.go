@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	apperrors "simple-sync/src/errors"
 
@@ -64,6 +65,13 @@ func (e *Event) Validate() error {
 
 	// Do not allow timestamps of 0
 	if uint64(timestamp) == 0 {
+		return apperrors.ErrInvalidTimestamp
+	}
+
+	// Maximum timestamp: Allow up to 24 hours in the future for clock skew tolerance
+	now := time.Now().Unix()
+	maxTimestamp := now + (24 * 60 * 60) // 24 hours from now
+	if int64(timestamp) > maxTimestamp {
 		return apperrors.ErrInvalidTimestamp
 	}
 
