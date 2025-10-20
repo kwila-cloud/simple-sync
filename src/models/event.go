@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -10,12 +11,12 @@ import (
 
 // Event represents a timestamped event in the system
 type Event struct {
-	UUID      string `json:"uuid"`
-	Timestamp uint64 `json:"timestamp"`
-	User      string `json:"user"`
-	Item      string `json:"item"`
-	Action    string `json:"action"`
-	Payload   string `json:"payload"`
+	UUID      string `json:"uuid" db:"uuid"`
+	Timestamp uint64 `json:"timestamp" db:"timestamp"`
+	User      string `json:"user" db:"user"`
+	Item      string `json:"item" db:"item"`
+	Action    string `json:"action" db:"action"`
+	Payload   string `json:"payload" db:"payload"`
 }
 
 func NewEvent(User, Item, Action, Payload string) *Event {
@@ -43,6 +44,33 @@ func (e *Event) IsAclEvent() bool {
 }
 
 // ToAclRule converts an ACL event to AclRule
+// Validate performs validation on the Event struct
+func (e *Event) Validate() error {
+	if e.UUID == "" {
+		return errors.New("UUID is required")
+	}
+
+	// Validate UUID format
+	_, err := uuid.Parse(e.UUID)
+	if err != nil {
+		return errors.New("UUID must be valid format")
+	}
+
+	if e.User == "" {
+		return errors.New("user is required")
+	}
+
+	if e.Item == "" {
+		return errors.New("item is required")
+	}
+
+	if e.Action == "" {
+		return errors.New("action is required")
+	}
+
+	return nil
+}
+
 func (e *Event) ToAclRule() (*AclRule, error) {
 	if !e.IsAclEvent() {
 		return nil, fmt.Errorf("not an ACL event")

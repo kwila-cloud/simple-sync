@@ -7,8 +7,8 @@ import (
 
 // User represents an authenticated user in the system
 type User struct {
-	Id        string    `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
+	Id        string    `json:"id" db:"id"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
 }
 
 // Validate performs validation on the User struct
