@@ -42,9 +42,9 @@ Encryption at rest will be addressed separately (issue #17) using SQLCipher or f
 - [x] Add database initialization methods (Initialize, Close)
 
 ### Database Schema and Migrations
-- [ ] Add tests for database schema creation and migrations
-- [ ] Design and implement database schema (events, users, api_keys, setup_tokens, acl_rules tables)
-- [ ] Implement table creation with migrations, indexes, and constraints
+- [x] Add tests for database schema creation and migrations
+- [x] Design and implement database schema (events, users, api_keys, setup_tokens, acl_rules tables)
+- [x] Implement table creation with migrations, indexes, and constraints
 
 ### Event Storage Implementation
 - [ ] Add tests for event storage operations
