@@ -77,7 +77,7 @@ func (s *SQLiteStorage) Initialize(path string) error {
 	}
 
 	// Apply migrations (idempotent)
-	if err := applyMigrations(db); err != nil {
+	if err := ApplyMigrations(db); err != nil {
 		db.Close()
 		return err
 	}
