@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	apperrors "simple-sync/src/errors"
 )
 
 // Event represents a timestamped event in the system
@@ -58,7 +59,7 @@ func (e *Event) Validate() error {
 	// For v7 UUIDs, validate that timestamp matches
 	timestamp, _ := parsedUuid.Time().UnixTime()
 	if uint64(timestamp) != e.Timestamp {
-		return errors.New("UUID timestamp must match event timestamp")
+		return apperrors.ErrInvalidTimestamp
 	}
 
 	if e.User == "" {

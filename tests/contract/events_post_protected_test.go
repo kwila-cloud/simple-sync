@@ -278,11 +278,11 @@ func TestPostEventsInvalidTimestamp(t *testing.T) {
 	eventJSON := fmt.Sprintf(`[{
   		"uuid": "123e4567-e89b-12d3-a456-426614174000",
   		"timestamp": 0,
-  		"user": "%s",
+  		"user": "user-123",
   		"item": "item456",
   		"action": "create",
   		"payload": "{}"
-  	}]`, storage.TestingUserId)
+  	}]`)
 
 	// Test with valid X-API-Key header
 	req, _ := http.NewRequest("POST", "/api/v1/events", bytes.NewBufferString(eventJSON))
@@ -300,7 +300,7 @@ func TestPostEventsInvalidTimestamp(t *testing.T) {
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
 	assert.Contains(t, response, "error")
-	assert.Equal(t, "UUID timestamp must match event timestamp", response["error"])
+	assert.Equal(t, "invalid timestamp", response["error"])
 	assert.Contains(t, response, "eventUuid")
 	assert.Equal(t, "123e4567-e89b-12d3-a456-426614174000", response["eventUuid"])
 }
@@ -344,7 +344,7 @@ func TestPostEventsWrongUser(t *testing.T) {
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
 	assert.Contains(t, response, "error")
-	assert.Equal(t, "UUID timestamp must match event timestamp", response["error"])
+	assert.Equal(t, "invalid timestamp", response["error"])
 	assert.Contains(t, response, "eventUuid")
 	assert.Equal(t, "123e4567-e89b-12d3-a456-426614174000", response["eventUuid"])
 }
