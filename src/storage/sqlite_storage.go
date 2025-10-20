@@ -26,13 +26,20 @@ func (s *SQLiteStorage) Initialize(path string) error {
 	if path == "" {
 		path = getDefaultDBPath()
 	}
-	// Ensure directory exists
-	dir := getDir(path)
-	if dir != "" {
-		if err := os.MkdirAll(dir, 0o755); err != nil {
-			return fmt.Errorf("failed to create db dir: %w", err)
+
+	// Determine and create parent directory unless using an in-memory DB
+	if path != "" {
+		isMemory := path == ":memory:" || (strings.HasPrefix(path, "file:") && strings.Contains(path, "memory"))
+		if !isMemory {
+			parent := filepath.Dir(path)
+			if parent != "" && parent != "." {
+				if err := os.MkdirAll(parent, 0o755); err != nil {
+					return fmt.Errorf("failed to create db dir: %w", err)
+				}
+			}
 		}
 	}
+
 	db, err := sql.Open("sqlite3", path)
 	if err != nil {
 		return err
