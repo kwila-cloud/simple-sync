@@ -19,7 +19,7 @@ func TestApplyMigrationsCreatesTablesAndSetsVersion(t *testing.T) {
 		t.Fatalf("ApplyMigrations failed: %v", err)
 	}
 
-	tables := []string{"users", "events", "api_keys", "setup_tokens", "acl_rules"}
+	tables := []string{"user", "event", "api_key", "setup_token", "acl_rule"}
 	for _, table := range tables {
 		var name string
 		err := db.QueryRow("SELECT name FROM sqlite_master WHERE type='table' AND name=?", table).Scan(&name)
