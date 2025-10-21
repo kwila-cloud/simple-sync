@@ -1,18 +1,19 @@
-package storage
+package unit
 
 import (
+	"simple-sync/src/storage"
 	"testing"
 )
 
 func TestNewStorage(t *testing.T) {
 	// Test that factory returns TestStorage when running tests
-	store := NewStorage()
+	store := storage.NewStorage()
 	if store == nil {
 		t.Fatal("Expected storage to be created")
 	}
 
 	// Verify it's TestStorage by checking type
-	_, isTestStorage := store.(*TestStorage)
+	_, isTestStorage := store.(*storage.TestStorage)
 	if !isTestStorage {
 		t.Errorf("Expected TestStorage, got %T", store)
 	}
@@ -27,27 +28,27 @@ func TestErrorTypes(t *testing.T) {
 	}{
 		{
 			name:     "ErrNotFound",
-			err:      ErrNotFound,
+			err:      storage.ErrNotFound,
 			expected: "resource not found",
 		},
 		{
 			name:     "ErrDuplicateKey",
-			err:      ErrDuplicateKey,
+			err:      storage.ErrDuplicateKey,
 			expected: "duplicate key",
 		},
 		{
 			name:     "ErrInvalidData",
-			err:      ErrInvalidData,
+			err:      storage.ErrInvalidData,
 			expected: "invalid data",
 		},
 		{
 			name:     "ErrApiKeyNotFound",
-			err:      ErrApiKeyNotFound,
+			err:      storage.ErrApiKeyNotFound,
 			expected: "API key not found",
 		},
 		{
 			name:     "ErrSetupTokenNotFound",
-			err:      ErrSetupTokenNotFound,
+			err:      storage.ErrSetupTokenNotFound,
 			expected: "setup token not found",
 		},
 	}

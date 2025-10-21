@@ -12,13 +12,13 @@ const DesiredSchemaVersion = 1
 var migrations = map[int]func(tx *sql.Tx) error{
 	1: func(tx *sql.Tx) error {
 		stmts := []string{
-			// users table
-			`CREATE TABLE IF NOT EXISTS users (
+			// user table
+			`CREATE TABLE IF NOT EXISTS user (
 				id TEXT PRIMARY KEY,
 				created_at DATETIME NOT NULL
 			);`,
-			// events table - for models.Event
-			`CREATE TABLE IF NOT EXISTS events (
+			// event table - for models.Event
+			`CREATE TABLE IF NOT EXISTS event (
 				uuid TEXT PRIMARY KEY,
 				timestamp INTEGER NOT NULL,
 				user TEXT NOT NULL,
@@ -26,33 +26,33 @@ var migrations = map[int]func(tx *sql.Tx) error{
 				action TEXT NOT NULL,
 				payload TEXT
 			);`,
-			`CREATE INDEX IF NOT EXISTS idx_events_timestamp ON events(timestamp);`,
-			`CREATE INDEX IF NOT EXISTS idx_events_item ON events(item);`,
-			// api_keys table - for models.ApiKey
-			`CREATE TABLE IF NOT EXISTS api_keys (
+			`CREATE INDEX IF NOT EXISTS idx_event_timestamp ON event(timestamp);`,
+			`CREATE INDEX IF NOT EXISTS idx_event_item ON event(item);`,
+			// api_key table - for models.ApiKey
+			`CREATE TABLE IF NOT EXISTS api_key (
 				uuid TEXT PRIMARY KEY,
 				user TEXT NOT NULL,
 				key_hash TEXT NOT NULL,
 				created_at DATETIME NOT NULL,
 				last_used_at DATETIME,
 				description TEXT,
-				FOREIGN KEY(user) REFERENCES users(id) ON DELETE CASCADE
+				FOREIGN KEY(user) REFERENCES user(id) ON DELETE CASCADE
 			);`,
-			`CREATE UNIQUE INDEX IF NOT EXISTS idx_api_keys_key_hash ON api_keys(key_hash);`,
-			// setup_tokens table - for models.SetupToken
-			`CREATE TABLE IF NOT EXISTS setup_tokens (
+			`CREATE UNIQUE INDEX IF NOT EXISTS idx_api_key_key_hash ON api_key(key_hash);`,
+			// setup_token table - for models.SetupToken
+			`CREATE TABLE IF NOT EXISTS setup_token (
 				token TEXT PRIMARY KEY,
 				user TEXT NOT NULL,
 				expires_at DATETIME,
 				used_at DATETIME,
-				FOREIGN KEY(user) REFERENCES users(id) ON DELETE CASCADE
+				FOREIGN KEY(user) REFERENCES user(id) ON DELETE CASCADE
 			);`,
-			// acl_rules table - for models.AclRule
-			`CREATE TABLE IF NOT EXISTS acl_rules (
+			// acl_rule table - for models.AclRule
+			`CREATE TABLE IF NOT EXISTS acl_rule (
 				user TEXT NOT NULL,
 				item TEXT NOT NULL,
 				action TEXT NOT NULL,
-				type TEXT NOT NULL
+				type TEXT NOT NULL,
 				PRIMARY KEY (user, item, action, type)
 			);`,
 		}

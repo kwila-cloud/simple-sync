@@ -89,24 +89,10 @@ See `specs/7-data-persistence.md` for a well-structured specification that:
 
 4. **When in doubt**: If you're about to implement code without writing tests first, stop - you're violating TDD principles
 
-**Test Location & Naming**
-- **Policy:** Tests must be placed under `tests/` organized by type (`tests/unit/`, `tests/integration/`, `tests/contract/`, `tests/performance/`).
+#### Tests Location
+- **Policy:** Tests MUST be placed under `tests/` organized by type (`tests/unit/`, `tests/integration/`, `tests/contract/`, `tests/performance/`).
+  - DO NOT place tests in `src/` OR any subdirectory of `src/`
 - **Why:** Keeps code vs test separation clear; matches existing repo layout and CI patterns.
-- **Naming:** Use `snake_case_test.go` and prefer `package foo_test` for black-box tests; use `package foo` only when white-box access required.
-- **Examples:**
-  - Unit test for storage: `tests/unit/storage/sqlite_storage_test.go` — `package storage_test`
-  - Integration test for ACL: `tests/integration/acl_integration_test.go` — `package integration` or `package acl_test`
-- **Test file header template (example):**
-  - `package storage_test`
-  - `import ("testing"; "simple-sync/src/storage")`
-  - `func TestInitializeClose(t *testing.T) { /* ... */ }`
-- **Run tests:** `go test ./tests/unit/...`, `go test ./tests/integration/...` or `go test ./...` for all.
-- **Agent checklist before adding tests:**
-  1. Read spec — confirm test type (unit/integration/etc.).
-  2. Create test file under `tests/<type>/` with descriptive name.
-  3. Use `package <pkg>_test` unless white-box access required.
-  4. Run the specific `go test` target locally.
-  5. Commit tests first (TDD) before implementing code.
 
 ### Git Workflow
 
@@ -160,6 +146,8 @@ See `.opencode/command/` directory for examples.
   - Examples: `CreateApiKey`, `GetAclRules`, `UpdateAclRule` (NOT: `CreateAPIKey`, `GetACLRules`)
 - **Documentation**: Use normal capitalization for acronyms in plain text, comments, and documentation.
   - Examples: "API key", "ACL rule", "REST API" (NOT: "ApiKey", "AclRule" in documentation)
+- **Database Tables**: Use singular form for database tables
+  - Example: "user" rather than "users"
 
 ### Standard Library Usage
 

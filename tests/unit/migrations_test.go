@@ -1,7 +1,8 @@
-package storage
+package unit
 
 import (
 	"database/sql"
+	"simple-sync/src/storage"
 	"testing"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -14,7 +15,7 @@ func TestApplyMigrationsCreatesTablesAndSetsVersion(t *testing.T) {
 	}
 	defer db.Close()
 
-	if err := ApplyMigrations(db); err != nil {
+	if err := storage.ApplyMigrations(db); err != nil {
 		t.Fatalf("ApplyMigrations failed: %v", err)
 	}
 
@@ -34,18 +35,18 @@ func TestApplyMigrationsCreatesTablesAndSetsVersion(t *testing.T) {
 	if err := db.QueryRow("PRAGMA user_version").Scan(&v); err != nil {
 		t.Fatalf("failed to read user_version: %v", err)
 	}
-	if v != DesiredSchemaVersion {
-		t.Fatalf("expected user_version %d, got %d", DesiredSchemaVersion, v)
+	if v != storage.DesiredSchemaVersion {
+		t.Fatalf("expected user_version %d, got %d", storage.DesiredSchemaVersion, v)
 	}
 
 	// Idempotent: second run should succeed and leave version unchanged
-	if err := ApplyMigrations(db); err != nil {
+	if err := storage.ApplyMigrations(db); err != nil {
 		t.Fatalf("second ApplyMigrations failed: %v", err)
 	}
 	if err := db.QueryRow("PRAGMA user_version").Scan(&v); err != nil {
 		t.Fatalf("failed to read user_version after second run: %v", err)
 	}
-	if v != DesiredSchemaVersion {
-		t.Fatalf("expected user_version %d after second run, got %d", DesiredSchemaVersion, v)
+	if v != storage.DesiredSchemaVersion {
+		t.Fatalf("expected user_version %d after second run, got %d", storage.DesiredSchemaVersion, v)
 	}
 }

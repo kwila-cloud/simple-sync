@@ -1,8 +1,7 @@
-package services
+package unit
 
 import (
 	"simple-sync/src/errors"
-	"simple-sync/src/storage"
 	"testing"
 )
 
@@ -34,14 +33,4 @@ func TestServiceErrorTypes(t *testing.T) {
 	if errors.ErrInvalidApiKey.Error() != expectedInvalidApiKey {
 		t.Errorf("Expected error message '%s', got '%s'", expectedInvalidApiKey, errors.ErrInvalidApiKey.Error())
 	}
-}
-
-func TestErrorTranslation(t *testing.T) {
-	// Test that storage.ErrNotFound gets translated to ErrUserNotFound
-	if storage.ErrNotFound == nil {
-		t.Error("storage.ErrNotFound should not be nil")
-	}
-
-	// The translation logic is tested in the auth service integration tests
-	// This just verifies the error types exist and have correct messages
 }
