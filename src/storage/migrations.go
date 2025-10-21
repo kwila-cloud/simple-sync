@@ -44,6 +44,7 @@ var migrations = map[int]func(tx *sql.Tx) error{
 			`CREATE TABLE IF NOT EXISTS setup_tokens (
 				token TEXT PRIMARY KEY,
 				user TEXT NOT NULL,
+				created_at DATETIME NOT NULL,
 				expires_at DATETIME,
 				used_at DATETIME,
 				FOREIGN KEY(user) REFERENCES users(id) ON DELETE CASCADE
