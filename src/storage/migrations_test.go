@@ -7,7 +7,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func TestApplyMigrationsCreatesTables(t *testing.T) {
+func TestApplyMigrationsCreatesTablesAndSetsVersion(t *testing.T) {
 	db, err := sql.Open("sqlite3", ":memory:")
 	if err != nil {
 		t.Fatalf("failed to open in-memory sqlite: %v", err)
@@ -28,5 +28,24 @@ func TestApplyMigrationsCreatesTables(t *testing.T) {
 		if name != table {
 			t.Fatalf("expected table %s, got %s", table, name)
 		}
+	}
+
+	var v int
+	if err := db.QueryRow("PRAGMA user_version").Scan(&v); err != nil {
+		t.Fatalf("failed to read user_version: %v", err)
+	}
+	if v != DesiredSchemaVersion {
+		t.Fatalf("expected user_version %d, got %d", DesiredSchemaVersion, v)
+	}
+
+	// Idempotent: second run should succeed and leave version unchanged
+	if err := ApplyMigrations(db); err != nil {
+		t.Fatalf("second ApplyMigrations failed: %v", err)
+	}
+	if err := db.QueryRow("PRAGMA user_version").Scan(&v); err != nil {
+		t.Fatalf("failed to read user_version after second run: %v", err)
+	}
+	if v != DesiredSchemaVersion {
+		t.Fatalf("expected user_version %d after second run, got %d", DesiredSchemaVersion, v)
 	}
 }
