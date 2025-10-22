@@ -47,9 +47,9 @@ Encryption at rest will be addressed separately (issue #17) using SQLCipher or f
 - [x] Implement table creation with migrations, indexes, and constraints
 
 ### Event Storage Implementation
-- [ ] Add tests for event storage operations
-- [ ] Implement SaveEvents
-- [ ] Implement LoadEvents
+- [x] Add tests for event storage operations
+- [x] Implement SaveEvents
+- [x] Implement LoadEvents
 
 ### User Storage Implementation
 - [ ] Add tests for user storage operations

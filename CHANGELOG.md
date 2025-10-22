@@ -1,6 +1,7 @@
 # Release History
 
 ## [0.4.0] - unreleased
+- [#57](https://github.com/kwila-cloud/simple-sync/pull/57): Implement SQLite event storage
 - [#56](https://github.com/kwila-cloud/simple-sync/pull/56): Add database schema migrations
 - [#55](https://github.com/kwila-cloud/simple-sync/pull/55): Add SQLite storage foundation (initialization, pragmas, pooling, and tests)
 - [#54](https://github.com/kwila-cloud/simple-sync/pull/54): Add model validation and database compatibility for SQLite storage

@@ -99,8 +99,59 @@ func (s *SQLiteStorage) Close() error {
 }
 
 // Minimal stubs to satisfy the Storage interface — to be implemented later
-func (s *SQLiteStorage) SaveEvents(events []models.Event) error      { return ErrInvalidData }
-func (s *SQLiteStorage) LoadEvents() ([]models.Event, error)         { return nil, ErrNotFound }
+func (s *SQLiteStorage) SaveEvents(events []models.Event) error {
+	if s.db == nil {
+		return ErrInvalidData
+	}
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	stmt, err := tx.Prepare(`INSERT INTO event (uuid, timestamp, user, item, action, payload) VALUES (?, ?, ?, ?, ?, ?)`)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	defer stmt.Close()
+	for _, e := range events {
+		if _, err := stmt.Exec(e.UUID, int64(e.Timestamp), e.User, e.Item, e.Action, e.Payload); err != nil {
+			tx.Rollback()
+			// Map sqlite unique/constraint errors to ErrDuplicateKey
+			if strings.Contains(err.Error(), "UNIQUE") || strings.Contains(err.Error(), "constraint failed") {
+				return ErrDuplicateKey
+			}
+			return err
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	return nil
+}
+func (s *SQLiteStorage) LoadEvents() ([]models.Event, error) {
+	if s.db == nil {
+		return nil, ErrNotFound
+	}
+	rows, err := s.db.Query(`SELECT uuid, timestamp, user, item, action, payload FROM event ORDER BY timestamp ASC`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var events []models.Event
+	for rows.Next() {
+		var e models.Event
+		var ts int64
+		if err := rows.Scan(&e.UUID, &ts, &e.User, &e.Item, &e.Action, &e.Payload); err != nil {
+			return nil, err
+		}
+		e.Timestamp = uint64(ts)
+		events = append(events, e)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return events, nil
+}
 func (s *SQLiteStorage) SaveUser(user *models.User) error            { return ErrInvalidData }
 func (s *SQLiteStorage) GetUserById(id string) (*models.User, error) { return nil, ErrNotFound }
 func (s *SQLiteStorage) CreateApiKey(apiKey *models.ApiKey) error    { return ErrInvalidData }
