@@ -89,29 +89,35 @@ See `specs/7-data-persistence.md` for a well-structured specification that:
 
 4. **When in doubt**: If you're about to implement code without writing tests first, stop - you're violating TDD principles
 
-**Test Location & Naming**
-- **Policy:** Tests must be placed under `tests/` organized by type (`tests/unit/`, `tests/integration/`, `tests/contract/`, `tests/performance/`).
+#### Tests Location
+- **Policy:** Tests MUST be placed under `tests/` organized by type (`tests/unit/`, `tests/integration/`, `tests/contract/`, `tests/performance/`).
+  - DO NOT place tests in `src/` OR any subdirectory of `src/`
 - **Why:** Keeps code vs test separation clear; matches existing repo layout and CI patterns.
-- **Naming:** Use `snake_case_test.go` and prefer `package foo_test` for black-box tests; use `package foo` only when white-box access required.
-- **Examples:**
-  - Unit test for storage: `tests/unit/storage/sqlite_storage_test.go` — `package storage_test`
-  - Integration test for ACL: `tests/integration/acl_integration_test.go` — `package integration` or `package acl_test`
-- **Test file header template (example):**
-  - `package storage_test`
-  - `import ("testing"; "simple-sync/src/storage")`
-  - `func TestInitializeClose(t *testing.T) { /* ... */ }`
-- **Run tests:** `go test ./tests/unit/...`, `go test ./tests/integration/...` or `go test ./...` for all.
-- **Agent checklist before adding tests:**
-  1. Read spec — confirm test type (unit/integration/etc.).
-  2. Create test file under `tests/<type>/` with descriptive name.
-  3. Use `package <pkg>_test` unless white-box access required.
-  4. Run the specific `go test` target locally.
-  5. Commit tests first (TDD) before implementing code.
 
 ### Git Workflow
 
 - Feature branches for issues (e.g., `63-new-setting`)
 - Use GitHub CLI for PR creation: `gh pr create`
+
+### Shell quoting when using backticks
+
+- **Problem:** Unescaped backticks in bash commands are interpreted as command substitution, causing the shell to execute the content between backticks instead of passing it as literal text (this can break `gh` calls or insert unintended output).
+- **Rule:** When passing text that contains backticks to shell commands, avoid unescaped backticks. Prefer one of these safe patterns:
+  - Single-quoted argument (simple cases):
+    - `gh pr edit 56 --body 'Tables: `users`, `events`'`
+  - Escape backticks inside double quotes:
+    - `gh pr edit 56 --body "Tables: \`users\`, \`events\`"`
+  - HEREDOC with single-quoted delimiter (recommended for multi-line bodies or complex content):
+    - `gh pr edit 56 --body "$(cat <<'EOF'\nTables: `users`, `events`\nEOF\n)"`
+
+- **Examples:**
+  - Bad: `gh pr edit 56 --body "Tables: `users`, `events`"`  (backticks executed by shell)
+  - Good (HEREDOC): `gh pr edit 56 --body "$(cat <<'EOF'\nTables: `users`, `events`\nEOF\n)"`
+  - Good (single quotes): `gh pr edit 56 --body 'Tables: `users`, `events`'`
+  - Good (escaped): `gh pr edit 56 --body "Tables: \`users\`, \`events\`"`
+
+- **Recommendation:** Prefer the HEREDOC pattern when generating multi-line PR bodies that include code formatting or backticks. It avoids shell expansion and is easy to read and maintain.
+
 - Commit messages follow conventional format: `feat:`, `refactor:`, `chore:`, `fix:`, etc.
 
 ### Changelog
@@ -140,6 +146,8 @@ See `.opencode/command/` directory for examples.
   - Examples: `CreateApiKey`, `GetAclRules`, `UpdateAclRule` (NOT: `CreateAPIKey`, `GetACLRules`)
 - **Documentation**: Use normal capitalization for acronyms in plain text, comments, and documentation.
   - Examples: "API key", "ACL rule", "REST API" (NOT: "ApiKey", "AclRule" in documentation)
+- **Database Tables**: Use singular form for database tables
+  - Example: "user" rather than "users"
 
 ### Standard Library Usage
 

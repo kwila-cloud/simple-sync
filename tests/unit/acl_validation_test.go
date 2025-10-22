@@ -1,4 +1,4 @@
-package handlers
+package unit
 
 import (
 	"simple-sync/src/errors"

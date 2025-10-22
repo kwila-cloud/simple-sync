@@ -37,57 +37,50 @@ Encryption at rest will be addressed separately (issue #17) using SQLCipher or f
 - [x] Review model validation for database compatibility
 
 ### SQLite Storage Foundation
-- [ ] Add tests for SQLite storage initialization and connection management
-- [ ] Create SQLite storage implementation with database connection management
-- [ ] Add database initialization methods (Initialize, Close)
+- [x] Add tests for SQLite storage initialization and connection management
+- [x] Create SQLite storage implementation with database connection management
+- [x] Add database initialization methods (Initialize, Close)
 
 ### Database Schema and Migrations
-- [ ] Add tests for database schema creation and migrations
-- [ ] Design and implement database schema (events, users, api_keys, setup_tokens, acl_rules tables)
-- [ ] Implement table creation with migrations, indexes, and constraints
+- [x] Add tests for database schema creation and migrations
+- [x] Design and implement database schema (events, users, api_keys, setup_tokens, acl_rules tables)
+- [x] Implement table creation with migrations, indexes, and constraints
 
 ### Event Storage Implementation
 - [ ] Add tests for event storage operations
-- [ ] Implement event storage with transaction support and pagination
+- [ ] Implement SaveEvents
+- [ ] Implement LoadEvents
 
 ### User Storage Implementation
 - [ ] Add tests for user storage operations
-- [ ] Implement user storage with uniqueness constraints
-
-### API Key Storage Implementation
-- [ ] Add tests for API key storage operations
-- [ ] Implement API key storage with security considerations
-
-### Setup Token Storage Implementation
-- [ ] Add tests for setup token storage operations
-- [ ] Implement setup token storage with expiration handling
+- [ ] Implement SaveUser
+- [ ] Implement GetUserById
 
 ### ACL Rule Storage Implementation
 - [ ] Add tests for ACL rule storage operations
-- [ ] Implement ACL rule storage with filtering and indexing
+- [ ] Implement CreateAclRule
+- [ ] Implement GetAclRules
 
-### Service Integration
-- [ ] Add tests for updated ACL and authentication services
-- [ ] Update ACL and authentication services to use SQLite storage
-
-### Main Application Integration
-- [ ] Add tests for main application SQLite integration
-- [ ] Update main.go to use SQLite storage with database configuration
-- [ ] Add database connection management with pooling and health checks
-
-### Docker Configuration
-- [ ] Add tests for Docker data persistence
-- [ ] Update Docker configuration for data persistence
+### Setup Token and API Key Storage Implementation
+- [ ] Add tests for API key storage operations
+- [ ] Add tests for setup token storage operations
+- [ ] Implement CreateApiKey
+- [ ] Implement GetApiKeyByHash
+- [ ] Implement GetAllApiKeys
+- [ ] Implement UpdateApiKey
+- [ ] Implement InvalidateUserApiKeys
+- [ ] Implement CreateSetupToken
+- [ ] Implement GetSetupToken
+- [ ] Implement UpdateSetupToken
+- [ ] Implement InvalidateUserSetupTokens
 
 ### Performance and Concurrency Testing
 - [ ] Add performance and concurrency tests
 - [ ] Validate concurrent access and large dataset handling
-- [ ] Test database migrations and schema updates
 
-### Documentation Updates
+### Documentation and Configuration Updates
+- [ ] Update Docker configuration for data persistence
 - [ ] Update AGENTS.md with SQLite storage information
 - [ ] Update README.md with data persistence features and setup instructions
-
-### User Documentation
 - [ ] Update user-facing documentation in docs/ with SQLite configuration
 - [ ] Document backup/restore procedures and security considerations

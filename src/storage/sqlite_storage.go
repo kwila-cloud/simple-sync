@@ -7,8 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	_ "github.com/mattn/go-sqlite3"
 	"simple-sync/src/models"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 // SQLiteStorage implements Storage using SQLite
@@ -72,6 +73,12 @@ func (s *SQLiteStorage) Initialize(path string) error {
 
 	// Verify connection
 	if err := db.Ping(); err != nil {
+		db.Close()
+		return err
+	}
+
+	// Apply migrations (idempotent)
+	if err := ApplyMigrations(db); err != nil {
 		db.Close()
 		return err
 	}
