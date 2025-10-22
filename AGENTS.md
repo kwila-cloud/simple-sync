@@ -120,6 +120,24 @@ See `specs/7-data-persistence.md` for a well-structured specification that:
 
 - Commit messages follow conventional format: `feat:`, `refactor:`, `chore:`, `fix:`, etc.
 
+### Grep / Ripgrep Patterns
+
+- **Problem:** The repository's search tooling (e.g. `rg`/`ripgrep`) uses regular expressions by default. Supplying an invalid regex (for example, an unclosed grouping like `AddUser(`) causes an immediate error and interrupts automated search tools.
+- **Rule:** Always provide a valid regular expression to regex-based search tools, or use fixed-string mode when searching for literal text containing regex metacharacters.
+- **How to search safely:**
+  - Use fixed-string mode for literals: `rg -F 'AddUser('` or `rg --fixed-strings 'AddUser('
+  - Escape regex metacharacters: `rg 'AddUser\('` (escape `(` with `\` in single-quoted shell strings)
+  - Search the identifier only (no parens): `rg 'AddUser'`
+  - Prefer single quotes around patterns to avoid shell interpolation: `rg 'GetUserById\('`
+  - When using the assistant `functions.grep` tool, pass a syntactically valid regex (escape metacharacters) or a simple identifier-only pattern.
+- **Examples:**
+  - Bad: `rg "AddUser("` → causes ripgrep regex parse error (unclosed group)
+  - Good (escape): `rg 'AddUser\('`
+  - Good (fixed-string): `rg -F 'AddUser('
+  - Good (identifier only): `rg 'AddUser'`
+
+- **Recommendation:** When programmatically constructing search patterns, either validate the regex before use or default to fixed-string searches. If you are unsure whether a pattern contains regex metacharacters, use `-F` to avoid surprises.
+
 ### Changelog
 - **ALWAYS update add a new line to CHANGELOG.md for each new pull request.**
 - Document new features, enhancements, bug fixes, and breaking changes

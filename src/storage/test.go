@@ -35,7 +35,7 @@ func NewTestStorage(aclRules []models.AclRule) *TestStorage {
 
 	// Add root user
 	rootUser, _ := models.NewUser(".root")
-	storage.SaveUser(rootUser)
+	storage.AddUser(rootUser)
 
 	// Add root API key
 	keyHash, _ := bcrypt.GenerateFromPassword([]byte(TestingRootApiKey), bcrypt.MinCost)
@@ -52,7 +52,7 @@ func NewTestStorage(aclRules []models.AclRule) *TestStorage {
 
 	// Add default user
 	defaultUser, _ := models.NewUser(TestingUserId)
-	storage.SaveUser(defaultUser)
+	storage.AddUser(defaultUser)
 
 	keyHash, _ = bcrypt.GenerateFromPassword([]byte(TestingApiKey), bcrypt.MinCost)
 	now = time.Now()
@@ -101,14 +101,6 @@ func (m *TestStorage) LoadEvents() ([]models.Event, error) {
 	return allEvents, nil
 }
 
-// SaveUser stores a user by id
-func (m *TestStorage) SaveUser(user *models.User) error {
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
-	m.users[user.Id] = user
-	return nil
-}
-
 // GetUserById retrieves a user by id
 func (m *TestStorage) GetUserById(id string) (*models.User, error) {
 	m.mutex.RLock()
@@ -118,6 +110,25 @@ func (m *TestStorage) GetUserById(id string) (*models.User, error) {
 		return nil, ErrNotFound
 	}
 	return user, nil
+}
+
+// AddUser stores a new user in test storage
+func (m *TestStorage) AddUser(user *models.User) error {
+	if user == nil {
+		return ErrInvalidData
+	}
+	// Validate user model
+	if err := user.Validate(); err != nil {
+		return err
+	}
+
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	if _, exists := m.users[user.Id]; exists {
+		return ErrDuplicateKey
+	}
+	m.users[user.Id] = user
+	return nil
 }
 
 // CreateApiKey stores a new API key
