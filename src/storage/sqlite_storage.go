@@ -211,8 +211,67 @@ func (s *SQLiteStorage) GetSetupToken(token string) (*models.SetupToken, error) 
 }
 func (s *SQLiteStorage) UpdateSetupToken(token *models.SetupToken) error { return ErrInvalidData }
 func (s *SQLiteStorage) InvalidateUserSetupTokens(userID string) error   { return nil }
-func (s *SQLiteStorage) CreateAclRule(rule *models.AclRule) error        { return ErrInvalidData }
-func (s *SQLiteStorage) GetAclRules() ([]models.AclRule, error)          { return nil, ErrNotFound }
+func (s *SQLiteStorage) CreateAclRule(rule *models.AclRule) error {
+	if s.db == nil || rule == nil {
+		return ErrInvalidData
+	}
+
+	// Validate the rule
+	if err := rule.Validate(); err != nil {
+		return err
+	}
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	_, err = tx.Exec(`INSERT INTO acl_rule (user, item, action, type) VALUES (?, ?, ?, ?)`,
+		rule.User, rule.Item, rule.Action, rule.Type)
+	if err != nil {
+		tx.Rollback()
+		if strings.Contains(err.Error(), "UNIQUE") || strings.Contains(err.Error(), "constraint failed") {
+			return ErrDuplicateKey
+		}
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+}
+func (s *SQLiteStorage) GetAclRules() ([]models.AclRule, error) {
+	if s.db == nil {
+		return nil, ErrNotFound
+	}
+
+	rows, err := s.db.Query(`SELECT user, item, action, type FROM acl_rule`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var rules []models.AclRule
+	for rows.Next() {
+		var r models.AclRule
+		if err := rows.Scan(&r.User, &r.Item, &r.Action, &r.Type); err != nil {
+			return nil, err
+		}
+		rules = append(rules, r)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return rules, nil
+}
 
 func getDefaultDBPath() string {
 	if p := os.Getenv("DB_PATH"); p != "" {
