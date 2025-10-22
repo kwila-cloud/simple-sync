@@ -84,3 +84,6 @@ Encryption at rest will be addressed separately (issue #17) using SQLCipher or f
 - [ ] Update README.md with data persistence features and setup instructions
 - [ ] Update user-facing documentation in docs/ with SQLite configuration
 - [ ] Document backup/restore procedures and security considerations
+
+### Clean Up
+- [ ] Handle remaining TODO comments for issue #7

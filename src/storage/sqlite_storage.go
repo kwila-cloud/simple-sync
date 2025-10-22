@@ -99,11 +99,11 @@ func (s *SQLiteStorage) Close() error {
 	return err
 }
 
-// Minimal stubs to satisfy the Storage interface — to be implemented later
 func (s *SQLiteStorage) SaveEvents(events []models.Event) error {
 	if s.db == nil {
 		return ErrInvalidData
 	}
+	// TODO(#7): check event.Validate() for each event
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
