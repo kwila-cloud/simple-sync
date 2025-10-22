@@ -27,23 +27,29 @@ Simple-sync is a lightweight REST API built in Go that provides event storage an
 ### Issue Specifications
 
 - **File Naming**: Use format `{issue-number}-{brief-description}.md` in `specs/`
-- **Structure**: 
+- **Structure**:
   - Title with issue link: `# Title\n\nhttps://github.com/kwila-cloud/simple-sync/issues/{number}`
   - Brief plan description
-  - Design decisions section (if applicable)
+  - Design decisions section (only include decisions explicitly discussed and agreed)
   - Task List with sections corresponding to atomic pull requests
-    - Each section header represents one PR
-    - Items within section are changes included in that PR (not necessarily atomic)
+    - Each section header represents a PR and MUST use the PR title in convential commit format (not PR number)
+    - Example header: `### docs: add OpenAPI spec and validation tests` (good)
+    - Avoid headers like `### PR: 1 - ...` or `### PR: #59` (bad)
+    - Items within section are changes included in that PR
     - Use `[ ]` for pending and `[x]` for completed
-- **Style**: 
+- **Spec Writing Rules**:
+  - Do NOT add extra top-level sections beyond the required sections (Title, Brief plan, Design decisions, Task List).
+  - Do NOT invent design decisions; include only decisions that were discussed with the user or team.
+  - Keep design decisions concise and limited to points explicitly agreed.
+- **Style**:
   - ✅ Good: Simple, scannable checklist format
-  - ✅ Good: Group related items logically
-  - ❌ Avoid: Verbose descriptions, detailed explanations, multiple sections
+  - ✅ Good: Use PR titles for section headers and keep each PR section focused
+  - ❌ Avoid: Verbose descriptions, invented design decisions, multiple unrelated top-level sections
 - **TDD Approach**: Each task item should include tests first, then implementation
   - ✅ Good: "Add tests for X", "Implement X"
   - ❌ Bad: Separate testing section at the end
-- **Task List Structure**: 
-  - Each section = one atomic pull request
+- **Task List Structure**:
+  - Each section = one atomic pull request titled with the PR's proposed title
   - Items within section = changes included in that PR (can be multiple related changes)
   - ✅ Good: Section with multiple related implementation items
   - ❌ Bad: Each individual item as separate PR
