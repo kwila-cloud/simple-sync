@@ -189,6 +189,10 @@ func (f *failingStorage) LoadEvents() ([]models.Event, error) {
 	return nil, fmt.Errorf("storage error")
 }
 
+func (f *failingStorage) AddUser(user *models.User) error {
+	return fmt.Errorf("storage error")
+}
+
 func (f *failingStorage) GetUserById(id string) (*models.User, error) {
 	return nil, fmt.Errorf("storage error")
 }

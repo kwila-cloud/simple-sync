@@ -23,6 +23,7 @@ type Storage interface {
 	LoadEvents() ([]models.Event, error)
 
 	// User operations
+	AddUser(user *models.User) error
 	GetUserById(id string) (*models.User, error)
 
 	// API Key operations

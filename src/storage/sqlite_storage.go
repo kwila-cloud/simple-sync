@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"simple-sync/src/models"
 
@@ -152,9 +153,52 @@ func (s *SQLiteStorage) LoadEvents() ([]models.Event, error) {
 	}
 	return events, nil
 }
-func (s *SQLiteStorage) SaveUser(user *models.User) error            { return ErrInvalidData }
-func (s *SQLiteStorage) GetUserById(id string) (*models.User, error) { return nil, ErrNotFound }
-func (s *SQLiteStorage) CreateApiKey(apiKey *models.ApiKey) error    { return ErrInvalidData }
+func (s *SQLiteStorage) AddUser(user *models.User) error {
+	if s.db == nil {
+		return ErrInvalidData
+	}
+	if user == nil {
+		return ErrInvalidData
+	}
+
+	// Validate the user model
+	if err := user.Validate(); err != nil {
+		return err
+	}
+
+	// Insert user into the database
+	_, err := s.db.Exec(`INSERT INTO user (id, created_at) VALUES (?, ?)`, user.Id, user.CreatedAt)
+	if err != nil {
+		// Map sqlite unique/constraint errors to ErrDuplicateKey
+		if strings.Contains(err.Error(), "UNIQUE") || strings.Contains(err.Error(), "constraint failed") {
+			return ErrDuplicateKey
+		}
+		return err
+	}
+	return nil
+}
+func (s *SQLiteStorage) GetUserById(id string) (*models.User, error) {
+	if s.db == nil {
+		return nil, ErrNotFound
+	}
+
+	var uid string
+	var createdAt time.Time
+	row := s.db.QueryRow(`SELECT id, created_at FROM user WHERE id = ?`, id)
+	if err := row.Scan(&uid, &createdAt); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrNotFound
+		}
+		return nil, err
+	}
+
+	user := &models.User{
+		Id:        uid,
+		CreatedAt: createdAt,
+	}
+	return user, nil
+}
+func (s *SQLiteStorage) CreateApiKey(apiKey *models.ApiKey) error { return ErrInvalidData }
 func (s *SQLiteStorage) GetApiKeyByHash(hash string) (*models.ApiKey, error) {
 	return nil, ErrApiKeyNotFound
 }
