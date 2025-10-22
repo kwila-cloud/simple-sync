@@ -18,7 +18,7 @@ func TestSaveAndLoadEvents(t *testing.T) {
 	defer s.Close()
 
 	e1 := models.NewEvent("user1", "item1", "act1", "payload1")
-	// small delay to ensure timestamp ordering if needed
+	// small delay to ensure timestamp ordering
 	time.Sleep(1 * time.Millisecond)
 	e2 := models.NewEvent("user2", "item2", "act2", "payload2")
 
