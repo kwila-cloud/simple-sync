@@ -62,17 +62,17 @@ Encryption at rest will be addressed separately (issue #17) using SQLCipher or f
 - [x] Implement GetAclRules
 
 ### Setup Token and API Key Storage Implementation
-- [ ] Add tests for API key storage operations
-- [ ] Add tests for setup token storage operations
-- [ ] Implement CreateApiKey
-- [ ] Implement GetApiKeyByHash
-- [ ] Implement GetAllApiKeys
-- [ ] Implement UpdateApiKey
-- [ ] Implement InvalidateUserApiKeys
-- [ ] Implement CreateSetupToken
-- [ ] Implement GetSetupToken
-- [ ] Implement UpdateSetupToken
-- [ ] Implement InvalidateUserSetupTokens
+- [x] Add tests for API key storage operations
+- [x] Add tests for setup token storage operations
+- [x] Implement CreateApiKey
+- [x] Implement GetApiKeyByHash
+- [x] Implement GetAllApiKeys
+- [x] Implement UpdateApiKey
+- [x] Implement InvalidateUserApiKeys
+- [x] Implement CreateSetupToken
+- [x] Implement GetSetupToken
+- [x] Implement UpdateSetupToken
+- [x] Implement InvalidateUserSetupTokens
 
 ### Performance and Concurrency Testing
 - [ ] Add performance and concurrency tests
@@ -84,3 +84,6 @@ Encryption at rest will be addressed separately (issue #17) using SQLCipher or f
 - [ ] Update README.md with data persistence features and setup instructions
 - [ ] Update user-facing documentation in docs/ with SQLite configuration
 - [ ] Document backup/restore procedures and security considerations
+
+### Clean Up
+- [ ] Handle remaining TODO comments for issue #7
