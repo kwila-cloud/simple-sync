@@ -17,9 +17,10 @@ If the user input is empty or invalid, prompt the user for the issue number.
    - DO NOT create branch if already in the correct branch for the issue number and section name
 1. Research codebase to understand what's needed for the section
 1. Ask the user any clarifying questions needed to implement the section
-1. Explain the plan to the user for completing the section
-1. Refine plan based on user feedback
-1. Start implementing the plan when the user approves
+1. Create a TODO list with the `todowrite` tool
+1. Explain the TODO list to the user 
+1. Refine TODO list based on user feedback
+1. Prompt the user to run `/do-pr` when they are ready
 
 Example usage:
 - User: `/start-pr 7`
