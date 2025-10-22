@@ -57,9 +57,9 @@ Encryption at rest will be addressed separately (issue #17) using SQLCipher or f
 - [x] Implement AddUser
 
 ### ACL Rule Storage Implementation
-- [ ] Add tests for ACL rule storage operations
-- [ ] Implement CreateAclRule
-- [ ] Implement GetAclRules
+- [x] Add tests for ACL rule storage operations
+- [x] Implement CreateAclRule
+- [x] Implement GetAclRules
 
 ### Setup Token and API Key Storage Implementation
 - [ ] Add tests for API key storage operations
