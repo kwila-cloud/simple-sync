@@ -139,12 +139,35 @@ See `specs/7-data-persistence.md` for a well-structured specification that:
 - **Recommendation:** When programmatically constructing search patterns, either validate the regex before use or default to fixed-string searches. If you are unsure whether a pattern contains regex metacharacters, use `-F` to avoid surprises.
 
 ### Changelog
-- **ALWAYS update add a new line to CHANGELOG.md for each new pull request.**
+- **ALWAYS add a new line to `CHANGELOG.md` for each new *pull request* (PR).** Do not link to the issue number — reference the PR number.
 - Document new features, enhancements, bug fixes, and breaking changes
-- Follow the existing format with PR links and clear descriptions
+- Follow the existing format with PR links and clear descriptions (see examples below)
 - Keep entries concise but descriptive for users and maintainers
-- **IMPORTANT**: Always verify the actual PR content before updating the changelog. Use `gh pr view <PR-number>` to check the PR title, body, and changed files to ensure accurate changelog entries.
+- **IMPORTANT**: Always verify the actual PR details before updating the changelog. Use `gh pr view <PR-number>` or `gh pr view <branch>` to confirm the PR number, title, and changed files.
+
 - **CRITICAL**: Add exactly ONE entry per PR. Never add multiple entries for the same pull request, even if the PR contains multiple types of changes. Combine all changes into a single, concise description.
+
+Examples (incorrect vs correct):
+
+- Incorrect (links to issue instead of PR):
+  - `- [#7](https://github.com/kwila-cloud/simple-sync/issues/7): Implement ACL rule storage (CreateAclRule, GetAclRules)`
+
+- Correct (match existing style — use PR link and number):
+  - `- [#59](https://github.com/kwila-cloud/simple-sync/pull/59): Implement ACL rule storage (CreateAclRule, GetAclRules)`
+
+Recommended workflow to avoid mistakes:
+
+1. Create the PR on the branch (`gh pr create`), or push the branch and open the PR on GitHub.
+2. Immediately run `gh pr view --json number,url,title --jq '.number'` or `gh pr view <branch>` to retrieve the assigned PR number.
+   - Example: `gh pr view 7-acl-rule-storage --json number,url,title`
+3. Edit `CHANGELOG.md` at the top (under the current unreleased version) and add a single line using the PR number as shown in the "Correct" example above.
+4. Commit the changelog update to the same branch so the changelog change is included in the PR.
+5. Push the branch and verify the PR body/changed files if necessary.
+
+Notes:
+- The changelog should always reference the PR number (not the issue number) because the PR is the canonical unit that contains the implemented changes and the exact diff reviewers will see.
+- If the PR number is not yet available (for example, you plan to open the PR later), delay updating `CHANGELOG.md` until the PR is created so you can reference the correct PR number.
+- Keep the entry format consistent with existing history: `- [#NN](https://github.com/kwila-cloud/simple-sync/pull/NN): Short description`
 
 ### Opencode Commands
 
