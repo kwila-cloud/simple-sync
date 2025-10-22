@@ -35,7 +35,7 @@ func NewTestStorage(aclRules []models.AclRule) *TestStorage {
 
 	// Add root user
 	rootUser, _ := models.NewUser(".root")
-	storage.SaveUser(rootUser)
+	storage.users[rootUser.Id] = rootUser
 
 	// Add root API key
 	keyHash, _ := bcrypt.GenerateFromPassword([]byte(TestingRootApiKey), bcrypt.MinCost)
@@ -52,7 +52,7 @@ func NewTestStorage(aclRules []models.AclRule) *TestStorage {
 
 	// Add default user
 	defaultUser, _ := models.NewUser(TestingUserId)
-	storage.SaveUser(defaultUser)
+	storage.users[defaultUser.Id] = defaultUser
 
 	keyHash, _ = bcrypt.GenerateFromPassword([]byte(TestingApiKey), bcrypt.MinCost)
 	now = time.Now()
@@ -99,14 +99,6 @@ func (m *TestStorage) LoadEvents() ([]models.Event, error) {
 	copy(allEvents, m.events)
 
 	return allEvents, nil
-}
-
-// SaveUser stores a user by id
-func (m *TestStorage) SaveUser(user *models.User) error {
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
-	m.users[user.Id] = user
-	return nil
 }
 
 // GetUserById retrieves a user by id

@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"simple-sync/src/models"
 	"simple-sync/src/services"
 	"simple-sync/src/storage"
 
@@ -29,11 +28,6 @@ func TestSetupTokenGeneration(t *testing.T) {
 	store := storage.NewTestStorage(nil)
 	authService := services.NewAuthService(store)
 
-	// Create and save a test user
-	user := &models.User{Id: storage.TestingUserId}
-	err := store.SaveUser(user)
-	assert.NoError(t, err)
-
 	// Generate setup token
 	token, err := authService.GenerateSetupToken(storage.TestingUserId)
 	assert.NoError(t, err)
@@ -47,11 +41,6 @@ func TestSetupTokenGeneration(t *testing.T) {
 func TestSetupTokenValidation(t *testing.T) {
 	store := storage.NewTestStorage(nil)
 	authService := services.NewAuthService(store)
-
-	// Create and save a test user
-	user := &models.User{Id: storage.TestingUserId}
-	err := store.SaveUser(user)
-	assert.NoError(t, err)
 
 	// Generate setup token
 	token, err := authService.GenerateSetupToken(storage.TestingUserId)
