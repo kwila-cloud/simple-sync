@@ -1,6 +1,8 @@
 # Release History
 
 ## [0.4.0] - unreleased
+- [#7](https://github.com/kwila-cloud/simple-sync/issues/7): Implement ACL rule storage (CreateAclRule, GetAclRules)
+
 - [#58](https://github.com/kwila-cloud/simple-sync/pull/58): Implement SQLite user storage
 - [#57](https://github.com/kwila-cloud/simple-sync/pull/57): Implement SQLite event storage
 - [#56](https://github.com/kwila-cloud/simple-sync/pull/56): Add database schema migrations
