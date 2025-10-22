@@ -198,19 +198,153 @@ func (s *SQLiteStorage) GetUserById(id string) (*models.User, error) {
 	}
 	return user, nil
 }
-func (s *SQLiteStorage) CreateApiKey(apiKey *models.ApiKey) error { return ErrInvalidData }
+func (s *SQLiteStorage) CreateApiKey(apiKey *models.ApiKey) error {
+	if s.db == nil || apiKey == nil {
+		return ErrInvalidData
+	}
+	if err := apiKey.Validate(); err != nil {
+		return err
+	}
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	_, err = tx.Exec(`INSERT INTO api_key (uuid, user, key_hash, created_at, last_used_at, description) VALUES (?, ?, ?, ?, ?, ?)`,
+		apiKey.UUID, apiKey.User, apiKey.KeyHash, apiKey.CreatedAt, apiKey.LastUsedAt, apiKey.Description)
+	if err != nil {
+		tx.Rollback()
+		if strings.Contains(err.Error(), "UNIQUE") || strings.Contains(err.Error(), "constraint failed") {
+			return ErrDuplicateKey
+		}
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	return nil
+}
 func (s *SQLiteStorage) GetApiKeyByHash(hash string) (*models.ApiKey, error) {
-	return nil, ErrApiKeyNotFound
+	if s.db == nil {
+		return nil, ErrApiKeyNotFound
+	}
+	row := s.db.QueryRow(`SELECT uuid, user, key_hash, created_at, last_used_at, description FROM api_key WHERE key_hash = ?`, hash)
+	var k models.ApiKey
+	var lastUsed sql.NullTime
+	if err := row.Scan(&k.UUID, &k.User, &k.KeyHash, &k.CreatedAt, &lastUsed, &k.Description); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrApiKeyNotFound
+		}
+		return nil, err
+	}
+	if lastUsed.Valid {
+		k.LastUsedAt = &lastUsed.Time
+	}
+	return &k, nil
 }
-func (s *SQLiteStorage) GetAllApiKeys() ([]*models.ApiKey, error)        { return nil, ErrNotFound }
-func (s *SQLiteStorage) UpdateApiKey(apiKey *models.ApiKey) error        { return ErrInvalidData }
-func (s *SQLiteStorage) InvalidateUserApiKeys(userID string) error       { return nil }
-func (s *SQLiteStorage) CreateSetupToken(token *models.SetupToken) error { return ErrInvalidData }
+func (s *SQLiteStorage) GetAllApiKeys() ([]*models.ApiKey, error) {
+	if s.db == nil {
+		return nil, ErrNotFound
+	}
+	rows, err := s.db.Query(`SELECT uuid, user, key_hash, created_at, last_used_at, description FROM api_key`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var keys []*models.ApiKey
+	for rows.Next() {
+		var k models.ApiKey
+		var lastUsed sql.NullTime
+		if err := rows.Scan(&k.UUID, &k.User, &k.KeyHash, &k.CreatedAt, &lastUsed, &k.Description); err != nil {
+			return nil, err
+		}
+		if lastUsed.Valid {
+			k.LastUsedAt = &lastUsed.Time
+		}
+		keys = append(keys, &k)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return keys, nil
+}
+func (s *SQLiteStorage) UpdateApiKey(apiKey *models.ApiKey) error {
+	if s.db == nil || apiKey == nil {
+		return ErrInvalidData
+	}
+	// Only update fields that can change: last_used_at, description
+	_, err := s.db.Exec(`UPDATE api_key SET last_used_at = ?, description = ? WHERE uuid = ?`, apiKey.LastUsedAt, apiKey.Description, apiKey.UUID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func (s *SQLiteStorage) InvalidateUserApiKeys(userID string) error {
+	if s.db == nil {
+		return ErrInvalidData
+	}
+	_, err := s.db.Exec(`DELETE FROM api_key WHERE user = ?`, userID)
+	return err
+}
+func (s *SQLiteStorage) CreateSetupToken(token *models.SetupToken) error {
+	if s.db == nil || token == nil {
+		return ErrInvalidData
+	}
+	if err := token.Validate(); err != nil {
+		return err
+	}
+	_, err := s.db.Exec(`INSERT INTO setup_token (token, user, expires_at, used_at) VALUES (?, ?, ?, ?)`, token.Token, token.User, token.ExpiresAt, token.UsedAt)
+	if err != nil {
+		if strings.Contains(err.Error(), "UNIQUE") || strings.Contains(err.Error(), "constraint failed") {
+			return ErrDuplicateKey
+		}
+		return err
+	}
+	return nil
+}
 func (s *SQLiteStorage) GetSetupToken(token string) (*models.SetupToken, error) {
-	return nil, ErrSetupTokenNotFound
+	if s.db == nil {
+		return nil, ErrSetupTokenNotFound
+	}
+	row := s.db.QueryRow(`SELECT token, user, expires_at, used_at FROM setup_token WHERE token = ?`, token)
+	var st models.SetupToken
+	var used sql.NullTime
+	if err := row.Scan(&st.Token, &st.User, &st.ExpiresAt, &used); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrSetupTokenNotFound
+		}
+		return nil, err
+	}
+	if used.Valid {
+		st.UsedAt = used.Time
+	}
+	return &st, nil
 }
-func (s *SQLiteStorage) UpdateSetupToken(token *models.SetupToken) error { return ErrInvalidData }
-func (s *SQLiteStorage) InvalidateUserSetupTokens(userID string) error   { return nil }
+func (s *SQLiteStorage) UpdateSetupToken(token *models.SetupToken) error {
+	if s.db == nil || token == nil {
+		return ErrInvalidData
+	}
+	_, err := s.db.Exec(`UPDATE setup_token SET user = ?, expires_at = ?, used_at = ? WHERE token = ?`, token.User, token.ExpiresAt, token.UsedAt, token.Token)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func (s *SQLiteStorage) InvalidateUserSetupTokens(userID string) error {
+	if s.db == nil {
+		return ErrInvalidData
+	}
+	_, err := s.db.Exec(`UPDATE setup_token SET used_at = ? WHERE user = ?`, time.Now(), userID)
+	return err
+}
 func (s *SQLiteStorage) CreateAclRule(rule *models.AclRule) error {
 	if s.db == nil || rule == nil {
 		return ErrInvalidData
