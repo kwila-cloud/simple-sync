@@ -49,7 +49,7 @@ func TestCreateGetUpdateInvalidateSetupToken(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetSetupToken failed: %v", err)
 	}
-	if got2.UsedAt.IsZero() {
+	if got2.IsValid() {
 		t.Fatalf("expected token to be marked used")
 	}
 }
