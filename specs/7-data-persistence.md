@@ -54,7 +54,7 @@ Encryption at rest will be addressed separately (issue #17) using SQLCipher or f
 ### User Storage Implementation
 - [ ] Add tests for user storage operations
 - [ ] Implement SaveUser
-- [ ] Implmement GetUserById
+- [ ] Implement GetUserById
 
 ### ACL Rule Storage Implementation
 - [ ] Add tests for ACL rule storage operations
