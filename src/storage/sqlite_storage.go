@@ -252,7 +252,7 @@ func (s *SQLiteStorage) GetAclRules() ([]models.AclRule, error) {
 		return nil, ErrNotFound
 	}
 
-	rows, err := s.db.Query(`SELECT user, item, action, type FROM acl_rule ORDER BY user, item, action, type`)
+	rows, err := s.db.Query(`SELECT user, item, action, type FROM acl_rule`)
 	if err != nil {
 		return nil, err
 	}
