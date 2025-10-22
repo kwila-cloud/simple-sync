@@ -52,9 +52,9 @@ Encryption at rest will be addressed separately (issue #17) using SQLCipher or f
 - [x] Implement LoadEvents
 
 ### User Storage Implementation
-- [ ] Add tests for user storage operations
+- [x] Add tests for user storage operations
 - [x] Implement GetUserById
-- [ ] Implement AddUser
+- [x] Implement AddUser
 
 ### ACL Rule Storage Implementation
 - [ ] Add tests for ACL rule storage operations
