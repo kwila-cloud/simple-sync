@@ -36,7 +36,6 @@ Required behavior (non-interactive flow)
 Error handling and constraints
 
 - The command must NOT prompt the user for extra confirmation during the flow. If an operation would normally require input (for example, `gh pr create` in interactive mode), invoke the non-interactive flags and provide the input programmatically (HEREDOC or CLI flags).
-- If tests fail, stop and report failures with the test output. Do not push or create the PR while tests are failing.
 - If network push or GH CLI operations fail, surface the error and abort; do not attempt destructive recovery automatically.
 
 Examples
@@ -47,14 +46,14 @@ Examples
   # implement change (edit files)
   go test -race ./tests/unit ./tests/contract ./tests/integration
   git add -A
-  git commit -m "feat(7): add backup script"
+  git commit -m "feat(storage): add backup script"
   ```
 
 - Create PR non-interactively and update changelog (example body uses HEREDOC):
 
   ```bash
   git push -u origin "$(git rev-parse --abbrev-ref HEAD)"
-  gh pr create --title "7: Documentation and configuration updates" --body "$(cat <<'EOF'\n## Summary\n- Add backup/restore scripts and docs\n\n## Files\n- scripts/backup.sh\n- scripts/restore.sh\n- docs/data-persistence.mdx\nEOF\n)"
+  gh pr create --title "docs: documentation and configuration updates" --body "$(cat <<'EOF'\n## Summary\n- Add backup/restore scripts and docs\n\n## Files\n- scripts/backup.sh\n- scripts/restore.sh\n- docs/data-persistence.mdx\nEOF\n)"
   PR_NUMBER=$(gh pr view --json number --jq '.number')
   sed -i "1i- [#$PR_NUMBER](https://github.com/kwila-cloud/simple-sync/pull/$PR_NUMBER): Documentation and configuration updates" CHANGELOG.md
   git add CHANGELOG.md && git commit -m "chore: add changelog entry for PR #$PR_NUMBER" && git push
@@ -64,5 +63,4 @@ Notes
 
 - Use HEREDOC with a single-quoted delimiter (`<<'EOF'`) when the PR body contains backticks or other shell-sensitive characters to avoid unintended shell expansion.
 - Prefer running the narrowest test set that verifies the change to save CI time, but ensure integration/contract tests run when changes affect those areas.
-- This command is intended to be used in a CI-friendly, non-interactive manner. Ensure any automated tooling invoked (tests, `gh`) is available in the environment that runs this command.
 
