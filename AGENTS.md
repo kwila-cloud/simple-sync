@@ -59,6 +59,7 @@ Simple-sync is a lightweight REST API built in Go that provides event storage an
 - **When in doubt**: If you're about to read/write code files, stop - you're still in spec phase
 
 #### Example: Issue #7 Data Persistence
+
 See `specs/7-data-persistence.md` for a well-structured specification that:
 - Includes design decisions section explaining SQLite vs Go marshaling choice
 - Uses TDD approach with tests first for each implementation item
@@ -66,6 +67,8 @@ See `specs/7-data-persistence.md` for a well-structured specification that:
 - Items within sections are related changes for that PR
 - Groups related functionality logically
 - Maintains focus without excessive detail
+
+
 
 ### TDD Implementation Process
 
@@ -190,7 +193,14 @@ See `.opencode/command/` directory for examples.
 - **Database Tables**: Use singular form for database tables
   - Example: "user" rather than "users"
 
-### Standard Library Usage
+### Idiomtic Go
+
+
+#### Looping
+
+Prefer `for i := range n` (Go 1.22+) over `for i := 0; i < n; i++` when iterating a fixed integer count; prefer `for i := range slice` when iterating slices.
+
+#### Standard Library
 
 **CRITICAL**: Always use functions from the standard library when possible, rather than creating custom helper functions.
 
