@@ -190,26 +190,6 @@ Opencode commands are defined as separate markdown files in `.opencode/command/`
 
 See `.opencode/command/` directory for examples.
 
-**Start-pr command rules (agent-specific guidance):**
-
-- The `/start-pr` command reads the issue spec and prepares a plan for a PR. It MUST ask clarifying questions and receive explicit user answers before making any repository changes (branch creation or writing TODOs).
-- Branch creation behavior:
-  - Create a new branch only when the current branch does **not** match the required `{issue-number}-{section-name}` for the next incomplete section in the spec.
-  - If the current branch already matches the desired section branch name, do NOT create or switch branches.
-  - If the user explicitly requests to stay on the current branch, do not create a branch even if the names differ.
-- The command must never use the informal phrase “proceed” as the final prompt. Instead, after the plan is approved, instruct users to run `/do-pr` to begin implementation.
-- Example flows:
-  - Create branch:
-    - Agent: "Next incomplete section: `Documentation and Configuration Updates`. Create branch `7-documentation-and-configuration-updates` and prepare TODOs? (Y/n)"
-    - User: "Y"
-    - Agent: Creates branch, creates TODOs, explains plan, then: "When ready to implement, run `/do-pr`."
-  - Stay on current branch:
-    - Agent: "Next incomplete section: `Docs`. Current branch is `7-documentation-and-configuration-updates`. Create a new branch `7-docs` or stay on current branch? (create/stay)"
-    - User: "stay"
-    - Agent: Does not create branch, asks whether to create TODOs now, and if confirmed, creates TODOs only.
-
-See `.opencode/command/start-pr.md` for the exact prompt wording and confirmation flow.
-
 **Common mistake to avoid:** Do NOT add command documentation to AGENTS.md. Commands belong in their own files in `.opencode/command/`.
 
 ### Naming Scheme
