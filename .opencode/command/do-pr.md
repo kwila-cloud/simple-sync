@@ -5,13 +5,13 @@ agent: build
 
 IMPORTANT: This command must run the full non-interactive flow for creating a PR. That means it MUST run the test suite(s), commit any changes, push the branch, create the GitHub pull request, update `CHANGELOG.md` with the PR number, and push the changelog — all without asking the user for additional input.
 
-If the user has NOT previously run the `/start-pr` command, exit early and ask them to run that command.
+If the user has NOT previously run the `/start-pr` command, prompt them for the issue number to work on.
 
 Required behavior (non-interactive flow)
 
-1. Use the `todoread` tool to get the TODO list for the current issue.
-2. For each item in the TODO list:
-   - Implement the change as described in the TODO item.
+1. Read the spec for the given issue in `specs/` and determine the next incomplete section from the Task List.
+2. For each task in the incomplete section:
+   - Implement the task.
    - Run the relevant automated tests immediately after implementing the change. Tests must be run and pass before committing. Typical commands to run are:
      - Unit/contract/integration (with race):
        - `go test -race ./tests/unit ./tests/contract ./tests/integration`
@@ -21,7 +21,7 @@ Required behavior (non-interactive flow)
    - If tests fail, refine the code until tests pass. Do not proceed to committing that TODO item until its tests pass.
    - Once tests pass, update the spec (check off corresponding item) and commit the change locally using a descriptive conventional commit message (example `feat(7): add backup script`).
      - Use: `git add -A && git commit -m "<scope>: <short description>"`
-3. After all TODO items are completed and committed locally:
+3. After all task items for the current section are completed and committed locally:
    - Push the branch to the remote:
      - `git push -u origin "$(git rev-parse --abbrev-ref HEAD)"`
    - Create the pull request non-interactively using `gh` (GitHub CLI). Provide a clear title and a PR body via a HEREDOC to avoid shell quoting issues. Example:
@@ -32,35 +32,11 @@ Required behavior (non-interactive flow)
      - `- [#NN](https://github.com/kwila-cloud/simple-sync/pull/NN): Short description`
    - Commit the `CHANGELOG.md` update and push the commit (it must be on the same branch so the changelog change is included in the PR):
      - `git add CHANGELOG.md && git commit -m "chore: add changelog entry for PR #NN" && git push`
+   - Ask the user for code review feedback on the new pull request.
+   - DO NOT suggest starting on the next section of the task list.
 
 Error handling and constraints
 
 - The command must NOT prompt the user for extra confirmation during the flow. If an operation would normally require input (for example, `gh pr create` in interactive mode), invoke the non-interactive flags and provide the input programmatically (HEREDOC or CLI flags).
 - If network push or GH CLI operations fail, surface the error and abort; do not attempt destructive recovery automatically.
-
-Examples
-
-- Commit and run tests for a single TODO item:
-
-  ```bash
-  # implement change (edit files)
-  go test -race ./tests/unit ./tests/contract ./tests/integration
-  git add -A
-  git commit -m "feat(storage): add backup script"
-  ```
-
-- Create PR non-interactively and update changelog (example body uses HEREDOC):
-
-  ```bash
-  git push -u origin "$(git rev-parse --abbrev-ref HEAD)"
-  gh pr create --title "docs: documentation and configuration updates" --body "$(cat <<'EOF'\n## Summary\n- Add backup/restore scripts and docs\n\n## Files\n- scripts/backup.sh\n- scripts/restore.sh\n- docs/data-persistence.mdx\nEOF\n)"
-  PR_NUMBER=$(gh pr view --json number --jq '.number')
-  sed -i "1i- [#$PR_NUMBER](https://github.com/kwila-cloud/simple-sync/pull/$PR_NUMBER): Documentation and configuration updates" CHANGELOG.md
-  git add CHANGELOG.md && git commit -m "chore: add changelog entry for PR #$PR_NUMBER" && git push
-  ```
-
-Notes
-
-- Use HEREDOC with a single-quoted delimiter (`<<'EOF'`) when the PR body contains backticks or other shell-sensitive characters to avoid unintended shell expansion.
-- Prefer running the narrowest test set that verifies the change to save CI time, but ensure integration/contract tests run when changes affect those areas.
 
