@@ -47,6 +47,27 @@ services:
       - simple-sync
 ```
 
+### Persistent Data (Docker Compose)
+The Docker Compose configuration mounts a local `./data` directory into the container (`./data:/app/data`) by default. This is the recommended setup for development and simple deployments because it keeps the SQLite database file on the host, making backups and inspection straightforward.
+
+If you prefer Docker-managed storage, a named volume `simple-sync-data` is declared in `docker-compose.yml`; you can switch to it by uncommenting the named volume line and removing the `./data` bind mount.
+
+Backup and restore helper scripts are provided in `./scripts`:
+- `./scripts/backup.sh [--stop] [--dir <backup-dir>] [path-to-db]` — copy the DB file to `./backups/` (or specified directory) (use `--stop` to stop the container during backup)
+- `./scripts/restore.sh <backup-file> [--stop]` — restore a backup into `./data/simple-sync.db` (moves the existing DB aside first)
+
+Example (take a backup and then start):
+
+```bash
+# create a backup (stop service during the copy)
+./scripts/backup.sh --stop
+# start services
+docker compose up -d
+```
+
+Developer note: the app uses `github.com/mattn/go-sqlite3` which requires `libsqlite3-dev` and `CGO_ENABLED=1` when building locally or in CI.
+
+
 ## Development
 
 ### Building

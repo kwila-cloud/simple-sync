@@ -11,17 +11,17 @@ Use the user input as the issue number.
 
 If the user input is empty or invalid, prompt the user for the issue number.
 
-1. Check the spec for the given issue in `specs/`
-1. Determine the next incomplete section from the Task List
-1. Create branch using format `{issue-number}-{section-name}`
-   - DO NOT create branch if already in the correct branch for the issue number and section name
-1. Research codebase to understand what's needed for the section
-1. Ask the user any clarifying questions needed to implement the section
-1. Create a TODO list with the `todowrite` tool
-1. Explain the TODO list to the user 
-1. Refine TODO list based on user feedback
-1. Prompt the user to run `/do-pr` when they are ready
+Required behavior and confirmation flow
 
-Example usage:
-- User: `/start-pr 7`
-- Agent: Checks `specs/7-data-persistence.md`, finds next incomplete section, creates branch like `7-storage-interface-updates`, researches requirements, explains plan
+1. Read the spec for the given issue in `specs/` and determine the next incomplete section from the Task List.
+2. Branch creation rules:
+   - Create a new branch only when the current branch name does **not** already match the desired `{issue-number}-{section-name}` for the section.
+   - If the current branch already matches the section, do not create or switch branches.
+   - If the user explicitly requests to stay on the current branch, do not create a branch.
+3. Research the codebase to gather information about the change.
+4. Ask the user clarifying questions.
+   - Clearly number the questions.
+   - Clearly letter the options for each question.
+5. Update the Task List section with any new updates based on your research and the user's answers.
+6. Explain the current Task List section to the user.
+7. When the Task List section is approved by the user, instruct the user to run `/do-pr` to begin implementing the changes. Do not use the word “proceed” as the final prompt — always reference `/do-pr`.
