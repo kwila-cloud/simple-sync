@@ -9,13 +9,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestSaveLoadEventsPerformance measures save+load time for many events
-func TestSaveLoadEventsPerformance(t *testing.T) {
+// TestSaveEventsPerformance measures save time for many events
+func TestSaveEventsPerformance(t *testing.T) {
 	events := GenerateEvents(1_000_000)
 
 	s := storage.NewSQLiteStorage()
 	tmp := t.TempDir()
-	dbPath := tmp + "/perf_save_load.db"
+	dbPath := tmp + "/perf_save.db"
 	if err := s.Initialize(dbPath); err != nil {
 		t.Fatalf("failed to init sqlite: %v", err)
 	}
@@ -25,9 +25,31 @@ func TestSaveLoadEventsPerformance(t *testing.T) {
 	if err := s.SaveEvents(events); err != nil {
 		t.Fatalf("save events failed: %v", err)
 	}
+	d := time.Since(start)
+	assert.Less(t, d, 8*time.Second, "Save for 1 million events should complete in under 8s")
+}
+
+// TestLoadEventsPerformance measures load time for many events
+func TestLoadEventsPerformance(t *testing.T) {
+	events := GenerateEvents(1_000_000)
+
+	s := storage.NewSQLiteStorage()
+	tmp := t.TempDir()
+	dbPath := tmp + "/perf_load.db"
+	if err := s.Initialize(dbPath); err != nil {
+		t.Fatalf("failed to init sqlite: %v", err)
+	}
+	defer s.Close()
+
+	// Pre-populate the DB (not measured)
+	if err := s.SaveEvents(events); err != nil {
+		t.Fatalf("pre-populate save events failed: %v", err)
+	}
+
+	start := time.Now()
 	if _, err := s.LoadEvents(); err != nil {
 		t.Fatalf("load events failed: %v", err)
 	}
 	d := time.Since(start)
-	assert.Less(t, d, 12*time.Second, "Save+Load for 1 million events should complete in under 12s")
+	assert.Less(t, d, 4*time.Second, "Load for 1 million events should complete in under 4s")
 }
