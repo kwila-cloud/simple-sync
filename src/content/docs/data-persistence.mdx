@@ -14,7 +14,7 @@ The repository ships a `docker-compose.yml` that bind-mounts `./data` into the c
 
 Use the supplied helper scripts:
 
-- `./scripts/backup.sh [--stop] [path-to-db]` — copies the DB file to `./backups/` with a timestamped filename. Use `--stop` to stop the container during backup for safety.
+- `./scripts/backup.sh [--stop] [--dir <backup-dir>] [path-to-db]` — copies the DB file to `./backups/` (or specified directory) with a timestamped filename. Use `--stop` to stop the container during backup for safety.
 - `./scripts/restore.sh <backup-file> [--stop]` — restores a backup into `./data/simple-sync.db`. The existing DB (if any) will be moved aside before restore.
 
 Example workflow:

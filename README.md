@@ -53,7 +53,7 @@ The Docker Compose configuration mounts a local `./data` directory into the cont
 If you prefer Docker-managed storage, a named volume `simple-sync-data` is declared in `docker-compose.yml`; you can switch to it by uncommenting the named volume line and removing the `./data` bind mount.
 
 Backup and restore helper scripts are provided in `./scripts`:
-- `./scripts/backup.sh [--stop] [path-to-db]` — copy the DB file to `./backups/` (use `--stop` to stop the container during backup)
+- `./scripts/backup.sh [--stop] [--dir <backup-dir>] [path-to-db]` — copy the DB file to `./backups/` (or specified directory) (use `--stop` to stop the container during backup)
 - `./scripts/restore.sh <backup-file> [--stop]` — restore a backup into `./data/simple-sync.db` (moves the existing DB aside first)
 
 Example (take a backup and then start):
