@@ -12,7 +12,8 @@ func GenerateEvents(n int) []models.Event {
 	events := make([]models.Event, 0, n)
 	for i := 0; i < n; i++ {
 		uuid := "event-" + strconv.Itoa(i)
-		timestamp := uint64(time.Now().Unix())
+		// Stagger timestamps by index for realism
+		timestamp := uint64(time.Now().Add(-time.Duration(i) * time.Second).Unix())
 		e := models.Event{
 			UUID:      uuid,
 			Timestamp: timestamp,
