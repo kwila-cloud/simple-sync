@@ -66,4 +66,12 @@ func TestSQLiteStorageConcurrent(t *testing.T) {
 	for err := range errCh {
 		assert.NoError(t, err)
 	}
+
+	// Verify total events written equals writers * eventsPerWriter
+	events, err := s.LoadEvents()
+	if err != nil {
+		t.Fatalf("failed to load events: %v", err)
+	}
+	expected := writers * eventsPerWriter
+	assert.Equal(t, expected, len(events), "expected total events to equal writers*eventsPerWriter")
 }
