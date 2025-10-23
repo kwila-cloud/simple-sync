@@ -2,22 +2,50 @@
 set -euo pipefail
 
 # Simple Sync backup script
-# Usage: ./scripts/backup.sh [--stop] [path-to-db]
+# Usage: ./scripts/backup.sh [--stop] [--dir <backup-dir>] [path-to-db]
 # If --stop is provided, the script will stop the docker-compose service before copying and restart it afterwards.
+# If --dir is provided, it specifies the directory to store backups (defaults to ./backups).
 
 STOP=false
-DB_PATH="./data/simple-sync.db"
-
-if [ "${1:-}" = "--stop" ]; then
-  STOP=true
-  shift
-fi
-
-if [ "$#" -ge 1 ]; then
-  DB_PATH="$1"
-fi
-
 BACKUP_DIR="./backups"
+DB_PATH="./data/simple-sync.db"
+DB_PATH_PROVIDED=false
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --stop)
+      STOP=true
+      shift
+      ;;
+    --dir)
+      if [ -z "${2:-}" ]; then
+        echo "Error: --dir requires a directory argument"
+        exit 2
+      fi
+      BACKUP_DIR="$2"
+      shift 2
+      ;;
+    --dir=*)
+      BACKUP_DIR="${1#--dir=}"
+      shift
+      ;;
+    --help|-h)
+      echo "Usage: $0 [--stop] [--dir <backup-dir>] [path-to-db]"
+      exit 0
+      ;;
+    *)
+      if [ "$DB_PATH_PROVIDED" = false ]; then
+        DB_PATH="$1"
+        DB_PATH_PROVIDED=true
+        shift
+      else
+        echo "Unknown argument: $1"
+        exit 2
+      fi
+      ;;
+  esac
+done
+
 mkdir -p "$BACKUP_DIR"
 
 if [ ! -f "$DB_PATH" ]; then
