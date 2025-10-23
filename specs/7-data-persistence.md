@@ -80,11 +80,10 @@ Encryption at rest will be addressed separately (issue #17) using SQLCipher or f
 
 ### Documentation and Configuration Updates
 - [x] Update Docker configuration for data persistence
-- [ ] Update AGENTS.md with SQLite storage information (relocate or adjust; new info is in wrong section)
+- [x] Update AGENTS.md with SQLite storage information
 - [x] Update README.md with data persistence features and setup instructions
-- [ ] Update user-facing documentation in `src/content/docs` with SQLite configuration (move `docs/data-persistence.mdx` into `src/content/docs`)
-- [ ] Document backup/restore procedures and security considerations (restore script still needs work)
-- [ ] Verify and improve `scripts/backup.sh` and `scripts/restore.sh` (ensure `restore.sh` behavior and examples)
+- [x] Update user-facing documentation in `src/content/docs` with SQLite configuration
+- [x] Document backup/restore
 
 ### Clean Up
 - [ ] Handle remaining TODO comments for issue #7

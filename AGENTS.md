@@ -204,8 +204,6 @@ Notes:
 
 ### Opencode Commands
 
-### Opencode Commands
-
 Opencode commands are defined as separate markdown files in `.opencode/command/`. Each command file should:
 - Have a `description` and `agent` in the frontmatter
 - Contain the command logic and usage instructions
@@ -226,7 +224,6 @@ See `.opencode/command/` directory for examples.
   - Example: "user" rather than "users"
 
 ### Idiomtic Go
-
 
 #### Looping
 
