@@ -1,7 +1,7 @@
 # Release History
 
 ## [0.4.0] - unreleased
-- [#62](https://github.com/kwila-cloud/simple-sync/pull/62): docs(7): documentation and restore script fixes for data persistence
+- [#62](https://github.com/kwila-cloud/simple-sync/pull/62): docs: documentation and restore script fixes for data persistence
 - [#61](https://github.com/kwila-cloud/simple-sync/pull/61): Add performance and concurrency tests for SQLite storage
 - [#60](https://github.com/kwila-cloud/simple-sync/pull/60): Implement SQLite setup token and API key storage
 - [#59](https://github.com/kwila-cloud/simple-sync/pull/59): Implement SQLite ACL rule storage
