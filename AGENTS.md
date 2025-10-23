@@ -14,16 +14,14 @@ Simple-sync is a lightweight REST API built in Go that provides event storage an
 - Event storage with timestamps and metadata
 - ACL-based permission system (read/write permissions)
 
+### Storage & Docker notes (for future agents):
+- The project uses SQLite for persistent storage; production/dev processes expect a local file under `./data` by default (`./data/simple-sync.db`).
+- Docker Compose is configured to bind-mount `./data` into the container (`./data:/app/data`) so the DB file is stored on the host. This is the recommended setup for development and simple deployments because it makes backups and inspection straightforward.
+- If you need a Docker-managed volume, a named volume `simple-sync-data` exists in `docker-compose.yml` (commented). Using a named volume is fine for environments where host access is not required, but it makes manual backups/restores less obvious.
+- Building the Go binary with `github.com/mattn/go-sqlite3` requires a system C toolchain and headers (`libsqlite3-dev`) and `CGO_ENABLED=1` during build. CI workflows already install `libsqlite3-dev` where needed.
+- For backups, there are helper scripts in `./scripts/backup.sh` and `./scripts/restore.sh` that copy the DB file from `./data` to `./backups` and restore it safely; future agents should prefer these scripts for simple backup/restore workflows.
+
 ### GitHub Data Access
-
-- **Storage & Docker notes (for future agents):**
-  - The project uses SQLite for persistent storage; production/dev processes expect a local file under `./data` by default (`./data/simple-sync.db`).
-  - Docker Compose is configured to bind-mount `./data` into the container (`./data:/app/data`) so the DB file is stored on the host. This is the recommended setup for development and simple deployments because it makes backups and inspection straightforward.
-  - If you need a Docker-managed volume, a named volume `simple-sync-data` exists in `docker-compose.yml` (commented). Using a named volume is fine for environments where host access is not required, but it makes manual backups/restores less obvious.
-  - Building the Go binary with `github.com/mattn/go-sqlite3` requires a system C toolchain and headers (`libsqlite3-dev`) and `CGO_ENABLED=1` during build. CI workflows already install `libsqlite3-dev` where needed.
-  - For backups, there are helper scripts in `./scripts/backup.sh` and `./scripts/restore.sh` that copy the DB file from `./data` to `./backups` and restore it safely; future agents should prefer these scripts for simple backup/restore workflows.
-
-### Project Knowledge
 
 - **ALWAYS use GitHub CLI for GitHub data** - NEVER use webfetch for issues, PRs, or other GitHub information
 - **Issue information**: Use `gh issue view <number>`
