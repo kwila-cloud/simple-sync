@@ -75,8 +75,8 @@ Encryption at rest will be addressed separately (issue #17) using SQLCipher or f
 - [x] Implement InvalidateUserSetupTokens
 
 ### Performance and Concurrency Testing
-- [ ] Add performance and concurrency tests
-- [ ] Validate concurrent access and large dataset handling
+- [x] Add performance and concurrency tests
+- [x] Validate concurrent access and large dataset handling
 
 ### Documentation and Configuration Updates
 - [ ] Update Docker configuration for data persistence

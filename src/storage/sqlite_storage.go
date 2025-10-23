@@ -103,7 +103,12 @@ func (s *SQLiteStorage) SaveEvents(events []models.Event) error {
 	if s.db == nil {
 		return ErrInvalidData
 	}
-	// TODO(#7): check event.Validate() for each event
+	// Validate each event before attempting DB operations
+	for i := range events {
+		if err := events[i].Validate(); err != nil {
+			return err
+		}
+	}
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
