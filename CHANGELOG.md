@@ -1,13 +1,13 @@
 # Release History
 
 ## [0.4.0] - unreleased
+- [#61](https://github.com/kwila-cloud/simple-sync/pull/61): Add performance and concurrency tests for SQLite storage
 - [#60](https://github.com/kwila-cloud/simple-sync/pull/60): Implement SQLite setup token and API key storage
 - [#59](https://github.com/kwila-cloud/simple-sync/pull/59): Implement SQLite ACL rule storage
 - [#58](https://github.com/kwila-cloud/simple-sync/pull/58): Implement SQLite user storage
 - [#57](https://github.com/kwila-cloud/simple-sync/pull/57): Implement SQLite event storage
 - [#56](https://github.com/kwila-cloud/simple-sync/pull/56): Add database schema migrations
 - [#55](https://github.com/kwila-cloud/simple-sync/pull/55): Add SQLite storage foundation (initialization, pragmas, pooling, and tests)
-- [#61](https://github.com/kwila-cloud/simple-sync/pull/61): Add performance and concurrency tests for SQLite storage
 - [#54](https://github.com/kwila-cloud/simple-sync/pull/54): Add model validation and database compatibility for SQLite storage
 - [#53](https://github.com/kwila-cloud/simple-sync/pull/53): Add storage factory and error types
 - [#52](https://github.com/kwila-cloud/simple-sync/pull/52): Refactor ACL service to use storage interface directly with proper error handling
