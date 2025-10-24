@@ -89,11 +89,6 @@ func (m *TestStorage) AddEvents(events []models.Event) error {
 	return nil
 }
 
-// Backwards-compatible wrapper: SaveEvents -> AddEvents
-func (m *TestStorage) SaveEvents(events []models.Event) error {
-	return m.AddEvents(events)
-}
-
 // LoadEvents returns all stored events
 func (m *TestStorage) LoadEvents() ([]models.Event, error) {
 	m.mutex.RLock()
@@ -144,11 +139,6 @@ func (m *TestStorage) AddApiKey(apiKey *models.ApiKey) error {
 	return nil
 }
 
-// Backwards-compatible wrapper: CreateApiKey -> AddApiKey
-func (m *TestStorage) CreateApiKey(apiKey *models.ApiKey) error {
-	return m.AddApiKey(apiKey)
-}
-
 // GetApiKeyByHash retrieves an API key by its hash
 func (m *TestStorage) GetApiKeyByHash(hash string) (*models.ApiKey, error) {
 	m.mutex.RLock()
@@ -186,11 +176,6 @@ func (m *TestStorage) AddSetupToken(token *models.SetupToken) error {
 	defer m.mutex.Unlock()
 	m.setupTokens[token.Token] = token
 	return nil
-}
-
-// Backwards-compatible wrapper: CreateSetupToken -> AddSetupToken
-func (m *TestStorage) CreateSetupToken(token *models.SetupToken) error {
-	return m.AddSetupToken(token)
 }
 
 // GetSetupToken retrieves a setup token by its value
@@ -253,11 +238,6 @@ func (m *TestStorage) AddAclRule(rule *models.AclRule) error {
 	m.events = append(m.events, *event)
 
 	return nil
-}
-
-// Backwards-compatible wrapper: CreateAclRule -> AddAclRule
-func (m *TestStorage) CreateAclRule(rule *models.AclRule) error {
-	return m.AddAclRule(rule)
 }
 
 // GetAclRules retrieves all ACL rules

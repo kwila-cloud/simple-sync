@@ -185,11 +185,6 @@ func (f *failingStorage) AddEvents(events []models.Event) error {
 	return fmt.Errorf("storage error")
 }
 
-// Backwards-compatible wrapper: SaveEvents -> AddEvents
-func (f *failingStorage) SaveEvents(events []models.Event) error {
-	return f.AddEvents(events)
-}
-
 func (f *failingStorage) LoadEvents() ([]models.Event, error) {
 	return nil, fmt.Errorf("storage error")
 }
@@ -204,11 +199,6 @@ func (f *failingStorage) GetUserById(id string) (*models.User, error) {
 
 func (f *failingStorage) AddApiKey(apiKey *models.ApiKey) error {
 	return fmt.Errorf("storage error")
-}
-
-// Backwards-compatible wrapper: CreateApiKey -> AddApiKey
-func (f *failingStorage) CreateApiKey(apiKey *models.ApiKey) error {
-	return f.AddApiKey(apiKey)
 }
 
 func (f *failingStorage) GetApiKeyByHash(hash string) (*models.ApiKey, error) {
