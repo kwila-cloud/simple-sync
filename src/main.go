@@ -62,7 +62,7 @@ func main() {
 		router.Use(gin.LoggerWithConfig(gin.LoggerConfig{
 			Formatter: func(param gin.LogFormatterParams) string {
 				// timestamp, client ip, method, path, status, latency, error (if any)
-				return fmt.Sprintf("%s - %s \"%s %s %s\" %d %s %s\n",
+				return fmt.Sprintf("%s - %s \"%s %s\" %d %s %s\n",
 					param.TimeStamp.Format(time.RFC3339),
 					param.ClientIP,
 					param.Method,
