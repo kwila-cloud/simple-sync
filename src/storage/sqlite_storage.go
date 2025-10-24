@@ -3,6 +3,7 @@ package storage
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -26,8 +27,13 @@ func NewSQLiteStorage() *SQLiteStorage {
 // Initialize opens a connection to the SQLite database at path
 func (s *SQLiteStorage) Initialize(path string) error {
 	if path == "" {
-		path = getDefaultDBPath()
+		var err error
+		path, err = getDbPath()
+		if err != nil {
+			return fmt.Errorf("failed to get database path")
+		}
 	}
+	log.Printf("initializing with path: %v", path)
 
 	// Determine and create parent directory unless using an in-memory DB
 	if path != "" {
@@ -36,7 +42,7 @@ func (s *SQLiteStorage) Initialize(path string) error {
 			parent := filepath.Dir(path)
 			if parent != "" && parent != "." {
 				if err := os.MkdirAll(parent, 0o755); err != nil {
-					return fmt.Errorf("failed to create db dir: %w", err)
+					return fmt.Errorf("failed to create database directory: %w", err)
 				}
 			}
 		}
@@ -44,44 +50,41 @@ func (s *SQLiteStorage) Initialize(path string) error {
 
 	db, err := sql.Open("sqlite3", path)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to open SQLite file: %v, error: %v", path, err)
 	}
+	log.Printf("successfully opened SQLite file")
 
 	// Set pragmas for safety/performance
 	// Use WAL (Write-Ahead Logging) to improve concurrency and crash resilience:
 	// - Allows readers to run while a writer is writing
 	// - Better write throughput for many workloads
 	if _, err := db.Exec("PRAGMA journal_mode=WAL;"); err != nil {
-		db.Close()
-		return err
+		defer db.Close()
+		return fmt.Errorf("failed to set journal mode: %v", err)
 	}
+	log.Println("A")
 	// Enforce foreign key constraints at the SQLite level to maintain relational integrity.
 	if _, err := db.Exec("PRAGMA foreign_keys=ON;"); err != nil {
-		db.Close()
-		return err
-	}
-	// Set synchronous to NORMAL to balance durability and performance:
-	// - FULL is the most durable (safer on power loss) but slower
-	// - NORMAL offers a good trade-off for many server environments
-	if _, err := db.Exec("PRAGMA synchronous=NORMAL;"); err != nil {
-		db.Close()
-		return err
+		defer db.Close()
+		return fmt.Errorf("failed to enable foreign keys: %v", err)
 	}
 
+	log.Println("B")
 	// Configure connection pool defaults
 	db.SetMaxOpenConns(25)
 	db.SetMaxIdleConns(5)
 
+	log.Println("C")
 	// Verify connection
 	if err := db.Ping(); err != nil {
-		db.Close()
-		return err
+		defer db.Close()
+		return fmt.Errorf("failed to ping database: %v", err)
 	}
 
 	// Apply migrations (idempotent)
 	if err := ApplyMigrations(db); err != nil {
-		db.Close()
-		return err
+		defer db.Close()
+		return fmt.Errorf("failed to apply migrations: %v", err)
 	}
 
 	s.db = db
@@ -96,7 +99,7 @@ func (s *SQLiteStorage) Close() error {
 	// Close DB and clear pointer
 	err := s.db.Close()
 	s.db = nil
-	return err
+	return fmt.Errorf("failed to close db: %v", err)
 }
 
 func (s *SQLiteStorage) AddEvents(events []models.Event) error {
@@ -412,9 +415,20 @@ func (s *SQLiteStorage) GetAclRules() ([]models.AclRule, error) {
 	return rules, nil
 }
 
-func getDefaultDBPath() string {
+// Get the DB path from the DB_PATH environment variable, if it exists.
+// Otherwise uses ./data/simple-sync.db
+// Paths are returned as absolute paths for deterministic results.
+func getDbPath() (string, error) {
 	if p := os.Getenv("DB_PATH"); p != "" {
-		return p
+		abs, err := filepath.Abs(p)
+		if err == nil {
+			return abs, nil
+		}
+		return "", err
 	}
-	return "./data/simple-sync.db"
+	abs, err := filepath.Abs("./data/simple-sync.db")
+	if err == nil {
+		return abs, nil
+	}
+	return "", err
 }
