@@ -8,7 +8,7 @@ import (
 	"simple-sync/src/storage"
 )
 
-func TestSQLiteCreateAclRuleAndGetAclRules(t *testing.T) {
+func TestSQLiteAddAclRuleAndGetAclRules(t *testing.T) {
 	store := storage.NewSQLiteStorage()
 	if err := store.Initialize(":memory:"); err != nil {
 		t.Fatalf("failed to initialize sqlite storage: %v", err)
@@ -23,7 +23,7 @@ func TestSQLiteCreateAclRuleAndGetAclRules(t *testing.T) {
 	}
 
 	// Create rule
-	if err := store.CreateAclRule(&rule); err != nil {
+	if err := store.AddAclRule(&rule); err != nil {
 		t.Fatalf("expected no error creating rule, got %v", err)
 	}
 
@@ -51,7 +51,7 @@ func TestSQLiteCreateAclRuleAndGetAclRules(t *testing.T) {
 	}
 }
 
-func TestSQLiteCreateAclRuleDuplicate(t *testing.T) {
+func TestSQLiteAddAclRuleDuplicate(t *testing.T) {
 	store := storage.NewSQLiteStorage()
 	if err := store.Initialize(":memory:"); err != nil {
 		t.Fatalf("failed to initialize sqlite storage: %v", err)
@@ -65,12 +65,12 @@ func TestSQLiteCreateAclRuleDuplicate(t *testing.T) {
 		Type:   "allow",
 	}
 
-	if err := store.CreateAclRule(&rule); err != nil {
+	if err := store.AddAclRule(&rule); err != nil {
 		t.Fatalf("expected no error creating rule first time, got %v", err)
 	}
 
 	// Second insert should result in duplicate key error
-	if err := store.CreateAclRule(&rule); err == nil {
+	if err := store.AddAclRule(&rule); err == nil {
 		t.Fatalf("expected duplicate key error, got nil")
 	} else {
 		if !strings.Contains(err.Error(), "duplicate") && err != storage.ErrDuplicateKey {
@@ -110,7 +110,7 @@ func TestSQLiteAclRulesPreserveInsertionOrder(t *testing.T) {
 	}
 
 	for i := range rulesToInsert {
-		if err := store.CreateAclRule(&rulesToInsert[i]); err != nil {
+		if err := store.AddAclRule(&rulesToInsert[i]); err != nil {
 			t.Fatalf("failed to create rule %d: %v", i, err)
 		}
 	}

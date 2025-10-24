@@ -8,7 +8,7 @@ import (
 	"simple-sync/src/storage"
 )
 
-func TestCreateAclRule(t *testing.T) {
+func TestAddAclRule(t *testing.T) {
 	testStorage := storage.NewTestStorage([]models.AclRule{})
 
 	rule := models.AclRule{
@@ -118,7 +118,7 @@ func TestGetAclRulesEmpty(t *testing.T) {
 	}
 }
 
-func TestCreateAclRuleAndGetAclRulesIntegration(t *testing.T) {
+func TestAddAclRuleAndGetAclRulesIntegration(t *testing.T) {
 	testStorage := storage.NewTestStorage([]models.AclRule{})
 
 	// Add multiple rules
@@ -190,7 +190,7 @@ func TestGetAclRulesWithMalformedRule(t *testing.T) {
 		Action: "read",
 		Type:   "allow",
 	}
-	err := testStorage.CreateAclRule(&validRule)
+	err := testStorage.AddAclRule(&validRule)
 	if err != nil {
 		t.Fatalf("Expected no error creating valid rule, got %v", err)
 	}

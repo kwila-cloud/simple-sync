@@ -14,7 +14,6 @@ import (
 func TestAclService_LoadsRulesFromStorage(t *testing.T) {
 	store := storage.NewTestStorage(nil)
 
-	// Create ACL rules in storage
 	rule1 := models.AclRule{
 		User:   "user1",
 		Item:   "item1",
@@ -28,9 +27,9 @@ func TestAclService_LoadsRulesFromStorage(t *testing.T) {
 		Type:   "deny",
 	}
 
-	err := store.CreateAclRule(&rule1)
+	err := store.AddAclRule(&rule1)
 	assert.NoError(t, err)
-	err = store.CreateAclRule(&rule2)
+	err = store.AddAclRule(&rule2)
 	assert.NoError(t, err)
 
 	// Create ACL service - should load rules from storage
@@ -221,11 +220,6 @@ func (f *failingStorage) AddSetupToken(token *models.SetupToken) error {
 	return fmt.Errorf("storage error")
 }
 
-// Backwards-compatible wrapper: CreateSetupToken -> AddSetupToken
-func (f *failingStorage) CreateSetupToken(token *models.SetupToken) error {
-	return f.AddSetupToken(token)
-}
-
 func (f *failingStorage) GetSetupToken(token string) (*models.SetupToken, error) {
 	return nil, fmt.Errorf("storage error")
 }
@@ -240,11 +234,6 @@ func (f *failingStorage) InvalidateUserSetupTokens(userID string) error {
 
 func (f *failingStorage) AddAclRule(rule *models.AclRule) error {
 	return fmt.Errorf("storage error")
-}
-
-// Backwards-compatible wrapper: CreateAclRule -> AddAclRule
-func (f *failingStorage) CreateAclRule(rule *models.AclRule) error {
-	return f.AddAclRule(rule)
 }
 
 func (f *failingStorage) GetAclRules() ([]models.AclRule, error) {

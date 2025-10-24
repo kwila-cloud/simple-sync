@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSaveAndLoadEvents(t *testing.T) {
+func TestAddAndLoadEvents(t *testing.T) {
 	s := storage.NewSQLiteStorage()
 	if err := s.Initialize(":memory:"); err != nil {
 		t.Fatalf("failed to initialize in-memory sqlite: %v", err)
@@ -36,7 +36,7 @@ func TestSaveAndLoadEvents(t *testing.T) {
 	assert.Equal(t, e2.UUID, events[1].UUID)
 }
 
-func TestSaveEventsDuplicateUUID(t *testing.T) {
+func TestAddEventsDuplicateUUID(t *testing.T) {
 	s := storage.NewSQLiteStorage()
 	if err := s.Initialize(":memory:"); err != nil {
 		t.Fatalf("failed to initialize in-memory sqlite: %v", err)
@@ -44,12 +44,12 @@ func TestSaveEventsDuplicateUUID(t *testing.T) {
 	defer s.Close()
 
 	e := models.NewEvent("user1", "item1", "act1", "payload1")
-	if err := s.SaveEvents([]models.Event{*e}); err != nil {
-		t.Fatalf("first SaveEvents failed: %v", err)
+	if err := s.AddEvents([]models.Event{*e}); err != nil {
+		t.Fatalf("first AddEvents failed: %v", err)
 	}
 	// attempt to insert duplicate
-	if err := s.SaveEvents([]models.Event{*e}); err == nil {
-		t.Fatalf("expected duplicate SaveEvents to fail")
+	if err := s.AddEvents([]models.Event{*e}); err == nil {
+		t.Fatalf("expected duplicate AddEvents to fail")
 	} else {
 		assert.Equal(t, storage.ErrDuplicateKey, err)
 	}
