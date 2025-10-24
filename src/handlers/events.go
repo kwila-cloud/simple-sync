@@ -79,8 +79,8 @@ func (h *Handlers) PostEvents(c *gin.Context) {
 		}
 	}
 
-	// Save events
-	if err := h.storage.SaveEvents(events); err != nil {
+	// Add events
+	if err := h.storage.AddEvents(events); err != nil {
 		log.Printf("PostEvents: failed to save events: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return

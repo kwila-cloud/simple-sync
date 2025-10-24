@@ -113,7 +113,7 @@ func (s *AclService) AddRule(rule models.AclRule) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	err := s.storage.CreateAclRule(&rule)
+	err := s.storage.AddAclRule(&rule)
 	if err != nil {
 		return err
 	}

@@ -86,4 +86,8 @@ Encryption at rest will be addressed separately (issue #17) using SQLCipher or f
 - [x] Document backup/restore
 
 ### Clean Up
-- [ ] Handle remaining TODO comments for issue #7
+- [x] Rename interface methods: `SaveEvents` → `AddEvents`
+- [x] Rename interface methods: `CreateApiKey` → `AddApiKey`
+- [x] Rename interface methods: `CreateSetupToken` → `AddSetupToken`
+- [x] Rename interface methods: `CreateAclRule` → `AddAclRule`
+- [x] Update all storage implementations and tests to use new method names (work to be done on branch `7-clean-up`)

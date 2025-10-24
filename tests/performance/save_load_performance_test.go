@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestSaveEventsPerformance measures save time for many events
-func TestSaveEventsPerformance(t *testing.T) {
+// TestAddEventsPerformance measures save time for many events
+func TestAddEventsPerformance(t *testing.T) {
 	events := GenerateEvents(1_000_000)
 
 	s := storage.NewSQLiteStorage()
@@ -22,11 +22,11 @@ func TestSaveEventsPerformance(t *testing.T) {
 	defer s.Close()
 
 	start := time.Now()
-	if err := s.SaveEvents(events); err != nil {
+	if err := s.AddEvents(events); err != nil {
 		t.Fatalf("save events failed: %v", err)
 	}
 	d := time.Since(start)
-	assert.Less(t, d, 8*time.Second, "Save for 1 million events should complete in under 8s")
+	assert.Less(t, d, 8*time.Second, "Adding 1 million events should complete in under 8s")
 }
 
 // TestLoadEventsPerformance measures load time for many events
@@ -42,7 +42,7 @@ func TestLoadEventsPerformance(t *testing.T) {
 	defer s.Close()
 
 	// Pre-populate the DB (not measured)
-	if err := s.SaveEvents(events); err != nil {
+	if err := s.AddEvents(events); err != nil {
 		t.Fatalf("pre-populate save events failed: %v", err)
 	}
 
@@ -51,5 +51,5 @@ func TestLoadEventsPerformance(t *testing.T) {
 		t.Fatalf("load events failed: %v", err)
 	}
 	d := time.Since(start)
-	assert.Less(t, d, 4*time.Second, "Load for 1 million events should complete in under 4s")
+	assert.Less(t, d, 4*time.Second, "Loading 1 million events should complete in under 4s")
 }

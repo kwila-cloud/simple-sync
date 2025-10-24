@@ -48,7 +48,7 @@ func NewTestStorage(aclRules []models.AclRule) *TestStorage {
 		CreatedAt:   now,
 		LastUsedAt:  &now,
 	}
-	storage.CreateApiKey(apiKey)
+	storage.AddApiKey(apiKey)
 
 	// Add default user
 	defaultUser, _ := models.NewUser(TestingUserId)
@@ -64,7 +64,7 @@ func NewTestStorage(aclRules []models.AclRule) *TestStorage {
 		CreatedAt:   now,
 		LastUsedAt:  &now,
 	}
-	storage.CreateApiKey(apiKey)
+	storage.AddApiKey(apiKey)
 
 	// Add initial ACL rules as events
 	for _, rule := range aclRules {
@@ -81,8 +81,8 @@ func NewTestStorage(aclRules []models.AclRule) *TestStorage {
 	return storage
 }
 
-// SaveEvents appends new events to the storage
-func (m *TestStorage) SaveEvents(events []models.Event) error {
+// AddEvents appends new events to the storage
+func (m *TestStorage) AddEvents(events []models.Event) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	m.events = append(m.events, events...)
@@ -131,8 +131,8 @@ func (m *TestStorage) AddUser(user *models.User) error {
 	return nil
 }
 
-// CreateApiKey stores a new API key
-func (m *TestStorage) CreateApiKey(apiKey *models.ApiKey) error {
+// AddApiKey stores a new API key
+func (m *TestStorage) AddApiKey(apiKey *models.ApiKey) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	m.apiKeys[apiKey.UUID] = apiKey
@@ -170,8 +170,8 @@ func (m *TestStorage) UpdateApiKey(apiKey *models.ApiKey) error {
 	return nil
 }
 
-// CreateSetupToken stores a new setup token
-func (m *TestStorage) CreateSetupToken(token *models.SetupToken) error {
+// AddSetupToken stores a new setup token
+func (m *TestStorage) AddSetupToken(token *models.SetupToken) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	m.setupTokens[token.Token] = token
@@ -222,8 +222,8 @@ func (m *TestStorage) InvalidateUserApiKeys(userID string) error {
 	return nil
 }
 
-// CreateAclRule stores a new ACL rule
-func (m *TestStorage) CreateAclRule(rule *models.AclRule) error {
+// AddAclRule stores a new ACL rule
+func (m *TestStorage) AddAclRule(rule *models.AclRule) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 

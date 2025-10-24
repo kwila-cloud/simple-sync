@@ -21,8 +21,8 @@ func TestCreateGetUpdateInvalidateSetupToken(t *testing.T) {
 	}
 
 	st := models.NewSetupToken("ABCD-1234", "user-z", time.Now().Add(time.Hour))
-	if err := s.CreateSetupToken(st); err != nil {
-		t.Fatalf("CreateSetupToken failed: %v", err)
+	if err := s.AddSetupToken(st); err != nil {
+		t.Fatalf("AddSetupToken failed: %v", err)
 	}
 
 	got, err := s.GetSetupToken("ABCD-1234")
