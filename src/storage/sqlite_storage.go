@@ -99,11 +99,16 @@ func (s *SQLiteStorage) Close() error {
 	return err
 }
 
-func (s *SQLiteStorage) SaveEvents(events []models.Event) error {
+func (s *SQLiteStorage) AddEvents(events []models.Event) error {
 	if s.db == nil {
 		return ErrInvalidData
 	}
-	// TODO(#7): check event.Validate() for each event
+	// Validate each event before attempting DB operations
+	for i := range events {
+		if err := events[i].Validate(); err != nil {
+			return err
+		}
+	}
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
@@ -198,7 +203,7 @@ func (s *SQLiteStorage) GetUserById(id string) (*models.User, error) {
 	}
 	return user, nil
 }
-func (s *SQLiteStorage) CreateApiKey(apiKey *models.ApiKey) error {
+func (s *SQLiteStorage) AddApiKey(apiKey *models.ApiKey) error {
 	if s.db == nil || apiKey == nil {
 		return ErrInvalidData
 	}
@@ -294,7 +299,7 @@ func (s *SQLiteStorage) InvalidateUserApiKeys(userID string) error {
 	_, err := s.db.Exec(`DELETE FROM api_key WHERE user = ?`, userID)
 	return err
 }
-func (s *SQLiteStorage) CreateSetupToken(token *models.SetupToken) error {
+func (s *SQLiteStorage) AddSetupToken(token *models.SetupToken) error {
 	if s.db == nil || token == nil {
 		return ErrInvalidData
 	}
@@ -345,7 +350,7 @@ func (s *SQLiteStorage) InvalidateUserSetupTokens(userID string) error {
 	_, err := s.db.Exec(`UPDATE setup_token SET used_at = ? WHERE user = ?`, time.Now(), userID)
 	return err
 }
-func (s *SQLiteStorage) CreateAclRule(rule *models.AclRule) error {
+func (s *SQLiteStorage) AddAclRule(rule *models.AclRule) error {
 	if s.db == nil || rule == nil {
 		return ErrInvalidData
 	}

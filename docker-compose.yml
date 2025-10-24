@@ -3,11 +3,11 @@ services:
     image: ghcr.io/kwila-cloud/simple-sync:latest
     container_name: simple-sync
     ports:
-      - "8080:8080"
-    environment:
-      - PORT=8080
+      - "8765:8080"
     volumes:
-      - ./data:/app/data
+      - ./data:/app/data # explicit local bind for persistent DB file (recommended for development)
+      # Alternative: use a named volume managed by Docker
+      # - simple-sync-data:/app/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "-s", "http://localhost:8080/api/v1/health"]

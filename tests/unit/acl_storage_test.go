@@ -8,7 +8,7 @@ import (
 	"simple-sync/src/storage"
 )
 
-func TestCreateAclRule(t *testing.T) {
+func TestAddAclRule(t *testing.T) {
 	testStorage := storage.NewTestStorage([]models.AclRule{})
 
 	rule := models.AclRule{
@@ -18,7 +18,7 @@ func TestCreateAclRule(t *testing.T) {
 		Type:   "allow",
 	}
 
-	err := testStorage.CreateAclRule(&rule)
+	err := testStorage.AddAclRule(&rule)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
@@ -118,7 +118,7 @@ func TestGetAclRulesEmpty(t *testing.T) {
 	}
 }
 
-func TestCreateAclRuleAndGetAclRulesIntegration(t *testing.T) {
+func TestAddAclRuleAndGetAclRulesIntegration(t *testing.T) {
 	testStorage := storage.NewTestStorage([]models.AclRule{})
 
 	// Add multiple rules
@@ -144,7 +144,7 @@ func TestCreateAclRuleAndGetAclRulesIntegration(t *testing.T) {
 	}
 
 	for i := range rules {
-		err := testStorage.CreateAclRule(&rules[i])
+		err := testStorage.AddAclRule(&rules[i])
 		if err != nil {
 			t.Fatalf("Expected no error creating rule %d, got %v", i, err)
 		}
@@ -190,7 +190,7 @@ func TestGetAclRulesWithMalformedRule(t *testing.T) {
 		Action: "read",
 		Type:   "allow",
 	}
-	err := testStorage.CreateAclRule(&validRule)
+	err := testStorage.AddAclRule(&validRule)
 	if err != nil {
 		t.Fatalf("Expected no error creating valid rule, got %v", err)
 	}
@@ -202,7 +202,7 @@ func TestGetAclRulesWithMalformedRule(t *testing.T) {
 		Action:  ".acl.addRule",
 		Payload: "{invalid json}",
 	}
-	err = testStorage.SaveEvents([]models.Event{malformedEvent})
+	err = testStorage.AddEvents([]models.Event{malformedEvent})
 	if err != nil {
 		t.Fatalf("Expected no error saving malformed event, got %v", err)
 	}

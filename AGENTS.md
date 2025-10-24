@@ -65,6 +65,7 @@ Simple-sync is a lightweight REST API built in Go that provides event storage an
 - **When in doubt**: If you're about to read/write code files, stop - you're still in spec phase
 
 #### Example: Issue #7 Data Persistence
+
 See `specs/7-data-persistence.md` for a well-structured specification that:
 - Includes design decisions section explaining SQLite vs Go marshaling choice
 - Uses TDD approach with tests first for each implementation item
@@ -72,6 +73,8 @@ See `specs/7-data-persistence.md` for a well-structured specification that:
 - Items within sections are related changes for that PR
 - Groups related functionality logically
 - Maintains focus without excessive detail
+
+
 
 ### TDD Implementation Process
 
@@ -144,31 +147,61 @@ See `specs/7-data-persistence.md` for a well-structured specification that:
 
 - **Recommendation:** When programmatically constructing search patterns, either validate the regex before use or default to fixed-string searches. If you are unsure whether a pattern contains regex metacharacters, use `-F` to avoid surprises.
 
+### PR Title & Description Rules
+- **Always inspect the full diff for the branch before creating a PR.** Use Git to view changes against the base branch and confirm the final, combined diff that will become the PR.
+
+  - View commits on your branch relative to `main`:
+    - `git fetch origin && git log --oneline origin/main...HEAD`
+  - View a concise file/status diff against `main`:
+    - `git fetch origin && git diff --name-status origin/main...HEAD`
+  - View a human-readable patch summary before creating the PR:
+    - `git fetch origin && git diff --stat origin/main...HEAD`
+  - View the full patch if needed:
+    - `git fetch origin && git diff origin/main...HEAD`
+
+- **Title rules:**
+  - The PR title must be a short, descriptive summary of the change and MUST NOT include the issue number.
+  - Example — incorrect: `docs(7): documentation and restore script fixes for data persistence`
+  - Example — correct: `docs: documentation and restore script fixes for data persistence`
+
+- **Description rules:**
+  - The PR body/description MUST include the issue number (and link) that the PR addresses. Prefer an explicit `Fixes #<issue>` or `Related to #<issue>` line.
+  - Example body snippet:
+
+    Issue: https://github.com/kwila-cloud/simple-sync/issues/7
+
+    This PR moves the data-persistence doc into the site content and adds a checklist to verify `restore.sh` behavior.
+
+    Fixes #7
+
+- **How to get the final PR number non-interactively:**
+  - After creating the PR, capture the assigned number:
+    - `gh pr view --json number,url --jq '.number'` (use the branch name if needed)
+
 ### Changelog
-- **ALWAYS add a new line to `CHANGELOG.md` for each new *pull request* (PR).** Do not link to the issue number — reference the PR number.
-- Document new features, enhancements, bug fixes, and breaking changes
-- Follow the existing format with PR links and clear descriptions (see examples below)
-- Keep entries concise but descriptive for users and maintainers
-- **IMPORTANT**: Always verify the actual PR details before updating the changelog. Use `gh pr view <PR-number>` or `gh pr view <branch>` to confirm the PR number, title, and changed files.
+- **ALWAYS add a new line to `CHANGELOG.md` for each new *pull request* (PR).** Do not include or link to the issue number — reference the PR number only.
+- Document new features, enhancements, bug fixes, and breaking changes.
+- Follow the existing format with PR links and clear descriptions (see examples below).
+- Keep entries concise but descriptive for users and maintainers.
+- **IMPORTANT**: Always verify the actual PR details **and the PR title** before updating the changelog. Use `gh pr view <PR-number>` or `gh pr view <branch>` to confirm the PR number, title, and changed files.
 
 - **CRITICAL**: Add exactly ONE entry per PR. Never add multiple entries for the same pull request, even if the PR contains multiple types of changes. Combine all changes into a single, concise description.
 
 Examples (incorrect vs correct):
 
-- Incorrect (links to issue instead of PR):
+- Incorrect (links to issue rather than PR, or includes issue numbers in the text):
   - `- [#7](https://github.com/kwila-cloud/simple-sync/issues/7): Implement ACL rule storage (CreateAclRule, GetAclRules)`
 
-- Correct (match existing style — use PR link and number):
+- Correct (match existing style — use PR link and number, no issue numbers in entry):
   - `- [#59](https://github.com/kwila-cloud/simple-sync/pull/59): Implement ACL rule storage (CreateAclRule, GetAclRules)`
 
 Recommended workflow to avoid mistakes:
 
-1. Create the PR on the branch (`gh pr create`), or push the branch and open the PR on GitHub.
-2. Immediately run `gh pr view --json number,url,title --jq '.number'` or `gh pr view <branch>` to retrieve the assigned PR number.
-   - Example: `gh pr view 7-acl-rule-storage --json number,url,title`
-3. Edit `CHANGELOG.md` at the top (under the current unreleased version) and add a single line using the PR number as shown in the "Correct" example above.
-4. Commit the changelog update to the same branch so the changelog change is included in the PR.
-5. Push the branch and verify the PR body/changed files if necessary.
+1. Inspect the full diff using the `git` commands above and confirm the intended changes.
+2. Create the PR non-interactively using `gh pr create` with a title (no issue number) and a body that includes the issue link/number.
+3. Immediately run `gh pr view --json number,url,title --jq '.number'` to get the PR number.
+4. Update `CHANGELOG.md` at the top (under the current unreleased version) with a single entry referencing the **PR number only**.
+5. Commit the changelog update to the same branch so the changelog change is included in the PR.
 
 Notes:
 - The changelog should always reference the PR number (not the issue number) because the PR is the canonical unit that contains the implemented changes and the exact diff reviewers will see.
@@ -196,7 +229,13 @@ See `.opencode/command/` directory for examples.
 - **Database Tables**: Use singular form for database tables
   - Example: "user" rather than "users"
 
-### Standard Library Usage
+### Idiomtic Go
+
+#### Looping
+
+Prefer `for i := range n` (Go 1.22+) over `for i := 0; i < n; i++` when iterating a fixed integer count; prefer `for i := range slice` when iterating slices.
+
+#### Standard Library
 
 **CRITICAL**: Always use functions from the standard library when possible, rather than creating custom helper functions.
 
@@ -219,3 +258,9 @@ See `.opencode/command/` directory for examples.
    - ❌ Bad: Creating custom string formatting helpers
 
 4. **When in doubt**: If you're about to write a helper function, first check the Go standard library documentation for existing solutions
+
+### SQLite Storage
+- The project uses SQLite for persistent storage; production/dev processes expect a local file under `./data` by default (`./data/simple-sync.db`).
+- Docker Compose is configured to bind-mount `./data` into the container (`./data:/app/data`) so the DB file is stored on the host. This is the recommended setup for development and simple deployments because it makes backups and inspection straightforward.
+- If you need a Docker-managed volume, a named volume `simple-sync-data` exists in `docker-compose.yml` (commented). Using a named volume is fine for environments where host access is not required, but it makes manual backups/restores less obvious.
+

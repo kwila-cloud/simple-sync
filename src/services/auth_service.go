@@ -98,7 +98,7 @@ func (s *AuthService) GenerateApiKey(userID, description string) (*models.ApiKey
 	apiKey := models.NewApiKey(userID, string(keyHash), description)
 
 	// Store the API key
-	err = s.storage.CreateApiKey(apiKey)
+	err = s.storage.AddApiKey(apiKey)
 	if err != nil {
 		return nil, "", errors.New("failed to store API key")
 	}
@@ -134,7 +134,7 @@ func (s *AuthService) GenerateSetupToken(userID string) (*models.SetupToken, err
 	setupToken := models.NewSetupToken(token, userID, expiresAt)
 
 	// Store the setup token
-	err = s.storage.CreateSetupToken(setupToken)
+	err = s.storage.AddSetupToken(setupToken)
 	if err != nil {
 		return nil, errors.New("failed to store setup token")
 	}

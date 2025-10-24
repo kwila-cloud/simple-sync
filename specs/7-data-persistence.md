@@ -75,15 +75,19 @@ Encryption at rest will be addressed separately (issue #17) using SQLCipher or f
 - [x] Implement InvalidateUserSetupTokens
 
 ### Performance and Concurrency Testing
-- [ ] Add performance and concurrency tests
-- [ ] Validate concurrent access and large dataset handling
+- [x] Add performance and concurrency tests
+- [x] Validate concurrent access and large dataset handling
 
 ### Documentation and Configuration Updates
-- [ ] Update Docker configuration for data persistence
-- [ ] Update AGENTS.md with SQLite storage information
-- [ ] Update README.md with data persistence features and setup instructions
-- [ ] Update user-facing documentation in docs/ with SQLite configuration
-- [ ] Document backup/restore procedures and security considerations
+- [x] Update Docker configuration for data persistence
+- [x] Update AGENTS.md with SQLite storage information
+- [x] Update README.md with data persistence features and setup instructions
+- [x] Update user-facing documentation in `src/content/docs` with SQLite configuration
+- [x] Document backup/restore
 
 ### Clean Up
-- [ ] Handle remaining TODO comments for issue #7
+- [x] Rename interface methods: `SaveEvents` → `AddEvents`
+- [x] Rename interface methods: `CreateApiKey` → `AddApiKey`
+- [x] Rename interface methods: `CreateSetupToken` → `AddSetupToken`
+- [x] Rename interface methods: `CreateAclRule` → `AddAclRule`
+- [x] Update all storage implementations and tests to use new method names (work to be done on branch `7-clean-up`)

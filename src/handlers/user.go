@@ -60,7 +60,7 @@ func (h *Handlers) PostUserResetKey(c *gin.Context) {
 		".user.resetKey",
 		"{}",
 	)
-	if err := h.storage.SaveEvents([]models.Event{*event}); err != nil {
+	if err := h.storage.AddEvents([]models.Event{*event}); err != nil {
 		log.Printf("Failed to save reset key event for user %s: %v", userId, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
@@ -123,7 +123,7 @@ func (h *Handlers) PostUserGenerateToken(c *gin.Context) {
 		Action:  ".user.generateToken",
 		Payload: "{}",
 	}
-	if err := h.storage.SaveEvents([]models.Event{event}); err != nil {
+	if err := h.storage.AddEvents([]models.Event{event}); err != nil {
 		log.Printf("Failed to save generate token event for user %s: %v", userId, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
@@ -162,7 +162,7 @@ func (h *Handlers) PostSetupExchangeToken(c *gin.Context) {
 		Action:  ".user.exchangeToken",
 		Payload: "{}",
 	}
-	if err := h.storage.SaveEvents([]models.Event{event}); err != nil {
+	if err := h.storage.AddEvents([]models.Event{event}); err != nil {
 		log.Printf("Failed to save exchange token event for user %s: %v", apiKey.User, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return

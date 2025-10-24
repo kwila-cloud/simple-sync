@@ -14,7 +14,6 @@ import (
 func TestAclService_LoadsRulesFromStorage(t *testing.T) {
 	store := storage.NewTestStorage(nil)
 
-	// Create ACL rules in storage
 	rule1 := models.AclRule{
 		User:   "user1",
 		Item:   "item1",
@@ -28,9 +27,9 @@ func TestAclService_LoadsRulesFromStorage(t *testing.T) {
 		Type:   "deny",
 	}
 
-	err := store.CreateAclRule(&rule1)
+	err := store.AddAclRule(&rule1)
 	assert.NoError(t, err)
-	err = store.CreateAclRule(&rule2)
+	err = store.AddAclRule(&rule2)
 	assert.NoError(t, err)
 
 	// Create ACL service - should load rules from storage
@@ -181,7 +180,7 @@ func TestAclService_AddRule_ErrorHandling(t *testing.T) {
 // failingStorage is a mock storage that always fails
 type failingStorage struct{}
 
-func (f *failingStorage) SaveEvents(events []models.Event) error {
+func (f *failingStorage) AddEvents(events []models.Event) error {
 	return fmt.Errorf("storage error")
 }
 
@@ -197,7 +196,7 @@ func (f *failingStorage) GetUserById(id string) (*models.User, error) {
 	return nil, fmt.Errorf("storage error")
 }
 
-func (f *failingStorage) CreateApiKey(apiKey *models.ApiKey) error {
+func (f *failingStorage) AddApiKey(apiKey *models.ApiKey) error {
 	return fmt.Errorf("storage error")
 }
 
@@ -217,7 +216,7 @@ func (f *failingStorage) InvalidateUserApiKeys(userID string) error {
 	return fmt.Errorf("storage error")
 }
 
-func (f *failingStorage) CreateSetupToken(token *models.SetupToken) error {
+func (f *failingStorage) AddSetupToken(token *models.SetupToken) error {
 	return fmt.Errorf("storage error")
 }
 
@@ -233,7 +232,7 @@ func (f *failingStorage) InvalidateUserSetupTokens(userID string) error {
 	return fmt.Errorf("storage error")
 }
 
-func (f *failingStorage) CreateAclRule(rule *models.AclRule) error {
+func (f *failingStorage) AddAclRule(rule *models.AclRule) error {
 	return fmt.Errorf("storage error")
 }
 
