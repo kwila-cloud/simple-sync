@@ -1,32 +1,40 @@
 # Build stage
-FROM golang:1.25-alpine AS builder
+FROM golang:1.25-bookworm AS builder
 
-# Install git and ca-certificates (needed for Go modules)
-RUN apk add --no-cache git ca-certificates
+# Install build dependencies (needed for CGO + sqlite3)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    ca-certificates \
+    build-essential \
+    libsqlite3-dev \
+    pkg-config \
+  && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
 
-# Copy go mod files
+# Copy go mod files and download dependencies (cache layer)
 COPY go.mod go.sum ./
-
-# Download dependencies
 RUN go mod download
 
-# Copy source code
-COPY src/ ./src/
+# Copy the full repository
+COPY . .
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./src
+# Build the application with CGO enabled (sqlite requires cgo)
+RUN CGO_ENABLED=1 GOOS=linux go build -v -a -installsuffix cgo -o main ./src
 
 # Runtime stage
-FROM alpine:latest
+FROM debian:bookworm-slim
 
-# Install ca-certificates and curl for HTTPS requests and health checks
-RUN apk --no-cache add ca-certificates curl
+# Install runtime dependencies (sqlite library, certificates, curl)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    libsqlite3-0 \
+    curl \
+  && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
 # Set working directory
 WORKDIR /app

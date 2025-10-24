@@ -52,8 +52,9 @@ func NewStorage() Storage {
 	}
 	// Initialize SQLiteStorage in non-test environments
 	sqlite := NewSQLiteStorage()
-	if err := sqlite.Initialize(getDefaultDBPath()); err != nil {
-		log.Fatalf("Failed to initialize SQLite storage: %v", err)
+	log.Println("Initializing...")
+	if err := sqlite.Initialize(""); err != nil {
+		log.Fatalf("Failed to initialize SQLite storage, error: %v", err)
 	}
 	return sqlite
 }

@@ -5,6 +5,8 @@ services:
       context: .
     expose:
       - "8080"
+    environment:
+      - ENVIRONMENT=production
     volumes:
       - ./data:/app/data
     restart: unless-stopped

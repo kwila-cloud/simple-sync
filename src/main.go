@@ -1,9 +1,15 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"log"
+	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
+	"time"
 
 	"simple-sync/src/handlers"
 	"simple-sync/src/middleware"
@@ -39,7 +45,38 @@ func main() {
 	}
 
 	// Setup Gin router
-	router := gin.Default()
+	// Set Gin mode from environment configuration (production => Release mode)
+	if envConfig.IsProduction() {
+		gin.SetMode(gin.ReleaseMode)
+	} else {
+		gin.SetMode(gin.DebugMode)
+	}
+
+	var router *gin.Engine
+	if envConfig.IsProduction() {
+		// Production: use New() to control middleware and logging
+		router = gin.New()
+		// Recovery middleware to avoid panics crashing the process
+		router.Use(gin.Recovery())
+		// Minimal, structured-ish logger for production
+		router.Use(gin.LoggerWithConfig(gin.LoggerConfig{
+			Formatter: func(param gin.LogFormatterParams) string {
+				// timestamp, client ip, method, path, status, latency, error (if any)
+				return fmt.Sprintf("%s - %s \"%s %s\" %d %s %s\n",
+					param.TimeStamp.Format(time.RFC3339),
+					param.ClientIP,
+					param.Method,
+					param.Path,
+					param.StatusCode,
+					param.Latency,
+					param.ErrorMessage,
+				)
+			},
+		}))
+	} else {
+		// Development: defaults with logger + recovery
+		router = gin.Default()
+	}
 
 	// Configure trusted proxies (disable for security in development)
 	router.SetTrustedProxies([]string{})
@@ -66,9 +103,31 @@ func main() {
 	// Use port from environment configuration
 	port := envConfig.Port
 
-	// Start server
-	log.Printf("Starting server on port %d", port)
-	if err := router.Run(":" + strconv.Itoa(port)); err != nil {
-		log.Fatal("Failed to start server:", err)
+	// Start server with graceful shutdown
+	addr := ":" + strconv.Itoa(port)
+	srv := &http.Server{
+		Addr:    addr,
+		Handler: router,
 	}
+
+	// Start server in background
+	go func() {
+		log.Printf("Starting server on %s", addr)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen: %s\n", err)
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shutdown the server with a timeout
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+	<-quit
+	log.Printf("Shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatalf("Server forced to shutdown: %v", err)
+	}
+	log.Printf("Server exiting")
 }
