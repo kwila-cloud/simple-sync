@@ -262,5 +262,4 @@ Prefer `for i := range n` (Go 1.22+) over `for i := 0; i < n; i++` when iteratin
 ### SQLite Storage
 - The project uses SQLite for persistent storage; production/dev processes expect a local file under `./data` by default (`./data/simple-sync.db`).
 - Docker Compose is configured to bind-mount `./data` into the container (`./data:/app/data`) so the DB file is stored on the host. This is the recommended setup for development and simple deployments because it makes backups and inspection straightforward.
-- If you need a Docker-managed volume, a named volume `simple-sync-data` exists in `docker-compose.yml` (commented). Using a named volume is fine for environments where host access is not required, but it makes manual backups/restores less obvious.
 
