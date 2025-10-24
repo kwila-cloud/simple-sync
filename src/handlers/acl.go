@@ -68,7 +68,7 @@ func (h *Handlers) PostAcl(c *gin.Context) {
 	}
 
 	// Store the events
-	if err := h.storage.SaveEvents(events); err != nil {
+	if err := h.storage.AddEvents(events); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}

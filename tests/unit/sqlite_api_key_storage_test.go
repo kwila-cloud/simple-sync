@@ -27,8 +27,8 @@ func TestCreateAndGetApiKeyByHash(t *testing.T) {
 	}
 
 	key := models.NewApiKey("user-x", "hash123", "test")
-	if err := s.CreateApiKey(key); err != nil {
-		t.Fatalf("CreateApiKey failed: %v", err)
+	if err := s.AddApiKey(key); err != nil {
+		t.Fatalf("AddApiKey failed: %v", err)
 	}
 
 	got, err := s.GetApiKeyByHash("hash123")
@@ -50,11 +50,11 @@ func TestGetAllApiKeysAndUpdateInvalidate(t *testing.T) {
 
 	k1 := models.NewApiKey("user-y", "hash-a", "one")
 	k2 := models.NewApiKey("user-y", "hash-b", "two")
-	if err := s.CreateApiKey(k1); err != nil {
-		t.Fatalf("CreateApiKey k1 failed: %v", err)
+	if err := s.AddApiKey(k1); err != nil {
+		t.Fatalf("AddApiKey k1 failed: %v", err)
 	}
-	if err := s.CreateApiKey(k2); err != nil {
-		t.Fatalf("CreateApiKey k2 failed: %v", err)
+	if err := s.AddApiKey(k2); err != nil {
+		t.Fatalf("AddApiKey k2 failed: %v", err)
 	}
 
 	all, err := s.GetAllApiKeys()

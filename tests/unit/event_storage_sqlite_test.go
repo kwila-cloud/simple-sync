@@ -22,8 +22,8 @@ func TestSaveAndLoadEvents(t *testing.T) {
 	time.Sleep(1 * time.Millisecond)
 	e2 := models.NewEvent("user2", "item2", "act2", "payload2")
 
-	if err := s.SaveEvents([]models.Event{*e1, *e2}); err != nil {
-		t.Fatalf("SaveEvents failed: %v", err)
+	if err := s.AddEvents([]models.Event{*e1, *e2}); err != nil {
+		t.Fatalf("AddEvents failed: %v", err)
 	}
 
 	events, err := s.LoadEvents()

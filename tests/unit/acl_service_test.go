@@ -181,8 +181,13 @@ func TestAclService_AddRule_ErrorHandling(t *testing.T) {
 // failingStorage is a mock storage that always fails
 type failingStorage struct{}
 
-func (f *failingStorage) SaveEvents(events []models.Event) error {
+func (f *failingStorage) AddEvents(events []models.Event) error {
 	return fmt.Errorf("storage error")
+}
+
+// Backwards-compatible wrapper: SaveEvents -> AddEvents
+func (f *failingStorage) SaveEvents(events []models.Event) error {
+	return f.AddEvents(events)
 }
 
 func (f *failingStorage) LoadEvents() ([]models.Event, error) {
@@ -197,8 +202,13 @@ func (f *failingStorage) GetUserById(id string) (*models.User, error) {
 	return nil, fmt.Errorf("storage error")
 }
 
-func (f *failingStorage) CreateApiKey(apiKey *models.ApiKey) error {
+func (f *failingStorage) AddApiKey(apiKey *models.ApiKey) error {
 	return fmt.Errorf("storage error")
+}
+
+// Backwards-compatible wrapper: CreateApiKey -> AddApiKey
+func (f *failingStorage) CreateApiKey(apiKey *models.ApiKey) error {
+	return f.AddApiKey(apiKey)
 }
 
 func (f *failingStorage) GetApiKeyByHash(hash string) (*models.ApiKey, error) {
@@ -217,8 +227,13 @@ func (f *failingStorage) InvalidateUserApiKeys(userID string) error {
 	return fmt.Errorf("storage error")
 }
 
-func (f *failingStorage) CreateSetupToken(token *models.SetupToken) error {
+func (f *failingStorage) AddSetupToken(token *models.SetupToken) error {
 	return fmt.Errorf("storage error")
+}
+
+// Backwards-compatible wrapper: CreateSetupToken -> AddSetupToken
+func (f *failingStorage) CreateSetupToken(token *models.SetupToken) error {
+	return f.AddSetupToken(token)
 }
 
 func (f *failingStorage) GetSetupToken(token string) (*models.SetupToken, error) {
@@ -233,8 +248,13 @@ func (f *failingStorage) InvalidateUserSetupTokens(userID string) error {
 	return fmt.Errorf("storage error")
 }
 
-func (f *failingStorage) CreateAclRule(rule *models.AclRule) error {
+func (f *failingStorage) AddAclRule(rule *models.AclRule) error {
 	return fmt.Errorf("storage error")
+}
+
+// Backwards-compatible wrapper: CreateAclRule -> AddAclRule
+func (f *failingStorage) CreateAclRule(rule *models.AclRule) error {
+	return f.AddAclRule(rule)
 }
 
 func (f *failingStorage) GetAclRules() ([]models.AclRule, error) {

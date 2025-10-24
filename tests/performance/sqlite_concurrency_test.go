@@ -53,7 +53,7 @@ func TestSQLiteStorageConcurrent(t *testing.T) {
 				e := models.NewEvent("concurrent-user", "item", "action", "payload")
 				events = append(events, *e)
 			}
-			if err := s.SaveEvents(events); err != nil {
+			if err := s.AddEvents(events); err != nil {
 				errCh <- err
 				return
 			}

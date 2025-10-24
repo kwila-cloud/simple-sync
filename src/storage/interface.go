@@ -19,8 +19,8 @@ var (
 // Storage defines the interface for data persistence
 type Storage interface {
 	// Event operations
-	// TODO(#7): rename to AddEvents
-	SaveEvents(events []models.Event) error
+	// NOTE: Renamed per issue #7 to improve naming consistency.
+	AddEvents(events []models.Event) error
 	LoadEvents() ([]models.Event, error)
 
 	// User operations
@@ -28,23 +28,23 @@ type Storage interface {
 	GetUserById(id string) (*models.User, error)
 
 	// API Key operations
-	// TODO(#7): rename to AddApiKey
-	CreateApiKey(apiKey *models.ApiKey) error
+	// NOTE: Renamed per issue #7 to improve naming consistency.
+	AddApiKey(apiKey *models.ApiKey) error
 	GetApiKeyByHash(hash string) (*models.ApiKey, error)
 	GetAllApiKeys() ([]*models.ApiKey, error)
 	UpdateApiKey(apiKey *models.ApiKey) error
 	InvalidateUserApiKeys(userID string) error
 
 	// Setup Token operations
-	// TODO(#7): rename to AddSetupToken
-	CreateSetupToken(token *models.SetupToken) error
+	// NOTE: Renamed per issue #7 to improve naming consistency.
+	AddSetupToken(token *models.SetupToken) error
 	GetSetupToken(token string) (*models.SetupToken, error)
 	UpdateSetupToken(token *models.SetupToken) error
 	InvalidateUserSetupTokens(userID string) error
 
 	// ACL operations
-	// TODO(#7): rename to AddAclRule
-	CreateAclRule(rule *models.AclRule) error
+	// NOTE: Renamed per issue #7 to improve naming consistency.
+	AddAclRule(rule *models.AclRule) error
 	GetAclRules() ([]models.AclRule, error)
 }
 

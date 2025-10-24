@@ -22,7 +22,7 @@ func TestSaveEventsPerformance(t *testing.T) {
 	defer s.Close()
 
 	start := time.Now()
-	if err := s.SaveEvents(events); err != nil {
+	if err := s.AddEvents(events); err != nil {
 		t.Fatalf("save events failed: %v", err)
 	}
 	d := time.Since(start)
@@ -42,7 +42,7 @@ func TestLoadEventsPerformance(t *testing.T) {
 	defer s.Close()
 
 	// Pre-populate the DB (not measured)
-	if err := s.SaveEvents(events); err != nil {
+	if err := s.AddEvents(events); err != nil {
 		t.Fatalf("pre-populate save events failed: %v", err)
 	}
 
