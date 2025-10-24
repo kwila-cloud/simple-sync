@@ -3,7 +3,9 @@ services:
     image: ghcr.io/kwila-cloud/simple-sync:latest
     container_name: simple-sync
     ports:
-      - "8765:8080"
+      - "8080"
+      # Add port mapping to expose on your host
+      # - "8765:8080"
     volumes:
       - ./data:/app/data # explicit local bind for persistent DB file (recommended for development)
       # Alternative: use a named volume managed by Docker
