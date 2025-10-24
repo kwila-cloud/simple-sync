@@ -1,9 +1,10 @@
 services:
   simple-sync:
-    image: ghcr.io/kwila-cloud/simple-sync:latest
     container_name: simple-sync
-    ports:
-      - "8765:8080"
+    build:
+      context: .
+    expose:
+      - "8080"
     volumes:
       - ./data:/app/data
     restart: unless-stopped
