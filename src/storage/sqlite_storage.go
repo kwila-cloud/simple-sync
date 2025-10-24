@@ -3,7 +3,7 @@ package storage
 import (
 	"database/sql"
 	"fmt"
-	"log"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -33,26 +33,17 @@ func (s *SQLiteStorage) Initialize(path string) error {
 			return fmt.Errorf("failed to get database path")
 		}
 	}
-	log.Printf("initializing with path: %v", path)
-
-	// Determine and create parent directory unless using an in-memory DB
-	if path != "" {
-		isMemory := path == ":memory:" || (strings.HasPrefix(path, "file:") && strings.Contains(path, "memory"))
-		if !isMemory {
-			parent := filepath.Dir(path)
-			if parent != "" && parent != "." {
-				if err := os.MkdirAll(parent, 0o755); err != nil {
-					return fmt.Errorf("failed to create database directory: %w", err)
-				}
-			}
-		}
-	}
 
 	db, err := sql.Open("sqlite3", path)
 	if err != nil {
 		return fmt.Errorf("failed to open SQLite file: %v, error: %v", path, err)
 	}
-	log.Printf("successfully opened SQLite file")
+
+	// Verify connection
+	if err := db.Ping(); err != nil {
+		defer db.Close()
+		return fmt.Errorf("failed to ping database: %v", err)
+	}
 
 	// Set pragmas for safety/performance
 	// Use WAL (Write-Ahead Logging) to improve concurrency and crash resilience:
@@ -62,24 +53,15 @@ func (s *SQLiteStorage) Initialize(path string) error {
 		defer db.Close()
 		return fmt.Errorf("failed to set journal mode: %v", err)
 	}
-	log.Println("A")
 	// Enforce foreign key constraints at the SQLite level to maintain relational integrity.
 	if _, err := db.Exec("PRAGMA foreign_keys=ON;"); err != nil {
 		defer db.Close()
 		return fmt.Errorf("failed to enable foreign keys: %v", err)
 	}
 
-	log.Println("B")
 	// Configure connection pool defaults
 	db.SetMaxOpenConns(25)
 	db.SetMaxIdleConns(5)
-
-	log.Println("C")
-	// Verify connection
-	if err := db.Ping(); err != nil {
-		defer db.Close()
-		return fmt.Errorf("failed to ping database: %v", err)
-	}
 
 	// Apply migrations (idempotent)
 	if err := ApplyMigrations(db); err != nil {
@@ -99,7 +81,10 @@ func (s *SQLiteStorage) Close() error {
 	// Close DB and clear pointer
 	err := s.db.Close()
 	s.db = nil
-	return fmt.Errorf("failed to close db: %v", err)
+	if err != nil {
+		return fmt.Errorf("failed to close db: %v", err)
+	}
+	return nil
 }
 
 func (s *SQLiteStorage) AddEvents(events []models.Event) error {
@@ -417,18 +402,42 @@ func (s *SQLiteStorage) GetAclRules() ([]models.AclRule, error) {
 
 // Get the DB path from the DB_PATH environment variable, if it exists.
 // Otherwise uses ./data/simple-sync.db
-// Paths are returned as absolute paths for deterministic results.
+// Returns an absolute filesystem path or ":memory:". The caller builds a
+// driver DSN/URI as needed (so callers that need a raw path still work).
 func getDbPath() (string, error) {
+	// Allow explicit in-memory DB
 	if p := os.Getenv("DB_PATH"); p != "" {
-		abs, err := filepath.Abs(p)
-		if err == nil {
+		if p == ":memory:" {
+			return p, nil
+		}
+		// If caller provided a file: URI, parse and return the path portion
+		if strings.HasPrefix(p, "file:") {
+			u, err := url.Parse(p)
+			if err != nil {
+				return "", err
+			}
+			if u.Path == "" {
+				return "", fmt.Errorf("file URI has empty path")
+			}
+			abs, err := filepath.Abs(u.Path)
+			if err != nil {
+				return "", err
+			}
 			return abs, nil
 		}
-		return "", err
-	}
-	abs, err := filepath.Abs("./data/simple-sync.db")
-	if err == nil {
+
+		// Otherwise treat the value as a filesystem path
+		abs, err := filepath.Abs(p)
+		if err != nil {
+			return "", err
+		}
 		return abs, nil
 	}
-	return "", err
+
+	// Default path
+	abs, err := filepath.Abs("./data/simple-sync.db")
+	if err != nil {
+		return "", err
+	}
+	return abs, nil
 }

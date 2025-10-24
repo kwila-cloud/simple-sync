@@ -6,3 +6,6 @@ src/src
 
 # Environment variables
 .env
+
+# Data directory
+data/
