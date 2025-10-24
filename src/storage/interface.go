@@ -19,7 +19,6 @@ var (
 // Storage defines the interface for data persistence
 type Storage interface {
 	// Event operations
-	// NOTE: Renamed per issue #7 to improve naming consistency.
 	AddEvents(events []models.Event) error
 	LoadEvents() ([]models.Event, error)
 
@@ -28,7 +27,6 @@ type Storage interface {
 	GetUserById(id string) (*models.User, error)
 
 	// API Key operations
-	// NOTE: Renamed per issue #7 to improve naming consistency.
 	AddApiKey(apiKey *models.ApiKey) error
 	GetApiKeyByHash(hash string) (*models.ApiKey, error)
 	GetAllApiKeys() ([]*models.ApiKey, error)
@@ -36,14 +34,12 @@ type Storage interface {
 	InvalidateUserApiKeys(userID string) error
 
 	// Setup Token operations
-	// NOTE: Renamed per issue #7 to improve naming consistency.
 	AddSetupToken(token *models.SetupToken) error
 	GetSetupToken(token string) (*models.SetupToken, error)
 	UpdateSetupToken(token *models.SetupToken) error
 	InvalidateUserSetupTokens(userID string) error
 
 	// ACL operations
-	// NOTE: Renamed per issue #7 to improve naming consistency.
 	AddAclRule(rule *models.AclRule) error
 	GetAclRules() ([]models.AclRule, error)
 }
