@@ -84,8 +84,10 @@ func main() {
 	router.HandleMethodNotAllowed = true
 
 	// Register routes
-	v1 := router.Group("")
+	v1 := router.Group("/api/v1")
 
+	// Health check route (no middleware)
+	v1.GET("/health", h.GetHealth)
 	// Public setup route (no middleware)
 	v1.POST("/user/exchangeToken", h.PostSetupExchangeToken)
 
@@ -99,9 +101,6 @@ func main() {
 	// Auth routes (with middleware for permission checks)
 	auth.POST("/user/resetKey", h.PostUserResetKey)
 	auth.POST("/user/generateToken", h.PostUserGenerateToken)
-
-	// Health check route (no middleware)
-	v1.GET("/health", h.GetHealth)
 
 	// Use port from environment configuration
 	port := envConfig.Port
