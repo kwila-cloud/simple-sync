@@ -5,9 +5,7 @@ https://github.com/kwila-cloud/simple-sync/issues/18
 Build an offline-first TypeScript SDK for the Simple-Sync API and add an OpenAPI spec so we can validate and CI-check SDKs.
 
 ### docs: add OpenAPI spec and spec validation tests
-- [ ] Add `specs/openapi.yaml` describing the full public API surface, as described in `docs/src/content/docs/api/v1.md`
-  - [ ] Add ALL endpoints
-  - [ ] Add ALL models
+- [x] Add `specs/openapi.yaml` describing the full public API surface, as described in `docs/src/content/docs/api/v1.md`
 - [ ] Add contract tests (written in bash) that validate the OpenAPI spec is loadable and passes linting (e.g., `swagger-cli validate`).
 - [ ] Add a CI job step to run OpenAPI lint/validate on push and pull requests.
 - [ ] Add contract tests (written in bash) that validate that a locally running instance of the full API matches the specification in `specs/openapi.yaml`.
