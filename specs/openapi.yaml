@@ -2,18 +2,19 @@ openapi: 3.0.0
 info:
   title: Simple-Sync API
   version: 1.0.0
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
   description: |
     Simple-Sync is an event storage and ACL-based access control service. This
     OpenAPI specification describes the public API surface implemented by the
     server and mirrors the documentation in `docs/src/content/docs/api/v1.md`.
-servers:
-  - url: http://localhost:8080/api/v1
-    description: Local development server (basePath /api/v1)
 paths:
   /health:
     get:
       tags: [health]
       summary: Health check
+      operationId: getHealth
       description: Returns basic service health information.
       responses:
         '200':
@@ -32,6 +33,7 @@ paths:
   /events:
     get:
       tags: [events]
+      operationId: listEvents
       summary: List events
       description: Returns the authoritative event history visible to the caller.
       security:
@@ -64,6 +66,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
     post:
       tags: [events]
+      operationId: createEvents
       summary: Create events
       description: |
         Accepts an array of events to append to the store. Events that represent
@@ -108,6 +111,7 @@ paths:
   /acl:
     post:
       tags: [acl]
+      operationId: createAclRules
       summary: Submit ACL rules
       description: Submit one or more ACL rules. The request is converted into
         internal ACL events and stored. Caller must be authenticated and have
@@ -151,6 +155,7 @@ paths:
   /user/resetKey:
     post:
       tags: [user]
+      operationId: resetUserApiKeys
       summary: Invalidate a user's API keys
       description: Invalidate all existing API keys for the target user. Caller
         must be authenticated and have `.user.resetKey` permission for the
@@ -189,6 +194,7 @@ paths:
   /user/generateToken:
     post:
       tags: [user]
+      operationId: generateSetupToken
       summary: Generate a setup token for a user
       description: Generate a short-lived setup token which can be exchanged for
         an API key. Caller must be authenticated and have `.user.generateToken`
@@ -223,6 +229,7 @@ paths:
   /user/exchangeToken:
     post:
       tags: [user]
+      operationId: exchangeSetupToken
       summary: Exchange a setup token for an API key
       description: Exchange a previously generated setup token for a new API key.
         This endpoint is intentionally unauthenticated (used by initial setup
