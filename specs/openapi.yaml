@@ -231,13 +231,18 @@ paths:
           application/json:
             schema:
               type: object
-              properties:
-                token:
-                  type: string
-                description:
-                  type: string
-              required:
-                - token
+                properties:
+                  token:
+                    type: string
+                    description: Setup token string in the form `XXXX-XXXX` (uppercase letters and digits)
+                    pattern: '^[A-Z0-9]{4}-[A-Z0-9]{4}$'
+                    minLength: 9
+                    maxLength: 9
+                    example: 'ABCD-1234'
+                  description:
+                    type: string
+                required:
+                  - token
       responses:
         '200':
           description: API key created from setup token
@@ -368,7 +373,11 @@ components:
       properties:
         token:
           type: string
-          description: Setup token string
+          description: Setup token string in the form `XXXX-XXXX` (uppercase letters and digits)
+          pattern: '^[A-Z0-9]{4}-[A-Z0-9]{4}$'
+          minLength: 9
+          maxLength: 9
+          example: 'ABCD-1234'
         expiresAt:
           type: string
           format: date-time
