@@ -7,6 +7,29 @@ on:
     branches: [ main ]
 
 jobs:
+  validate-openapi:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Run OpenAPI lint
+      run: bash tests/contract/validate_openapi.sh
+
+  verify-openapi:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Verify OpenAPI spec
+      run: bash tests/contract/verify_openapi.sh
+
   test:
     runs-on: ubuntu-latest
 
@@ -41,3 +64,4 @@ jobs:
 
     - name: Run performance tests
       run: go test ./tests/performance
+
