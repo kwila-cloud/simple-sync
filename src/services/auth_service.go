@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"log"
@@ -33,9 +34,19 @@ func (s *AuthService) ValidateApiKey(apiKey string) (string, error) {
 	s.validationMutex.Lock()
 	defer s.validationMutex.Unlock()
 
-	// Validate API key format minimally before expensive operations
-	if len(apiKey) < 4 || apiKey[:3] != "sk_" {
+	// Validate API key format before expensive operations
+	if len(apiKey) < 3 || apiKey[:3] != "sk_" {
 		return "", apperrors.ErrInvalidApiKeyFormat
+	}
+
+	// Check if the remaining part is valid base64 (try with padding since keys are truncated)
+	base64Part := apiKey[3:]
+	// Try decoding as-is first
+	if _, err := base64.StdEncoding.DecodeString(base64Part); err != nil {
+		// Try with padding added (generated keys are truncated to 43 chars)
+		if _, err := base64.StdEncoding.DecodeString(base64Part + "="); err != nil {
+			return "", apperrors.ErrInvalidApiKeyFormat
+		}
 	}
 
 	// Get all API keys and find the one that matches
