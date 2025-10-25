@@ -54,8 +54,6 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           description: Not found
-        '406':
-          $ref: '#/components/responses/NotAcceptable'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
     post:
@@ -102,8 +100,6 @@ paths:
           $ref: '#/components/responses/InternalError'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
-        '406':
-          $ref: '#/components/responses/NotAcceptable'
   /api/v1/acl:
     post:
       tags: [acl]
@@ -258,8 +254,6 @@ paths:
           $ref: '#/components/responses/InternalError'
         '405':
           $ref: '#/components/responses/MethodNotAllowed'
-        '406':
-          $ref: '#/components/responses/NotAcceptable'
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -366,6 +360,7 @@ components:
         user:
           type: string
           description: Target user identifier to generate a setup token for
+          minLength: 1
       example:
         user: "user.123"
     SetupTokenResponse:
@@ -438,15 +433,6 @@ components:
                 type: string
     InternalError:
       description: Internal server error
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-    NotAcceptable:
-      description: Required header or media type not acceptable
       content:
         application/json:
           schema:
