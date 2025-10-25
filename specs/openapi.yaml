@@ -413,6 +413,10 @@ components:
             properties:
               error:
                 type: string
+        text/plain:
+          schema:
+            type: string
+            example: "400 Bad Request"
     Unauthorized:
       description: Authentication required or invalid credentials
       content:
@@ -422,6 +426,10 @@ components:
             properties:
               error:
                 type: string
+        text/plain:
+          schema:
+            type: string
+            example: "X-API-Key header required"
     Forbidden:
       description: Insufficient permissions
       content:
@@ -431,6 +439,10 @@ components:
             properties:
               error:
                 type: string
+        text/plain:
+          schema:
+            type: string
+            example: "Insufficient permissions"
     InternalError:
       description: Internal server error
       content:
@@ -440,6 +452,10 @@ components:
             properties:
               error:
                 type: string
+        text/plain:
+          schema:
+            type: string
+            example: "Internal server error"
     MethodNotAllowed:
       description: HTTP method not allowed for this path
       content:
@@ -449,14 +465,20 @@ components:
             properties:
               error:
                 type: string
-security:
-  - ApiKeyAuth: []
-tags:
-  - name: health
-    description: Health and liveness endpoints
-  - name: events
-    description: Event store and retrieval endpoints
-  - name: acl
-    description: Access control list management
-  - name: user
-    description: User and authentication-related endpoints
+        text/plain:
+          schema:
+            type: string
+            example: "405 method not allowed"
+    NotAcceptable:
+      description: Not acceptable - request headers/content not supported
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+        text/plain:
+          schema:
+            type: string
+            example: "Not Acceptable"
