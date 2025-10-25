@@ -11,14 +11,11 @@ Build an offline-first TypeScript SDK for the Simple-Sync API and add an OpenAPI
 - [ ] Add contract tests (in bash) that validate that a locally running instance of the full API matches the specification in `specs/openapi.yaml`.
 - [ ] Add a CI job step to run the API validation on push and pull requests.
 
-### feat: add generated TypeScript client scaffold
-- [ ] Create directory `clients/typescript` with basic TypeScript project
-- [ ] Add prettier config
-- [ ] Add eslint config
-- [ ] Run prettier and eslint in CI/CD
-
-### feat: implement full TypeScript SDK
+### feat: generate TypeScript SDK
 - [ ] Generate typescript SDK from `specs/openapi.yaml`, using [openapi-ts](https://github.com/hey-api/openapi-ts)
+- [ ] Add prettier config to the typescript SDK
+- [ ] Add eslint config to the typescript SDK
+- [ ] Run prettier and eslint in CI/CD
 
 ### feat: add SDK validation contract tests against test server
 - [ ] Add contract tests (in bash) that start the local server and verify the TypeScript SDK behavior against real endpoints (authentication, event post/get, ACL checks).
