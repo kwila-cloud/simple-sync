@@ -348,6 +348,7 @@ components:
       properties:
         user:
           type: string
+          minLength: 1
           description: Target user identifier whose API keys will be invalidated
       example:
         user: "user.123"
