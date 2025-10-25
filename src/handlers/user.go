@@ -3,6 +3,7 @@ package handlers
 import (
 	"log"
 	"net/http"
+	apperrors "simple-sync/src/errors"
 	"simple-sync/src/models"
 
 	"github.com/gin-gonic/gin"
@@ -151,7 +152,12 @@ func (h *Handlers) PostSetupExchangeToken(c *gin.Context) {
 	apiKey, plainKey, err := h.authService.ExchangeSetupToken(request.Token, request.Description)
 	if err != nil {
 		log.Printf("Failed to exchange setup token: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to exchange setup token"})
+		// Map invalid or expired tokens to 404 (not found)
+		if err == apperrors.ErrInvalidSetupToken || err == apperrors.ErrSetupTokenExpired {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Setup token not found or expired"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
 

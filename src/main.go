@@ -80,11 +80,17 @@ func main() {
 
 	// Configure trusted proxies (disable for security in development)
 	router.SetTrustedProxies([]string{})
+	// Return 405 for known path but unsupported method
+	router.HandleMethodNotAllowed = true
 
 	// Register routes
-	v1 := router.Group("/api/v1")
+	v1 := router.Group("")
 
-	auth := v1.Group("/")
+	// Public setup route (no middleware)
+	v1.POST("/user/exchangeToken", h.PostSetupExchangeToken)
+
+	// Protected group: all routes here require X-API-Key
+	auth := v1.Group("")
 	auth.Use(middleware.AuthMiddleware(h.AuthService()))
 	auth.GET("/events", h.GetEvents)
 	auth.POST("/events", h.PostEvents)
@@ -93,9 +99,6 @@ func main() {
 	// Auth routes (with middleware for permission checks)
 	auth.POST("/user/resetKey", h.PostUserResetKey)
 	auth.POST("/user/generateToken", h.PostUserGenerateToken)
-
-	// Setup routes (no middleware - token-based auth)
-	v1.POST("/user/exchangeToken", h.PostSetupExchangeToken)
 
 	// Health check route (no middleware)
 	v1.GET("/health", h.GetHealth)

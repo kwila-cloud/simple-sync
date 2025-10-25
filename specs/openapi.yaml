@@ -47,23 +47,18 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Event'
-              examples:
-                sample:
-                  value:
-                    - uuid: "0186e56d-7000-7000-8040-940f030080ad"
-                      timestamp: 1678886400
-                      user: "user.123"
-                      item: "task.456"
-                      action: "create"
-                      payload: "{}"
-                    - uuid: "0186e56d-73e8-7000-8012-51aacd3dbf8e"
-                      timestamp: 1678886401
-                      user: "user.123"
-                      item: "task.456"
-                      action: "update"
-                      payload: '{"title": "New Title"}'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Not found
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
     post:
       tags: [events]
       operationId: createEvents
@@ -108,6 +103,10 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalError'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
   /acl:
     post:
       tags: [acl]
@@ -248,11 +247,6 @@ paths:
                   type: string
               required:
                 - token
-            examples:
-              sample:
-                value:
-                  token: "ABCD-1234"
-                  description: "Desktop Client"
       responses:
         '200':
           description: API key created from setup token
@@ -266,6 +260,10 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalError'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -437,6 +435,24 @@ components:
                 type: string
     InternalError:
       description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    NotAcceptable:
+      description: Required header or media type not acceptable
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    MethodNotAllowed:
+      description: HTTP method not allowed for this path
       content:
         application/json:
           schema:

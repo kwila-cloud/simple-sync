@@ -8,8 +8,9 @@ Build an offline-first TypeScript SDK for the Simple-Sync API and add an OpenAPI
 - [x] Add `specs/openapi.yaml` describing the full public API surface, as described in `docs/src/content/docs/api/v1.md`
 - [x] Add contract tests (written in bash) that validate the OpenAPI spec is loadable and passes linting (e.g., `swagger-cli validate`).
 - [x] Add a CI job step to run OpenAPI lint/validate on push and pull requests.
-- [ ] Add contract tests (written in bash) that validate that a locally running instance of the full API matches the specification in `specs/openapi.yaml`.
+- [x] Add contract tests (written in bash) that validate that a locally running instance of the full API matches the specification in `specs/openapi.yaml`.
 - [x] Add a CI job step to run the API validation on push and pull requests.
+- [ ] Revise based on contract tests failures
 
 ### feat: generate TypeScript SDK
 - [ ] Generate typescript SDK from `specs/openapi.yaml`, using [openapi-ts](https://github.com/hey-api/openapi-ts)

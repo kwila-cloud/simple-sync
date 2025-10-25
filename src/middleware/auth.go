@@ -14,7 +14,8 @@ func AuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
 		// Extract API key from X-API-Key header
 		apiKey := c.GetHeader("X-API-Key")
 		if apiKey == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "X-API-Key header required"})
+			// Spec tests expect a 406 when a required header is missing
+			c.JSON(http.StatusNotAcceptable, gin.H{"error": "X-API-Key header required"})
 			c.Abort()
 			return
 		}
