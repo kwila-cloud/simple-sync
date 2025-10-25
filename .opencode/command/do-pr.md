@@ -9,9 +9,7 @@ The user gave the input: "$ARGUMENTS"
 
 Use the user input as the issue number.
 
-If the user input is empty or invalid, use the previously entered issue number from `/do-pr`.
-
-If `/start-pr` was not previously ran, prompt the user for the issue number.
+If the user input is empty or invalid, use the previously entered issue number from `/start-pr` (but if `/start-pr` was not previously ran, prompt the user for the issue number).
 
 Required behavior (non-interactive flow)
 
