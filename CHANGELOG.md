@@ -1,6 +1,6 @@
 # Release History
 
-## [0.4.0] - unreleased
+## [0.4.0] - 2025-10-25
 - [#62](https://github.com/kwila-cloud/simple-sync/pull/62): Add storage documentation
 - [#61](https://github.com/kwila-cloud/simple-sync/pull/61): Add performance and concurrency tests for SQLite storage
 - [#60](https://github.com/kwila-cloud/simple-sync/pull/60): Implement SQLite setup token and API key storage
