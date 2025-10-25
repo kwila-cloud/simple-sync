@@ -1,6 +1,7 @@
 # Release History
 
 ## [0.4.0] - 2025-10-25
+- [#67](https://github.com/kwila-cloud/simple-sync/pull/67): Add OpenAPI spec and validation contract test
 - [#62](https://github.com/kwila-cloud/simple-sync/pull/62): Add storage documentation
 - [#61](https://github.com/kwila-cloud/simple-sync/pull/61): Add performance and concurrency tests for SQLite storage
 - [#60](https://github.com/kwila-cloud/simple-sync/pull/60): Implement SQLite setup token and API key storage
