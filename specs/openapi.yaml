@@ -9,10 +9,8 @@ info:
     Simple-Sync is an event storage and ACL-based access control service. This
     OpenAPI specification describes the public API surface implemented by the
     server and mirrors the documentation in `docs/src/content/docs/api/v1.md`.
-servers:
-  - url: /api/v1
 paths:
-  /health:
+  /api/v1/health:
     get:
       tags: [health]
       summary: Health check
@@ -33,7 +31,7 @@ paths:
                     timestamp: '2025-09-22T08:14:09Z'
                     version: '0.1.0'
                     uptime: 123
-  /events:
+  /api/v1/events:
     get:
       tags: [events]
       operationId: listEvents
@@ -106,7 +104,7 @@ paths:
           $ref: '#/components/responses/MethodNotAllowed'
         '406':
           $ref: '#/components/responses/NotAcceptable'
-  /acl:
+  /api/v1/acl:
     post:
       tags: [acl]
       operationId: createAclRules
@@ -148,7 +146,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalError'
-  /user/resetKey:
+  /api/v1/user/resetKey:
     post:
       tags: [user]
       operationId: resetUserApiKeys
@@ -185,7 +183,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalError'
-  /user/generateToken:
+  /api/v1/user/generateToken:
     post:
       tags: [user]
       operationId: generateSetupToken
@@ -218,7 +216,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalError'
-  /user/exchangeToken:
+  /api/v1/user/exchangeToken:
     post:
       tags: [user]
       operationId: exchangeSetupToken
@@ -407,7 +405,7 @@ components:
           description: Optional human-friendly description for the key
       example:
         keyUuid: "0199ab65-1a1e-7000-80f5-23a591c5106e"
-        apiKey: "sk_abcdefghijklmnopqrstuvwxyz1234567890"
+        apiKey: "sk_abcdefghijklmnopqrstuvwxyz1234567890ABCDEFG"
         user: "user.123"
         description: "Desktop Client"
   responses:
