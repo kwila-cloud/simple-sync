@@ -1,0 +1,462 @@
+openapi: 3.0.0
+info:
+  title: Simple-Sync API
+  version: 1.0.0
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  description: |
+    Simple-Sync is an event storage and ACL-based access control service. This
+    OpenAPI specification describes the public API surface implemented by the
+    server and mirrors the documentation in `docs/src/content/docs/api/v1.md`.
+paths:
+  /api/v1/health:
+    get:
+      tags: [health]
+      summary: Health check
+      operationId: getHealth
+      description: Returns basic service health information.
+      security: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+              examples:
+                healthy:
+                  value:
+                    status: healthy
+                    timestamp: '2025-09-22T08:14:09Z'
+                    version: '0.1.0'
+                    uptime: 123
+  /api/v1/events:
+    get:
+      tags: [events]
+      operationId: listEvents
+      summary: List events
+      description: Returns the authoritative event history visible to the caller.
+      responses:
+        '200':
+          description: A JSON array of event objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Not found
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+    post:
+      tags: [events]
+      operationId: createEvents
+      summary: Create events
+      description: |
+        Accepts an array of events to append to the store. Events that represent
+        ACL changes must be submitted via the `/acl` endpoint. The caller must be
+        authenticated with an API key and have permission to add each event.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Event'
+            examples:
+              sample:
+                value:
+                  - uuid: "0186e56d-77d0-7000-8003-c289bf62cf41"
+                    timestamp: 1678886402
+                    user: "user.123"
+                    item: "item.789"
+                    action: "create"
+                    payload: "{}"
+      responses:
+        '200':
+          description: All events after insertion
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+  /api/v1/acl:
+    post:
+      tags: [acl]
+      operationId: createAclRules
+      summary: Submit ACL rules
+      description: Submit one or more ACL rules. The request is converted into
+        internal ACL events and stored. Caller must be authenticated and have
+        `.acl.addRule` permission.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              minLength: 1
+              items:
+                $ref: '#/components/schemas/AclRule'
+            examples:
+              sample:
+                value:
+                  - user: "user.456"
+                    item: "item.789"
+                    action: "read"
+                    type: "allow"
+      responses:
+        '200':
+          description: ACL events submitted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: ACL events submitted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/user/resetKey:
+    post:
+      tags: [user]
+      operationId: resetUserApiKeys
+      summary: Invalidate a user's API keys
+      description: Invalidate all existing API keys for the target user. Caller
+        must be authenticated and have `.user.resetKey` permission for the
+        target user (or root access).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetKeyRequest'
+            examples:
+              sample:
+                value:
+                  user: "user.123"
+      responses:
+        '200':
+          description: API keys invalidated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: API keys invalidated successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/user/generateToken:
+    post:
+      tags: [user]
+      operationId: generateSetupToken
+      summary: Generate a setup token for a user
+      description: Generate a short-lived setup token which can be exchanged for
+        an API key. Caller must be authenticated and have `.user.generateToken`
+        permission for the target user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateTokenRequest'
+            examples:
+              sample:
+                value:
+                  user: "user.123"
+      responses:
+        '200':
+          description: Setup token generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetupTokenResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/user/exchangeToken:
+    post:
+      tags: [user]
+      operationId: exchangeSetupToken
+      summary: Exchange a setup token for an API key
+      description: Exchange a previously generated setup token for a new API key.
+        This endpoint is intentionally unauthenticated (used by initial setup
+        flows). The response contains the generated API key (plain text) once.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: Setup token string in the form `XXXX-XXXX` (uppercase letters and digits)
+                  pattern: '^[A-Z0-9]{4}-[A-Z0-9]{4}$'
+                  minLength: 9
+                  maxLength: 9
+                  example: 'ABCD-1234'
+                description:
+                  type: string
+              required:
+                - token
+      responses:
+        '200':
+          description: API key created from setup token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeTokenResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: "Use the `X-API-Key` header to pass a user's API key. Format: `sk_` prefix followed by 43 base64 characters (A-Za-z0-9+/), total length 46 characters."
+  schemas:
+    Health:
+      type: object
+      properties:
+        status:
+          type: string
+          example: healthy
+        timestamp:
+          type: string
+          format: date-time
+          example: '2025-09-22T08:14:09Z'
+        version:
+          type: string
+          example: '0.1.0'
+        uptime:
+          type: integer
+          description: Uptime in seconds
+          example: 123
+    Event:
+      type: object
+      description: Event represents a timestamped event in the system
+      required:
+        - uuid
+        - timestamp
+        - user
+        - item
+        - action
+        - payload
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: UUID v7 string identifying the event
+        timestamp:
+          type: integer
+          description: Unix seconds timestamp extracted from the UUID v7
+        user:
+          type: string
+          description: User identifier owning or creating the event
+        item:
+          type: string
+          description: Item the event applies to (e.g. resource or special items like ".acl")
+        action:
+          type: string
+          description: Action name for the event (internal actions start with `.`)
+        payload:
+          type: string
+          description: JSON-encoded string payload for the event
+      example:
+        uuid: "0186e56d-7000-7000-8040-940f030080ad"
+        timestamp: 1678886400
+        user: "user.123"
+        item: "task.456"
+        action: "create"
+        payload: "{}"
+    AclRule:
+      type: object
+      required:
+        - user
+        - item
+        - action
+        - type
+      properties:
+        user:
+          type: string
+          description: User pattern (supports `*` suffix wildcard)
+        item:
+          type: string
+          description: Item pattern (supports `*` suffix wildcard; special `.acl` item used internally)
+        action:
+          type: string
+          description: Action pattern (supports `*` suffix wildcard)
+        type:
+          type: string
+          enum: [allow, deny]
+          description: Whether the rule allows or denies matching actions
+      example:
+        user: "user.456"
+        item: "item.789"
+        action: "read"
+        type: "allow"
+    ResetKeyRequest:
+      type: object
+      required:
+        - user
+      properties:
+        user:
+          type: string
+          minLength: 1
+          description: Target user identifier whose API keys will be invalidated
+      example:
+        user: "user.123"
+    GenerateTokenRequest:
+      type: object
+      required:
+        - user
+      properties:
+        user:
+          type: string
+          description: Target user identifier to generate a setup token for
+          minLength: 1
+      example:
+        user: "user.123"
+    SetupTokenResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Setup token string in the form `XXXX-XXXX` (uppercase letters and digits)
+          pattern: '^[A-Z0-9]{4}-[A-Z0-9]{4}$'
+          minLength: 9
+          maxLength: 9
+          example: 'ABCD-1234'
+        expiresAt:
+          type: string
+          format: date-time
+          description: Expiration timestamp of the setup token
+      example:
+        token: "ABCD-1234"
+        expiresAt: '2025-09-26T12:00:00Z'
+    ExchangeTokenResponse:
+      type: object
+      properties:
+        keyUuid:
+          type: string
+          format: uuid
+          description: UUID for the created API key record
+        apiKey:
+          type: string
+          description: "Plaintext API key value (only returned once). Format: `sk_` prefix followed by 43 base64 characters (A-Za-z0-9+/), total length 46 characters."
+          pattern: '^sk_[A-Za-z0-9+/]{43}$'
+          minLength: 46
+          maxLength: 46
+        user:
+          type: string
+        description:
+          type: string
+          description: Optional human-friendly description for the key
+      example:
+        keyUuid: "0199ab65-1a1e-7000-80f5-23a591c5106e"
+        apiKey: "sk_abcdefghijklmnopqrstuvwxyz1234567890ABCDEFG"
+        user: "user.123"
+        description: "Desktop Client"
+  responses:
+    BadRequest:
+      description: Bad request due to invalid input
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    Unauthorized:
+      description: Authentication required or invalid credentials
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    MethodNotAllowed:
+      description: HTTP method not allowed for this path
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+security:
+  - ApiKeyAuth: []
+tags:
+  - name: health
+    description: Health and liveness endpoints
+  - name: events
+    description: Event store and retrieval endpoints
+  - name: acl
+    description: Access control list management
+  - name: user
+    description: User and authentication-related endpoints

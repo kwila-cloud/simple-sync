@@ -5,7 +5,11 @@ agent: build
 
 IMPORTANT: This command must run the full non-interactive flow for creating a PR. That means it MUST run the test suite(s), commit any changes, push the branch, create the GitHub pull request, update `CHANGELOG.md` with the PR number, and push the changelog — all without asking the user for additional input.
 
-If the user has NOT previously run the `/start-pr` command, prompt them for the issue number to work on.
+The user gave the input: "$ARGUMENTS"
+
+Use the user input as the issue number.
+
+If the user input is empty or invalid, use the previously entered issue number from `/start-pr` (but if `/start-pr` was not previously ran, prompt the user for the issue number).
 
 Required behavior (non-interactive flow)
 
