@@ -110,24 +110,8 @@ See `specs/7-data-persistence.md` for a well-structured specification that:
 
 ### Shell quoting when using backticks
 
-- **Problem:** Unescaped backticks in bash commands are interpreted as command substitution, causing the shell to execute the content between backticks instead of passing it as literal text (this can break `gh` calls or insert unintended output).
-- **Rule:** When passing text that contains backticks to shell commands, avoid unescaped backticks. Prefer one of these safe patterns:
-  - Single-quoted argument (simple cases):
-    - `gh pr edit 56 --body 'Tables: `users`, `events`'`
-  - Escape backticks inside double quotes:
-    - `gh pr edit 56 --body "Tables: \`users\`, \`events\`"`
-  - HEREDOC with single-quoted delimiter (recommended for multi-line bodies or complex content):
-    - `gh pr edit 56 --body "$(cat <<'EOF'\nTables: `users`, `events`\nEOF\n)"`
-
-- **Examples:**
-  - Bad: `gh pr edit 56 --body "Tables: `users`, `events`"`  (backticks executed by shell)
-  - Good (HEREDOC): `gh pr edit 56 --body "$(cat <<'EOF'\nTables: `users`, `events`\nEOF\n)"`
-  - Good (single quotes): `gh pr edit 56 --body 'Tables: `users`, `events`'`
-  - Good (escaped): `gh pr edit 56 --body "Tables: \`users\`, \`events\`"`
-
-- **Recommendation:** Prefer the HEREDOC pattern when generating multi-line PR bodies that include code formatting or backticks. It avoids shell expansion and is easy to read and maintain.
-
-- Commit messages follow conventional format: `feat:`, `refactor:`, `chore:`, `fix:`, etc.
+- Unescaped backticks in bash commands are interpreted as command substitution, causing the shell to execute the content between backticks instead of passing it as literal text (this can break `gh` calls or insert unintended output).
+- Prefer the HEREDOC pattern when generating multi-line PR bodies that include code formatting or backticks. It avoids shell expansion and is easy to read and maintain.
 
 ### Grep / Ripgrep Patterns
 
@@ -137,15 +121,18 @@ See `specs/7-data-persistence.md` for a well-structured specification that:
   - Use fixed-string mode for literals: `rg -F 'AddUser('` or `rg --fixed-strings 'AddUser('
   - Escape regex metacharacters: `rg 'AddUser\('` (escape `(` with `\` in single-quoted shell strings)
   - Search the identifier only (no parens): `rg 'AddUser'`
-  - Prefer single quotes around patterns to avoid shell interpolation: `rg 'GetUserById\('`
-  - When using the assistant `functions.grep` tool, pass a syntactically valid regex (escape metacharacters) or a simple identifier-only pattern.
+  - Prefer single quotes around patterns to avoid shell interpolation: `rg 'GetUserById\('
+  - When using the `grep` tool, pass a syntactically valid regex (escape metacharacters) or a simple identifier-only pattern.
 - **Examples:**
   - Bad: `rg "AddUser("` → causes ripgrep regex parse error (unclosed group)
   - Good (escape): `rg 'AddUser\('`
-  - Good (fixed-string): `rg -F 'AddUser('
+  - Good (fixed-string): `rg -F 'AddUser('`
   - Good (identifier only): `rg 'AddUser'`
-
 - **Recommendation:** When programmatically constructing search patterns, either validate the regex before use or default to fixed-string searches. If you are unsure whether a pattern contains regex metacharacters, use `-F` to avoid surprises.
+- **Directory scope rule:** When running `rg`, `grep`, or other repository search tools, you MUST specify a relative subdirectory or a specific file path (for example `src/` or `tests/unit/`). You MUST NOT specify a full absolute filesystem path. This prevents searches from scanning unwanted or large directories such as `.git/`, `node_modules/`, or the user's home directory which can produce noisy, slow, or sensitive results.
+- **Usage notes:**
+  - Good: `rg 'AddUser' src/` or `rg -F 'TODO' tests/unit/` or using the assistant `functions.grep` with `path: 'src/'`.
+  - Bad: `rg 'AddUser' /home/user/repos/kwila/simple-sync` or calling `functions.grep` with `path: '/home/user/...'` (do not use absolute paths).
 
 ### PR Title & Description Rules
 - **Always inspect the full diff for the branch before creating a PR.** Use Git to view changes against the base branch and confirm the final, combined diff that will become the PR.

@@ -9,3 +9,6 @@ src/src
 
 # Data directory
 data/
+
+# Schemathesis
+.hypothesis/
