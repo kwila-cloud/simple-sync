@@ -9,6 +9,8 @@ info:
     Simple-Sync is an event storage and ACL-based access control service. This
     OpenAPI specification describes the public API surface implemented by the
     server and mirrors the documentation in `docs/src/content/docs/api/v1.md`.
+servers:
+  - url: /api/v1
 paths:
   /health:
     get:
