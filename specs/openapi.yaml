@@ -266,7 +266,7 @@ components:
       type: apiKey
       in: header
       name: X-API-Key
-      description: Use the `X-API-Key` header to pass a user's API key. Format: `sk_` prefix followed by 43 base64 characters (A-Za-z0-9+/), total length 46 characters.
+      description: "Use the `X-API-Key` header to pass a user's API key. Format: `sk_` prefix followed by 43 base64 characters (A-Za-z0-9+/), total length 46 characters."
   schemas:
     Health:
       type: object
@@ -394,7 +394,7 @@ components:
           description: UUID for the created API key record
         apiKey:
           type: string
-          description: Plaintext API key value (only returned once). Format: `sk_` prefix followed by 43 base64 characters (A-Za-z0-9+/), total length 46 characters.
+          description: "Plaintext API key value (only returned once). Format: `sk_` prefix followed by 43 base64 characters (A-Za-z0-9+/), total length 46 characters."
           pattern: '^sk_[A-Za-z0-9+/]{43}$'
           minLength: 46
           maxLength: 46
