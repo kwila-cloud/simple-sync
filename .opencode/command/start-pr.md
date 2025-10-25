@@ -14,10 +14,10 @@ If the user input is empty or invalid, prompt the user for the issue number.
 Required behavior and confirmation flow
 
 1. Read the spec for the given issue in `specs/` and determine the next incomplete section from the Task List.
-2. Branch creation rules:
-   - Create a new branch only when the current branch name does **not** already match the desired `{issue-number}-{section-name}` for the section.
-   - If the current branch already matches the section, do not create or switch branches.
-   - If the user explicitly requests to stay on the current branch, do not create a branch.
+2. Branch creation rules (agents MUST NOT ask the user about branch behavior):
+   - Compute branch as `{issue-number}-{slug(section-header)}` where `slug()` lowercases the header, replaces any non‑alphanumeric sequence with `-`, collapses duplicate `-`, and trims leading/trailing `-`.
+   - If current branch equals OR is very similar to the computed name, do nothing; otherwise create and switch with `git checkout -b "<branch>"`.
+   - If creating/switching would overwrite uncommitted work, warn and request confirmation.
 3. Research the codebase to gather information about the change.
 4. Ask the user clarifying questions.
    - Clearly number the questions.
