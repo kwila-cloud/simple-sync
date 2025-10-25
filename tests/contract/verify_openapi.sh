@@ -4,12 +4,8 @@ set -euo pipefail
 PORT=8080
 START_TIMEOUT=15
 
-# Start the server in a new session if possible, else background
-if command -v setsid >/dev/null 2>&1; then
-  PORT=$PORT setsid go run ./src >/dev/null 2>&1 &
-else
-  PORT=$PORT go run ./src >/dev/null 2>&1 &
-fi
+# Start the server in the background
+PORT=$PORT go run ./src >/dev/null 2>&1 &
 PID=$!
 PGID=$(ps -o pgid= "$PID" | tr -d ' ' || echo "")
 
