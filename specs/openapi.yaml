@@ -16,6 +16,7 @@ paths:
       summary: Health check
       operationId: getHealth
       description: Returns basic service health information.
+      security: []
       responses:
         '200':
           description: OK
@@ -36,8 +37,6 @@ paths:
       operationId: listEvents
       summary: List events
       description: Returns the authoritative event history visible to the caller.
-      security:
-        - ApiKeyAuth: []
       responses:
         '200':
           description: A JSON array of event objects
@@ -67,8 +66,6 @@ paths:
         Accepts an array of events to append to the store. Events that represent
         ACL changes must be submitted via the `/acl` endpoint. The caller must be
         authenticated with an API key and have permission to add each event.
-      security:
-        - ApiKeyAuth: []
       requestBody:
         required: true
         content:
@@ -115,8 +112,6 @@ paths:
       description: Submit one or more ACL rules. The request is converted into
         internal ACL events and stored. Caller must be authenticated and have
         `.acl.addRule` permission.
-      security:
-        - ApiKeyAuth: []
       requestBody:
         required: true
         content:
@@ -159,8 +154,6 @@ paths:
       description: Invalidate all existing API keys for the target user. Caller
         must be authenticated and have `.user.resetKey` permission for the
         target user (or root access).
-      security:
-        - ApiKeyAuth: []
       requestBody:
         required: true
         content:
@@ -198,8 +191,6 @@ paths:
       description: Generate a short-lived setup token which can be exchanged for
         an API key. Caller must be authenticated and have `.user.generateToken`
         permission for the target user.
-      security:
-        - ApiKeyAuth: []
       requestBody:
         required: true
         content:
